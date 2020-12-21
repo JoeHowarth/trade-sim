@@ -8,3 +8,5 @@ edition = "2018"
 
 [dependencies]
 bevy = "0.4.0"
+derive_more = "0.99.11"
+rand = "0.8.0"
