@@ -1,10 +1,15 @@
 pub use bevy::prelude::*;
 
 pub use std::{
-    collections::HashMap,
+    collections::{
+        HashSet,
+        HashMap,
+        hash_map,
+    },
     sync::Arc,
     ops::Deref,
     iter::FromIterator,
+    slice::Iter,
 };
 
 pub use rand::{
