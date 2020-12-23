@@ -22,5 +22,5 @@ pub use rand::{
     Rng,
 };
 
-pub use derive_more::{Deref, Add, AddAssign, Mul, MulAssign, Sub, SubAssign, Div, Display, From, Into};
+pub use derive_more::{Deref, Add, AddAssign, Sum, Mul, MulAssign, Sub, SubAssign, Div, Display, From, Into};
 

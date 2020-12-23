@@ -1,13 +1,15 @@
-pub mod market_info;
+pub mod exchanger;
 mod linear_market;
-
-pub use crate::types::*;
+mod pricer;
 
 use crate::{
     prelude::*,
+    types::*,
+    market::exchanger::{Exchanger, MarketInfo},
 };
 use std::cmp::Ordering;
 use std::fmt::Debug;
+use std::ops::{Add, Mul};
 
 pub trait Market {
     type MarketInfo: Exchanger;
@@ -29,45 +31,35 @@ pub struct LinearMarket {
     pub table: HashMap<GoodHandle, MarketInfo>
 }
 
-pub trait Pricer {
-    fn price(&self, amt: f64) -> Money;
-}
-
-impl Pricer for LinearPricer {
-    fn price(&self, amt: f64) -> Money {
-        (self.price_per_supply * (amt as f64 - self.base_supply) + self.base_price).into()
-    }
-}
-
-pub trait Exchanger {
-    fn cost(&self, amt: i32) -> Money;
-    fn buy(&mut self, wallet: &mut Money, amt: i32) -> Option<Money>;
-    fn sell(&mut self, wallet: &mut Money, amt: i32) -> Option<Money> {
-        self.buy(wallet, -amt)
-    }
-}
-
-#[derive(Deserialize, Debug, PartialOrd, PartialEq, Clone)]
-pub struct MarketInfo {
-    pub demand: f64,
-    pub supply: f64,
-    pub production: f64,
-    pub pricer: LinearPricer,
-}
-
-#[derive(Deserialize, Debug, PartialOrd, PartialEq, Clone)]
-pub struct LinearPricer {
-    pub base_supply: f64,
-    pub base_price: f64,
-    pub price_per_supply: f64,
-}
-
-#[derive(Add, Sub, SubAssign, Mul, Div, AddAssign, MulAssign, From, Into, Debug, Copy, Clone, PartialEq, PartialOrd)]
+#[derive(Add, Sum, Sub, SubAssign, Div, AddAssign, MulAssign, From, Into, Debug, Copy, Clone, PartialEq, PartialOrd)]
 pub struct Money(pub f64);
 
 impl Money {
-    pub fn neg<T: AsRef<Self>>(t: T) -> Self {
+    pub fn neg(&self) -> Self {
+        Money(-1. * self.0)
+    }
+    pub fn rneg<T: AsRef<Self>>(t: T) -> Self {
         Money(-1. * (t.as_ref()).0)
+    }
+}
+
+impl<__RhsT> ::core::ops::Mul<__RhsT> for Money
+    where
+        f64: ::core::ops::Mul<__RhsT, Output = f64>,
+{
+    type Output = Money;
+    #[inline]
+    fn mul(self, rhs: __RhsT) -> Money {
+        Money(<f64 as ::core::ops::Mul<__RhsT>>::mul(self.0, rhs))
+    }
+}
+
+impl Mul<Money> for f64 {
+    type Output = Money;
+
+    #[inline]
+    fn mul(self, rhs: Money) -> Money {
+        Money(rhs.0 * self)
     }
 }
 

@@ -2,7 +2,8 @@ use structopt::StructOpt;
 use crate::{
     types::*,
     prelude::*,
-    market::MarketInfo,
+    market,
+    market::exchanger::MarketInfo,
 };
 
 #[derive(StructOpt)]

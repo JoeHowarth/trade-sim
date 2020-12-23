@@ -1,7 +1,23 @@
 use crate::prelude::*;
 use crate::types::{GoodHandle};
-use crate::market::{LinearPricer, Pricer, MarketInfo, Money, Exchanger};
+use crate::market::{Money};
+use crate::market::pricer::{LinearPricer, Pricer};
 
+pub trait Exchanger {
+    fn cost(&self, amt: i32) -> Money;
+    fn buy(&mut self, wallet: &mut Money, amt: i32) -> Option<Money>;
+    fn sell(&mut self, wallet: &mut Money, amt: i32) -> Option<Money> {
+        self.buy(wallet, -amt)
+    }
+}
+
+#[derive(Deserialize, Debug, PartialOrd, PartialEq, Clone)]
+pub struct MarketInfo {
+    pub demand: f64,
+    pub supply: f64,
+    pub production: f64,
+    pub pricer: LinearPricer,
+}
 
 impl Exchanger for MarketInfo {
     fn cost(&self, amt: i32) -> Money {
@@ -38,23 +54,14 @@ impl MarketInfo {
     }
 }
 
-impl LinearPricer {
-    pub fn new(base_supply: f64, base_price: f64, price_per_supply: f64) -> Self {
-        if price_per_supply < 0. {
-            warn!("Expected price per supply to be negative, actually: {:?}", price_per_supply);
-        }
-        LinearPricer { base_price, base_supply, price_per_supply }
-    }
-}
 
 mod tests {
-    use crate::market::market_info::{LinearPricer, MarketInfo};
-    use crate::market::{Money, Pricer};
+    use super::*;
 
     #[test]
     fn linear_price_pricer() {
         let pricer = LinearPricer::new(50., 10., -2.);
-        assert_eq!(pricer.price(51.), 8.);
+        assert_eq!(pricer.price(51.), 8.0.into());
     }
 
     #[test]
@@ -67,7 +74,7 @@ mod tests {
             pricer: pricer.clone(),
         };
 
-        let starting_balance = Money::from(10.);
+        let starting_balance = Money(10_000.);
         for &amt in [1., 10.].iter() {
             let mut wallet: Money = starting_balance;
             let initial_cost = market_info.cost(amt as i32);
@@ -76,7 +83,7 @@ mod tests {
             assert_eq!(market_info.buy(&mut wallet, amt as i32), initial_money);
             assert_eq!(wallet, starting_balance - initial_money.unwrap());
 
-            assert_eq!(market_info.sell(&mut wallet, amt as i32), initial_money.map(Money::neg));
+            assert_eq!(market_info.sell(&mut wallet, amt as i32), initial_money.map(Money::rneg));
             assert_eq!(wallet, starting_balance);
         }
     }
