@@ -5,12 +5,12 @@ use crate::types::GoodHandle;
 impl Market for LinearMarket {
     type MarketInfo = MarketInfo;
 
-    fn price(&self, good: &GoodHandle) -> f64 {
+    fn price(&self, good: &GoodHandle) -> Money {
         let info = self.info(good);
         info.pricer.price(info.supply)
     }
 
-    fn cost(&self, good: &GoodHandle, amt: i32) -> f64 {
+    fn cost(&self, good: &GoodHandle, amt: i32) -> Money {
         self.info(good).cost(amt)
     }
 
@@ -23,8 +23,13 @@ impl Market for LinearMarket {
             .expect(&*format!("Good: {} not found in market", **good))
     }
 
-    fn buy(&mut self, wallet: &mut Money, good: &GoodHandle, amt: i32) -> Option<Money> {
-        self.info(good).buy(wallet, amt)
+    fn info_mut(&mut self, good: &GoodHandle) -> &mut Self::MarketInfo {
+        self.table.get_mut(&good)
+            .expect(&*format!("Good: {} not found in market", **good))
+    }
+
+    fn buy(&mut self, good: &GoodHandle,  wallet: &mut Money, amt: i32) -> Option<Money> {
+        self.info_mut(good).buy(wallet, amt)
     }
 }
 

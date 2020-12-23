@@ -4,10 +4,10 @@ use crate::market::{LinearPricer, Pricer, MarketInfo, Money, Exchanger};
 
 
 impl Exchanger for MarketInfo {
-    fn cost(&self, amt: i32) -> f64 {
+    fn cost(&self, amt: i32) -> Money {
         // Invariant: cost of buying followed by selling the same number must sum to 0.
         if amt == 0 {
-            return 0.;
+            return 0.0.into();
         }
         let p = |amt| self.pricer.price(amt);
         let avg_price = if amt > 0 {
@@ -15,7 +15,7 @@ impl Exchanger for MarketInfo {
         } else {
             (p(self.supply + 1.) + p(self.supply - amt as f64)) / 2.
         };
-        avg_price * amt as f64
+        (avg_price * amt as f64).into()
     }
 
     /// `buy` takes a mutable `wallet` and an amount, `amt`, to buy and performs the transaction if possible
@@ -23,17 +23,17 @@ impl Exchanger for MarketInfo {
     /// the cost of the transaction is removed from `wallet` and the cost is returned
     /// the supply of goods is decreased by `amt`
     fn buy(&mut self, wallet: &mut Money, amt: i32) -> Option<Money> {
-        if amt == 0 { return Some((0.).into()); }
+        if amt == 0 { return Some(0.0.into()); }
         let cost = self.cost(amt);
-        if cost > wallet.0 { return None; }
-        wallet.0 -= cost;
+        if cost > *wallet { return None; }
+        *wallet -= cost;
         self.supply -= amt as f64;
         Some(cost.into())
     }
 }
 
 impl MarketInfo {
-    pub fn current_price(&self) -> f64 {
+    pub fn current_price(&self) -> Money {
         self.pricer.price(self.supply)
     }
 }

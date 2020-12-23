@@ -3,7 +3,7 @@ use crate::prelude::*;
 use std::fmt::Formatter;
 
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, From, Clone, Eq, PartialEq, Hash)]
 pub struct City {
     pub name: String,
 }
@@ -51,8 +51,14 @@ pub struct Agent;
 
 ////////////// Display Types ///////////////
 
-#[derive(Deref, Debug, From)]
+#[derive(Deref, Debug)]
 pub struct Position(pub Vec2);
+
+impl From<Vec2> for Position {
+    fn from(other: Vec2) -> Self {
+        Position(other)
+    }
+}
 
 impl Position {
     pub fn new(x: impl Into<Vec2>) -> Self {
