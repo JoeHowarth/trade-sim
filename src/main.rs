@@ -10,12 +10,7 @@ use crate::{
     types::*,
     prelude::*,
 };
-use serde_yaml::from_str;
 use bevy::log::{LogPlugin, LogSettings};
-use std::ops::RangeTo;
-use rand::distributions::uniform::UniformFloat;
-
-struct Thing { pos: Option<(i32, i32)> }
 
 fn main() -> Result<(), Box<dyn Error>> {
     let input = init::get_input()?;

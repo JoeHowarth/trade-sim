@@ -2,7 +2,6 @@ use structopt::StructOpt;
 use crate::{
     types::*,
     prelude::*,
-    market,
     market::exchanger::MarketInfo,
 };
 

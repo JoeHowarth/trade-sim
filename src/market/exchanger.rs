@@ -1,7 +1,5 @@
 use crate::prelude::*;
-use crate::types::{GoodHandle};
-use crate::market::{Money};
-use crate::market::pricer::{LinearPricer, Pricer};
+use crate::market::{money::Money, pricer::{LinearPricer, Pricer}};
 
 pub trait Exchanger {
     fn cost(&self, amt: i32) -> Money;

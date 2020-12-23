@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use crate::market::{LinearMarket, Market, Money};
+use crate::market::{LinearMarket, Market, money::Money};
 use crate::types::GoodHandle;
 use crate::market::exchanger;
 use crate::market::exchanger::{Exchanger};
