@@ -17,5 +17,5 @@ pub use rand::{
     Rng,
 };
 
-pub use derive_more::{Deref, Add, Display, From, Into};
+pub use derive_more::{Deref, Add, Mul, Sub, Div, Display, From, Into};
 

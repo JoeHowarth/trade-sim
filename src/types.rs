@@ -36,45 +36,18 @@ pub struct GoodHandle {
     pub read: Arc<Good>,
 }
 
+impl From<Good> for GoodHandle {
+    fn from(g: Good) -> Self { GoodHandle { read: Arc::new(g) } }
+}
+
+impl<T: Into<String>> From<T> for Good {
+    fn from(x: T) -> Self { Good { name: x.into() } }
+}
+
 pub struct Agent;
 
 ///////////// Market Types ///////////
 
-pub trait Market {
-    type MarketInfo;
-    fn price(&self, good: &GoodHandle) -> f64;
-    fn cost(&self, good: &GoodHandle, amt: i32) -> f64;
-    fn goods(&self) -> hash_map::Keys<GoodHandle, MarketInfo>;
-    fn info(&self, good: &GoodHandle) -> &Self::MarketInfo;
-    fn buy(&mut self, good: &GoodHandle, amt: i32);
-    fn sell(&mut self, good: &GoodHandle, amt: i32) {
-        return self.buy(good, -amt);
-    }
-}
-
-pub trait Pricer {
-    fn price(&self, amt: f64) -> f64;
-}
-
-#[derive(Debug, PartialOrd, PartialEq, Clone)]
-pub struct MarketInfo{
-    pub demand: f64,
-    pub supply: f64,
-    pub production: f64,
-    pub pricer: LinearPricer
-}
-
-#[derive(Debug, PartialOrd, PartialEq, Clone)]
-pub struct LinearPricer {
-    pub base_supply: f64,
-    pub base_price: f64,
-    pub price_per_supply: f64,
-}
-
-#[derive(From, Debug)]
-pub struct LinearMarket {
-    pub table: HashMap<GoodHandle, MarketInfo>
-}
 
 ////////////// Display Types ///////////////
 
