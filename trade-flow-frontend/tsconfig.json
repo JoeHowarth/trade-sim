@@ -1,0 +1,15 @@
+// tsconfig.json
+{
+  "compilerOptions": {
+    // "baseUrl": "./src",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2020",
+    // "paths": {
+    //   "~*": ["./*"]
+    // },
+    "jsx": "react",
+    "moduleResolution": "Node",
+  },
+  "include": ["src/**/*"]
+}

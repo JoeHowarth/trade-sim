@@ -31,7 +31,6 @@ pub fn get_input() -> Result<Input> {
     Ok(input)
 }
 
-
 pub fn init(
     commands: &mut Commands,
 ) -> Result<()> {

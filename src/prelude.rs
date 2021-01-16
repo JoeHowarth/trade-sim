@@ -6,7 +6,7 @@ pub use std::{
         HashMap,
         hash_map,
     },
-    sync::Arc,
+    sync::{Arc, Mutex},
     ops::Deref,
     iter::FromIterator,
     slice::Iter,

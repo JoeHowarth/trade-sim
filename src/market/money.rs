@@ -4,8 +4,10 @@ use crate::{
 use std::ops::{Mul};
 use std::cmp::Ordering;
 use bevy::utils::tracing::field::{Field, Visit};
+use std::fmt::Debug;
+use std::fmt::Formatter;
 
-#[derive(Add, Sum, Sub, SubAssign, Div, AddAssign, MulAssign, From, Into, Debug, Copy, Clone, PartialEq, PartialOrd)]
+#[derive(Add, Sum, Sub, SubAssign, Div, AddAssign, MulAssign, From, Into, Copy, Clone, PartialEq, PartialOrd)]
 pub struct Money(pub f64);
 
 impl Money {
@@ -14,6 +16,12 @@ impl Money {
     }
     pub fn rneg<T: AsRef<Self>>(t: T) -> Self {
         Money(-1. * (t.as_ref()).0)
+    }
+}
+
+impl Debug for Money {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
+        f.write_str(&format!("${:.2}", self.0))
     }
 }
 
