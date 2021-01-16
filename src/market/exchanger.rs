@@ -11,7 +11,7 @@ pub trait Exchanger {
 
 #[derive(Deserialize, Debug, PartialOrd, PartialEq, Clone)]
 pub struct MarketInfo {
-    pub demand: f64,
+    pub consumption: f64,
     pub supply: f64,
     pub production: f64,
     pub pricer: LinearPricer,
@@ -66,7 +66,7 @@ mod tests {
     fn buy_sell() {
         let pricer = LinearPricer::new(35., 100., -1.);
         let mut market_info = MarketInfo {
-            demand: 30.,
+            consumption: 30.,
             supply: 35.,
             production: 29.,
             pricer: pricer.clone(),

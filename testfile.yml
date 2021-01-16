@@ -4,7 +4,7 @@ cities:
     links:
     - "Brussels"
     market_info:
-      demand: 30
+      consumption: 30
       supply: 35
       production: 25
       pricer:
@@ -15,7 +15,7 @@ cities:
     links:
       - "Athens"
     market_info:
-      demand: 25
+      consumption: 25
       supply: 20
       production: 30
       pricer:

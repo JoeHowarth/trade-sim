@@ -46,7 +46,7 @@ mod test {
     fn linear_market_cost() {
         let pricer = LinearPricer::new(35., 100., -1.);
         let market_info = MarketInfo {
-            demand: 30.,
+            consumption: 30.,
             supply: 35.,
             production: 29.,
             pricer: pricer.clone(),
@@ -93,7 +93,7 @@ mod test {
         let pricer = LinearPricer::new(35., base_price, -1.);
         let base_supply = 35.;
         let market_info = MarketInfo {
-            demand: 30.,
+            consumption: 30.,
             supply: base_supply,
             production: 29.,
             pricer: pricer.clone(),
