@@ -5,6 +5,7 @@ pub mod types;
 pub mod prelude;
 mod market;
 mod init;
+mod web;
 
 use crate::{
     types::*,
@@ -29,7 +30,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 .enable_all()
                 .build()
                 .unwrap()
-                .block_on(server(other_state));
+                .block_on(web::server(other_state));
         });
     }
     App::build()
@@ -55,14 +56,6 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 use warp::Filter;
 use std::ops::{Add, AddAssign};
-
-async fn server(state: Arc<Mutex<i32>>) {
-    // Match any request and return hello world!
-    let routes = warp::any()
-        .map(move || format!("Count is: {:?}", state.lock()));
-
-    warp::serve(routes).run(([127, 0, 0, 1], 3030)).await;
-}
 
 fn error_handler_system(In(result): In<Result<()>>) {
     if let Err(err) = result {

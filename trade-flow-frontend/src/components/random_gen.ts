@@ -7,8 +7,8 @@ export function range(end: number): number[] {
 }
 
 export function GenerateInitial(): { visualInitial: RGraph; modelInitial: Model } {
-  const mnodes = range(2).map((id) => MNode(id.toString()));
-  const rnodes = range(2).map((id) => Node(id));
+  const mnodes = range(3).map((id) => MNode(id.toString()));
+  const rnodes = range(3).map((id) => Node(id));
   const medges = Edge(mnodes.map((n, i) => Object.assign(n, rnodes[i])));
   const model: Model = {
     nodes: mnodes,

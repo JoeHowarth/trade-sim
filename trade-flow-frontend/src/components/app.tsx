@@ -7,7 +7,8 @@ import { VisualNode, VisualEdge } from "./visual";
 import { KonvaEventObject } from "konva/types/Node";
 import { ViewMarketInfo } from "./InfoBox";
 import * as Random from "./random_gen";
-import _ from 'lodash'
+import _ from "lodash";
+import axios from "axios";
 
 const exampleModel: Model = {
   nodes: [],
@@ -15,41 +16,58 @@ const exampleModel: Model = {
   agents: [],
 };
 
-
 class MockApi implements SimApi {
   nextState(model: Model): Model {
-    let newModel = _.cloneDeep(model)
+    let newModel = _.cloneDeep(model);
     newModel.nodes[0].markets.get("Grain").price += Math.random() * 2 - 1;
-    return newModel
+    return newModel;
+  }
+}
+
+class Api implements SimApi {
+  nextState(model: Model): Model {
+    axios
+      .get("http://127.0.0.1:3030")
+      .then((r) => console.log(r))
+      .catch((e) => console.error(e));
+    let newModel = _.cloneDeep(model);
+    newModel.nodes[0].markets.get("Grain").price += Math.random() * 2 - 1;
+    return newModel;
   }
 }
 
 const Wrapper = () => {
-  return <App {...Random.GenerateInitial()}/>
-}
+  return <App {...Random.GenerateInitial()} />;
+};
 
-const App = ({visualInitial, modelInitial}: {visualInitial: RGraph, modelInitial: Model}) => {
+const App = ({
+  visualInitial,
+  modelInitial,
+}: {
+  visualInitial: RGraph;
+  modelInitial: Model;
+}) => {
   const [tick, setTick] = useState(0);
-  const [isStarted, setIsStarted] = useState(false)
-  const api = new MockApi
+  const [isStarted, setIsStarted] = useState(false);
+  const api = new Api();
   useEffect(() => {
-    const newModel = api.nextState(model)
-    setModel(newModel)
+    const newModel = api.nextState(model);
+    setModel(newModel);
   }, [tick]);
 
   useEffect(() => {
     let interval = null;
     if (isStarted) {
       interval = setInterval(() => {
-        setTick(tick => tick + 1);
+        setTick((tick) => tick + 1);
       }, 1000);
     } else if (!isStarted) {
       clearInterval(interval);
     }
     return () => {
       clearInterval(interval);
-      console.log("clearing interval")
-    }
+      console.log("clearing interval");
+    };
   }, [isStarted]);
 
   const [model, setModel] = useState(modelInitial);
@@ -72,7 +90,9 @@ const App = ({visualInitial, modelInitial}: {visualInitial: RGraph, modelInitial
               <div className="has-text-centered has-border">Tick: {tick}</div>
             </div>
             <div className="level-item">
-      <div onClick={() => setIsStarted(!isStarted)} className="button">{isStarted? "Stop" : "Start"}</div>
+              <div onClick={() => setIsStarted(!isStarted)} className="button">
+                {isStarted ? "Stop" : "Start"}
+              </div>
             </div>
             <div className="level-item">
               <div className="button">Bye</div>
