@@ -3,6 +3,7 @@ use crate::{
 };
 use std::ops::{Mul};
 use std::cmp::Ordering;
+use bevy::utils::tracing::field::{Field, Visit};
 
 #[derive(Add, Sum, Sub, SubAssign, Div, AddAssign, MulAssign, From, Into, Debug, Copy, Clone, PartialEq, PartialOrd)]
 pub struct Money(pub f64);

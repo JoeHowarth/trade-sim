@@ -15,10 +15,12 @@
   <component name="ChangeListManager">
     <list default="true" id="85bce3f3-9746-4f13-9e00-32d430812f84" name="Default Changelist" comment="k">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/init.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/init.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/market/exchanger.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/market/exchanger.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/market/linear_market.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/market/linear_market.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/testfile.yml" beforeDir="false" afterPath="$PROJECT_DIR$/testfile.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/market/money.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/market/money.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/prelude.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/prelude.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,7 +55,7 @@
     <property name="org.rust.cargo.project.model.PROJECT_DISCOVERY" value="true" />
     <property name="settings.editor.selected.configurable" value="language.rust" />
   </component>
-  <component name="RunManager" selected="Cargo.Run trade-sim">
+  <component name="RunManager" selected="Cargo.Check">
     <configuration name="Run trade-sim (1)" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="channel" value="DEFAULT" />
       <option name="command" value="run --package trade-sim --bin trade-sim" />
@@ -191,38 +193,43 @@
     </state>
     <state x="276" y="-878" key="#com.intellij.execution.impl.EditConfigurationsDialog/-148.-1080.1920.1080/0.0.1680.1050@-148.-1080.1920.1080" timestamp="1608750649643" />
     <state x="276" y="-878" key="#com.intellij.execution.impl.EditConfigurationsDialog/-148.-1080.1920.1080/0.23.1680.1027@-148.-1080.1920.1080" timestamp="1608747293933" />
-    <state x="625" y="-817" key="#com.intellij.ide.util.MemberChooser" timestamp="1608750229089">
-      <screen x="-148" y="-1080" width="1920" height="1080" />
+    <state x="676" y="256" key="#com.intellij.ide.util.MemberChooser" timestamp="1610822376449">
+      <screen x="0" y="0" width="1680" height="1050" />
     </state>
     <state x="625" y="-817" key="#com.intellij.ide.util.MemberChooser/-148.-1080.1920.1080/0.0.1680.1050@-148.-1080.1920.1080" timestamp="1608750229089" />
+    <state x="676" y="256" key="#com.intellij.ide.util.MemberChooser/0.0.1680.1050@0.0.1680.1050" timestamp="1610822376449" />
     <state x="395" y="-492" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1608725977321">
       <screen x="-148" y="-1080" width="1920" height="1080" />
     </state>
     <state x="395" y="-492" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/-148.-1080.1920.1080/0.0.1680.1050@-148.-1080.1920.1080" timestamp="1608725977321" />
-    <state width="869" height="420" key="GridCell.Tab.0.bottom" timestamp="1608864065779">
-      <screen x="0" y="0" width="1680" height="1050" />
+    <state width="794" height="356" key="GridCell.Tab.0.bottom" timestamp="1610827573496">
+      <screen x="0" y="23" width="1680" height="1027" />
     </state>
     <state width="869" height="420" key="GridCell.Tab.0.bottom/-148.-1080.1920.1080/0.0.1680.1050@-148.-1080.1920.1080" timestamp="1608752796986" />
     <state width="869" height="420" key="GridCell.Tab.0.bottom/-148.-1080.1920.1080/0.23.1680.1027@-148.-1080.1920.1080" timestamp="1608752591610" />
-    <state width="869" height="420" key="GridCell.Tab.0.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1608864065779" />
-    <state width="869" height="420" key="GridCell.Tab.0.center" timestamp="1608864065778">
-      <screen x="0" y="0" width="1680" height="1050" />
+    <state width="794" height="356" key="GridCell.Tab.0.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1610822753489" />
+    <state width="794" height="356" key="GridCell.Tab.0.bottom/0.23.1680.1027@0.23.1680.1027" timestamp="1610827573496" />
+    <state width="794" height="356" key="GridCell.Tab.0.center" timestamp="1610827573494">
+      <screen x="0" y="23" width="1680" height="1027" />
     </state>
     <state width="869" height="420" key="GridCell.Tab.0.center/-148.-1080.1920.1080/0.0.1680.1050@-148.-1080.1920.1080" timestamp="1608752796985" />
     <state width="869" height="420" key="GridCell.Tab.0.center/-148.-1080.1920.1080/0.23.1680.1027@-148.-1080.1920.1080" timestamp="1608752591608" />
-    <state width="869" height="420" key="GridCell.Tab.0.center/0.0.1680.1050@0.0.1680.1050" timestamp="1608864065778" />
-    <state width="869" height="420" key="GridCell.Tab.0.left" timestamp="1608864065778">
-      <screen x="0" y="0" width="1680" height="1050" />
+    <state width="794" height="356" key="GridCell.Tab.0.center/0.0.1680.1050@0.0.1680.1050" timestamp="1610822753487" />
+    <state width="794" height="356" key="GridCell.Tab.0.center/0.23.1680.1027@0.23.1680.1027" timestamp="1610827573494" />
+    <state width="794" height="356" key="GridCell.Tab.0.left" timestamp="1610827573493">
+      <screen x="0" y="23" width="1680" height="1027" />
     </state>
     <state width="869" height="420" key="GridCell.Tab.0.left/-148.-1080.1920.1080/0.0.1680.1050@-148.-1080.1920.1080" timestamp="1608752796985" />
     <state width="869" height="420" key="GridCell.Tab.0.left/-148.-1080.1920.1080/0.23.1680.1027@-148.-1080.1920.1080" timestamp="1608752591608" />
-    <state width="869" height="420" key="GridCell.Tab.0.left/0.0.1680.1050@0.0.1680.1050" timestamp="1608864065778" />
-    <state width="869" height="420" key="GridCell.Tab.0.right" timestamp="1608864065778">
-      <screen x="0" y="0" width="1680" height="1050" />
+    <state width="794" height="356" key="GridCell.Tab.0.left/0.0.1680.1050@0.0.1680.1050" timestamp="1610822753486" />
+    <state width="794" height="356" key="GridCell.Tab.0.left/0.23.1680.1027@0.23.1680.1027" timestamp="1610827573493" />
+    <state width="794" height="356" key="GridCell.Tab.0.right" timestamp="1610827573495">
+      <screen x="0" y="23" width="1680" height="1027" />
     </state>
     <state width="869" height="420" key="GridCell.Tab.0.right/-148.-1080.1920.1080/0.0.1680.1050@-148.-1080.1920.1080" timestamp="1608752796986" />
     <state width="869" height="420" key="GridCell.Tab.0.right/-148.-1080.1920.1080/0.23.1680.1027@-148.-1080.1920.1080" timestamp="1608752591609" />
-    <state width="869" height="420" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1608864065778" />
+    <state width="794" height="356" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1610822753487" />
+    <state width="794" height="356" key="GridCell.Tab.0.right/0.23.1680.1027@0.23.1680.1027" timestamp="1610827573495" />
     <state x="321" y="-901" key="SettingsEditor" timestamp="1608652776061">
       <screen x="-148" y="-1080" width="1920" height="1080" />
     </state>
@@ -236,10 +243,11 @@
       <screen x="-148" y="-1080" width="1920" height="1080" />
     </state>
     <state x="477" y="-284" key="run.anything.popup/-148.-1080.1920.1080/0.0.1680.1050@-148.-1080.1920.1080" timestamp="1608654138019" />
-    <state x="477" y="-839" width="670" height="676" key="search.everywhere.popup" timestamp="1608752332317">
-      <screen x="-148" y="-1080" width="1920" height="1080" />
+    <state x="547" y="234" width="670" height="658" key="search.everywhere.popup" timestamp="1610822573988">
+      <screen x="0" y="0" width="1680" height="1050" />
     </state>
     <state x="477" y="-839" width="670" height="676" key="search.everywhere.popup/-148.-1080.1920.1080/0.0.1680.1050@-148.-1080.1920.1080" timestamp="1608749101862" />
     <state x="477" y="-839" width="670" height="676" key="search.everywhere.popup/-148.-1080.1920.1080/0.23.1680.1027@-148.-1080.1920.1080" timestamp="1608752332317" />
+    <state x="547" y="234" width="670" height="658" key="search.everywhere.popup/0.0.1680.1050@0.0.1680.1050" timestamp="1610822573988" />
   </component>
 </project>

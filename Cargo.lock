@@ -3606,6 +3606,7 @@ dependencies = [
 name = "trade-sim"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "bevy",
  "derive_more",
  "rand 0.8.0",

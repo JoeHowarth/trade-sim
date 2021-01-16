@@ -4,6 +4,7 @@ use crate::{
     prelude::*,
     market::exchanger::MarketInfo,
 };
+use anyhow::Context;
 
 #[derive(StructOpt)]
 pub struct Cli {
@@ -23,7 +24,7 @@ pub struct CityInput {
     pos: Option<Vec2>,
 }
 
-pub fn get_input() -> Result<Input, Box<dyn Error>> {
+pub fn get_input() -> Result<Input> {
     let args = Cli::from_args();
     let file: std::path::PathBuf = args.file.unwrap_or("testfile.yml".into());
     let input: Input = serde_yaml::from_reader(io::BufReader::new(fs::File::open(file)?))?;
@@ -33,15 +34,15 @@ pub fn get_input() -> Result<Input, Box<dyn Error>> {
 
 pub fn init(
     commands: &mut Commands,
-    input: Res<Input>,
-) {
+) -> Result<()> {
+    let input = get_input().context("Failed to get input")?;
     init_cities(commands, &input.cities)
 }
 
 pub fn init_cities(
     commands: &mut Commands,
     input_cities: &Vec<CityInput>,
-) {
+) -> Result<()> {
     let mut thread_rng = rand::thread_rng();
     let cities: Vec<CityHandle> = input_cities.iter().map(|city| {
         let info: City = city.name.clone().into();
@@ -68,10 +69,12 @@ pub fn init_cities(
     for (src, dsts) in links.iter() {
         for dst in dsts.iter() {
             let reverse_links = links.get(dst);
-            assert!(reverse_links.is_some());
-
             if let Some(reverse_links) = reverse_links {
-                assert!(reverse_links.contains(src));
+                if !reverse_links.contains(src) {
+                    bail!("Found non-bidirectional edge");
+                }
+            } else {
+                bail!("Found non-bidirectional edge");
             }
         }
     }
@@ -80,4 +83,5 @@ pub fn init_cities(
     for (src, links) in links.into_iter() {
         commands.insert(src.entity, (LinkedCities(links), ));
     }
+    Ok(())
 }
