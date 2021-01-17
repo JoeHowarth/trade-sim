@@ -5,6 +5,8 @@ use crate::{
     market::exchanger::MarketInfo,
 };
 use anyhow::Context;
+use bevy::app::{ScheduleRunnerSettings, RunMode, ScheduleRunnerPlugin};
+use std::time::Duration;
 
 #[derive(StructOpt)]
 pub struct Cli {
@@ -13,7 +15,13 @@ pub struct Cli {
 
 #[derive(Deserialize, Debug)]
 pub struct Input {
-    cities: Vec<CityInput>
+    pub settings: Settings,
+    cities: Vec<CityInput>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct Settings {
+    pub loop_rate: u64,
 }
 
 #[derive(Deserialize, Debug)]
@@ -32,9 +40,10 @@ pub fn get_input() -> Result<Input> {
 }
 
 pub fn init(
+    input: Res<Input>,
     commands: &mut Commands,
 ) -> Result<()> {
-    let input = get_input().context("Failed to get input")?;
+
     init_cities(commands, &input.cities)
 }
 

@@ -1,4 +1,5 @@
-
+settings:
+  loop_rate: 5000
 cities:
   - name: "Athens"
     links: []

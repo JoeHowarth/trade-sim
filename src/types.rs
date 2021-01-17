@@ -23,7 +23,7 @@ impl Clone for CityHandle {
     }
 }
 
-#[derive(Deref, Debug)]
+#[derive(Deref, Debug, Clone)]
 pub struct LinkedCities(pub Vec<CityHandle>);
 
 #[derive(Deref, Eq, Clone, Debug, PartialEq, Hash)]

@@ -1,23 +1,44 @@
 use crate::prelude::*;
+use crate::State;
 use warp::Filter;
 
-pub async fn server(state: Arc<Mutex<i32>>) {
-
+pub async fn server(state: Arc<Mutex<State>>) {
+    let cors = warp::cors()
+        .allow_any_origin();
     // Match any request and return hello world!
     let routes = warp::any()
         .map(move || {
-            let model = Model {
-                nodes: vec![],
-                edges: vec![],
-                agents: vec![]
-            };
-            format!("Count is: {:?}", state.lock());
+            let state = state.lock().unwrap();
+            info!("State is: {:?}", state);
+            let model = state_to_model(&state);
             warp::reply::json(&model)
-        });
+        })
+        .with(cors);
 
     warp::serve(routes).run(([127, 0, 0, 1], 3030)).await;
 }
 
+fn state_to_model(state: &State) -> Model {
+    Model{
+        nodes: state.0.iter().map(|(city, links, market_info)| {
+           MNode{
+               id: city.name.clone(),
+               markets: {
+                   let mut m : HashMap<String, MarketInfo> = HashMap::new();
+                   m.insert("Grain".to_string(), MarketInfo{
+                       supply: market_info.supply,
+                       consumption: market_info.consumption,
+                       production: market_info.consumption,
+                       price: market_info.current_price().0,
+                   });
+                   m
+               },
+           }
+        }).collect(),
+        edges: vec![],
+        agents: vec![]
+    }
+}
 
 #[derive(Serialize, Debug)]
 pub struct RGraph {

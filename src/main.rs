@@ -21,8 +21,12 @@ use bevy::diagnostic::DiagnosticsPlugin;
 use bevy::app::{ScheduleRunnerPlugin, ScheduleRunnerSettings, RunMode};
 use std::time::Duration;
 
+#[derive(Debug)]
+pub struct State (pub Vec<(City, LinkedCities, MarketInfo)>);
+
 fn main() -> Result<(), Box<dyn Error>> {
-    let state = Arc::new(Mutex::new(0));
+    let input = init::get_input().context("Failed to get input")?;
+    let state = Arc::new(Mutex::new(State(vec![])));
     {
         let other_state = state.clone();
         std::thread::spawn(|| {
@@ -39,8 +43,11 @@ fn main() -> Result<(), Box<dyn Error>> {
             filter: "bevy_ecs=info,bevy_app=info,bevy_core=info".into(),
         })
         .add_resource(ScheduleRunnerSettings {
-            run_mode: RunMode::Loop {wait: Some(Duration::from_millis(1000))}
+            run_mode: RunMode::Loop {
+                wait: Some(Duration::from_millis(input.settings.loop_rate))
+            }
         })
+        .add_resource(input)
         .add_resource(state)
         .add_plugin(LogPlugin)
         .add_plugin(ReflectPlugin)
@@ -82,16 +89,17 @@ impl MarketInfo {
     }
 }
 
-fn printer(state: Res<Arc<Mutex<i32>>>,q: Query<(&City, &LinkedCities, &MarketInfo)>) {
+fn printer(state: Res<Arc<Mutex<State>>>, q: Query<(&City, &LinkedCities, &MarketInfo)>) {
     info!("Starting printing combined query");
     let mut state = state.lock().unwrap();
-    info!("state:         {:?}", state);
-    state.add_assign(1);
+    state.0.clear();
     for (city, links, market_info) in q.iter() {
+        state.0.push((city.clone(), links.clone(), market_info.clone()));
         info!("City:          {:?}", city);
         info!("Market Info:   {:?}", market_info);
         info!("Current Price: {:?}", market_info.current_price());
         info!("Links:         {:?}", links);
     }
+    info!("state:         {:?}", state);
 }
 
