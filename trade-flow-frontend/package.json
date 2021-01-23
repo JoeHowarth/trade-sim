@@ -3,6 +3,13 @@
   "version": "1.0.0",
   "description": "frontend for trade-graph-hs",
   "main": "index.html",
+  "browserslist": [
+    "last 3 and_chr versions",
+    "last 3 chrome versions",
+    "last 3 opera versions",
+    "last 3 ios_saf versions",
+    "last 3 safari versions"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "parcel index.html"

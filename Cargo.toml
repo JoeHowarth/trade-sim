@@ -14,8 +14,9 @@ rand = "0.8.0"
 serde = "1.0.118"
 serde_yaml = "0.8.14"
 structopt = "0.3.21"
-warp = { git = "https://github.com/seanmonstar/warp" }
+warp = "0.3.0"
 serde_json = "1.0.61"
+
 [dependencies.tokio]
 version = "1.0.2"
-features = ["rt"]
+features = ["full"]

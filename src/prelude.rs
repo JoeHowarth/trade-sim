@@ -11,6 +11,7 @@ pub use std::{
     iter::FromIterator,
     slice::Iter,
     error::Error,
+    time::Duration,
     io,
     fs,
 };

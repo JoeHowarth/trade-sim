@@ -1,63 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="BranchesTreeState">
-    <expand>
-      <path>
-        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
-        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
-      </path>
-    </expand>
-    <select />
-  </component>
   <component name="CargoProjects">
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="85bce3f3-9746-4f13-9e00-32d430812f84" name="Default Changelist" comment="k">
+    <list default="true" id="83801d59-c411-4c09-8725-9c8f0d0de8bc" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/jh.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/Check.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/Run_trade_sim.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/init.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/init.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/market/money.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/market/money.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/prelude.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/prelude.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/types.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/types.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/web.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/web.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/testfile.yml" beforeDir="false" afterPath="$PROJECT_DIR$/testfile.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trade-flow-frontend/src/components/app.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/trade-flow-frontend/src/components/app.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trade-flow-frontend/src/components/random_gen.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/trade-flow-frontend/src/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/trade-flow-frontend/src/types.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Rust File" />
-      </list>
-    </option>
-  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="MacroExpansionManager">
-    <option name="directoryName" value="pdxafod6" />
+    <option name="directoryName" value="bfxwyvwa" />
   </component>
-  <component name="ProjectId" id="1m1B96wSMaqgQOEtmTFGHHXc1wD" />
-  <component name="ProjectLevelVcsManager">
-    <ConfirmationsSetting value="2" id="Add" />
-  </component>
+  <component name="ProjectId" id="1nM7BR7HQs3gu5v4MQYGCrvYypf" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
-    <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="org.rust.cargo.project.model.PROJECT_DISCOVERY" value="true" />
-    <property name="settings.editor.selected.configurable" value="language.rust" />
   </component>
-  <component name="RunManager" selected="Cargo.Check">
-    <configuration name="Run trade-sim (1)" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+  <component name="RunManager">
+    <configuration name="Check" type="CargoCommandRunConfiguration" factoryName="Cargo Command" nameIsGenerated="true">
       <option name="channel" value="DEFAULT" />
-      <option name="command" value="run --package trade-sim --bin trade-sim" />
+      <option name="command" value="check" />
       <option name="allFeatures" value="false" />
       <option name="emulateTerminal" value="false" />
       <option name="backtrace" value="SHORT" />
@@ -67,190 +55,45 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test market::linear_market::test::linear_market_cost" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="channel" value="DEFAULT" />
-      <option name="command" value="test --package trade-sim --bin trade-sim market::linear_market::test::linear_market_cost -- --exact" />
-      <option name="allFeatures" value="false" />
-      <option name="emulateTerminal" value="false" />
-      <option name="backtrace" value="SHORT" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
-      <envs />
-      <method v="2">
-        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Test market::market_info::tests::linear_price_pricer" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="channel" value="DEFAULT" />
-      <option name="command" value="test --package trade-sim --bin trade-sim market::market_info::tests::linear_price_pricer -- --exact" />
-      <option name="allFeatures" value="false" />
-      <option name="emulateTerminal" value="false" />
-      <option name="backtrace" value="SHORT" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
-      <envs />
-      <method v="2">
-        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Test market::tests::buy_sell" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="channel" value="DEFAULT" />
-      <option name="command" value="test --package trade-sim --bin trade-sim market::tests::buy_sell -- --exact" />
-      <option name="allFeatures" value="false" />
-      <option name="emulateTerminal" value="false" />
-      <option name="backtrace" value="SHORT" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
-      <envs />
-      <method v="2">
-        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Test market_info::tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="channel" value="DEFAULT" />
-      <option name="command" value="test --package trade-sim --bin trade-sim market::market_info::tests" />
-      <option name="allFeatures" value="false" />
-      <option name="emulateTerminal" value="false" />
-      <option name="backtrace" value="SHORT" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
-      <envs />
-      <method v="2">
-        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Test" type="CargoCommandRunConfiguration" factoryName="Cargo Command" nameIsGenerated="true">
-      <option name="channel" value="DEFAULT" />
-      <option name="command" value="test" />
-      <option name="allFeatures" value="false" />
-      <option name="emulateTerminal" value="false" />
-      <option name="backtrace" value="SHORT" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
-      <envs />
-      <method v="2">
-        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      </method>
-    </configuration>
-    <list>
-      <item itemvalue="Cargo.Test" />
-      <item itemvalue="Cargo.Check" />
-      <item itemvalue="Cargo.Run trade-sim" />
-      <item itemvalue="Cargo.Run trade-sim (1)" />
-      <item itemvalue="Cargo.Test market::linear_market::test::linear_market_cost" />
-      <item itemvalue="Cargo.Test market::market_info::tests::linear_price_pricer" />
-      <item itemvalue="Cargo.Test market::tests::buy_sell" />
-      <item itemvalue="Cargo.Test market_info::tests" />
-    </list>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Cargo.Test market::linear_market::test::linear_market_cost" />
-        <item itemvalue="Cargo.Run trade-sim (1)" />
-        <item itemvalue="Cargo.Test market::market_info::tests::linear_price_pricer" />
-        <item itemvalue="Cargo.Test market_info::tests" />
-      </list>
-    </recent_temporary>
   </component>
   <component name="RustProjectSettings">
-    <option name="macroExpansionEngine" value="OLD" />
     <option name="toolchainHomeDirectory" value="$USER_HOME$/.cargo/bin" />
     <option name="version" value="2" />
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="85bce3f3-9746-4f13-9e00-32d430812f84" name="Default Changelist" comment="" />
-      <created>1608651062710</created>
+      <changelist id="83801d59-c411-4c09-8725-9c8f0d0de8bc" name="Default Changelist" comment="" />
+      <created>1611187969575</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1608651062710</updated>
+      <updated>1611187969575</updated>
     </task>
     <servers />
   </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State />
-          </value>
-        </entry>
-      </map>
-    </option>
-    <option name="oldMeFiltersMigrated" value="true" />
-  </component>
   <component name="WindowStateProjectService">
-    <state x="446" y="-855" key="#Inspections" timestamp="1608727109963">
-      <screen x="-148" y="-1080" width="1920" height="1080" />
-    </state>
-    <state x="446" y="-855" key="#Inspections/-148.-1080.1920.1080/0.0.1680.1050@-148.-1080.1920.1080" timestamp="1608651132148" />
-    <state x="446" y="-855" key="#Inspections/-148.-1080.1920.1080/0.23.1680.1027@-148.-1080.1920.1080" timestamp="1608727109963" />
-    <state x="689" y="-697" key="#Notifications" timestamp="1608651604220">
-      <screen x="-148" y="-1080" width="1920" height="1080" />
-    </state>
-    <state x="689" y="-697" key="#Notifications/-148.-1080.1920.1080/0.0.1680.1050@-148.-1080.1920.1080" timestamp="1608651604220" />
-    <state x="228" y="-795" key="#Test_market::tests" timestamp="1608652505957">
-      <screen x="-148" y="-1080" width="1920" height="1080" />
-    </state>
-    <state x="228" y="-795" key="#Test_market::tests/-148.-1080.1920.1080/0.0.1680.1050@-148.-1080.1920.1080" timestamp="1608652505957" />
-    <state x="276" y="-878" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1608750649643">
-      <screen x="-148" y="-1080" width="1920" height="1080" />
-    </state>
-    <state x="276" y="-878" key="#com.intellij.execution.impl.EditConfigurationsDialog/-148.-1080.1920.1080/0.0.1680.1050@-148.-1080.1920.1080" timestamp="1608750649643" />
-    <state x="276" y="-878" key="#com.intellij.execution.impl.EditConfigurationsDialog/-148.-1080.1920.1080/0.23.1680.1027@-148.-1080.1920.1080" timestamp="1608747293933" />
-    <state x="676" y="256" key="#com.intellij.ide.util.MemberChooser" timestamp="1610828778909">
+    <state x="304" y="187" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1611188426876">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="625" y="-817" key="#com.intellij.ide.util.MemberChooser/-148.-1080.1920.1080/0.0.1680.1050@-148.-1080.1920.1080" timestamp="1608750229089" />
-    <state x="676" y="256" key="#com.intellij.ide.util.MemberChooser/0.0.1680.1050@0.0.1680.1050" timestamp="1610828778909" />
-    <state x="395" y="-492" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1608725977321">
-      <screen x="-148" y="-1080" width="1920" height="1080" />
-    </state>
-    <state x="395" y="-492" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/-148.-1080.1920.1080/0.0.1680.1050@-148.-1080.1920.1080" timestamp="1608725977321" />
-    <state width="777" height="523" key="GridCell.Tab.0.bottom" timestamp="1610909964706">
+    <state x="304" y="187" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1680.1050@0.0.1680.1050" timestamp="1611188426876" />
+    <state width="1017" height="382" key="GridCell.Tab.0.bottom" timestamp="1611429638476">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="869" height="420" key="GridCell.Tab.0.bottom/-148.-1080.1920.1080/0.0.1680.1050@-148.-1080.1920.1080" timestamp="1608752796986" />
-    <state width="869" height="420" key="GridCell.Tab.0.bottom/-148.-1080.1920.1080/0.23.1680.1027@-148.-1080.1920.1080" timestamp="1608752591610" />
-    <state width="777" height="523" key="GridCell.Tab.0.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1610909964706" />
-    <state width="794" height="356" key="GridCell.Tab.0.bottom/0.23.1680.1027@0.23.1680.1027" timestamp="1610827573496" />
-    <state width="777" height="523" key="GridCell.Tab.0.center" timestamp="1610909964705">
+    <state width="1017" height="382" key="GridCell.Tab.0.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1611429638476" />
+    <state width="1017" height="382" key="GridCell.Tab.0.center" timestamp="1611429638475">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="869" height="420" key="GridCell.Tab.0.center/-148.-1080.1920.1080/0.0.1680.1050@-148.-1080.1920.1080" timestamp="1608752796985" />
-    <state width="869" height="420" key="GridCell.Tab.0.center/-148.-1080.1920.1080/0.23.1680.1027@-148.-1080.1920.1080" timestamp="1608752591608" />
-    <state width="777" height="523" key="GridCell.Tab.0.center/0.0.1680.1050@0.0.1680.1050" timestamp="1610909964705" />
-    <state width="794" height="356" key="GridCell.Tab.0.center/0.23.1680.1027@0.23.1680.1027" timestamp="1610827573494" />
-    <state width="777" height="523" key="GridCell.Tab.0.left" timestamp="1610909964704">
+    <state width="1017" height="382" key="GridCell.Tab.0.center/0.0.1680.1050@0.0.1680.1050" timestamp="1611429638475" />
+    <state width="1017" height="382" key="GridCell.Tab.0.left" timestamp="1611429638474">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="869" height="420" key="GridCell.Tab.0.left/-148.-1080.1920.1080/0.0.1680.1050@-148.-1080.1920.1080" timestamp="1608752796985" />
-    <state width="869" height="420" key="GridCell.Tab.0.left/-148.-1080.1920.1080/0.23.1680.1027@-148.-1080.1920.1080" timestamp="1608752591608" />
-    <state width="777" height="523" key="GridCell.Tab.0.left/0.0.1680.1050@0.0.1680.1050" timestamp="1610909964704" />
-    <state width="794" height="356" key="GridCell.Tab.0.left/0.23.1680.1027@0.23.1680.1027" timestamp="1610827573493" />
-    <state width="777" height="523" key="GridCell.Tab.0.right" timestamp="1610909964705">
+    <state width="1017" height="382" key="GridCell.Tab.0.left/0.0.1680.1050@0.0.1680.1050" timestamp="1611429638474" />
+    <state width="1017" height="382" key="GridCell.Tab.0.right" timestamp="1611429638475">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="869" height="420" key="GridCell.Tab.0.right/-148.-1080.1920.1080/0.0.1680.1050@-148.-1080.1920.1080" timestamp="1608752796986" />
-    <state width="869" height="420" key="GridCell.Tab.0.right/-148.-1080.1920.1080/0.23.1680.1027@-148.-1080.1920.1080" timestamp="1608752591609" />
-    <state width="777" height="523" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1610909964705" />
-    <state width="794" height="356" key="GridCell.Tab.0.right/0.23.1680.1027@0.23.1680.1027" timestamp="1610827573495" />
-    <state x="321" y="-901" key="SettingsEditor" timestamp="1608652776061">
-      <screen x="-148" y="-1080" width="1920" height="1080" />
-    </state>
-    <state x="321" y="-901" key="SettingsEditor/-148.-1080.1920.1080/0.0.1680.1050@-148.-1080.1920.1080" timestamp="1608652776061" />
-    <state x="54" y="-1031" key="SettingsEditor/-148.-1080.1920.1080/0.23.1680.1027@-148.-1080.1920.1080" timestamp="1608652264161" />
-    <state x="626" y="442" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1610833714842">
-      <screen x="0" y="23" width="1680" height="1027" />
-    </state>
-    <state x="626" y="442" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.23.1680.1027@0.23.1680.1027" timestamp="1610833714842" />
-    <state x="520" y="-975" width="584" height="870" key="find.popup" timestamp="1608750851081">
-      <screen x="-148" y="-1080" width="1920" height="1080" />
-    </state>
-    <state x="520" y="-975" width="584" height="870" key="find.popup/-148.-1080.1920.1080/0.0.1680.1050@-148.-1080.1920.1080" timestamp="1608750851081" />
-    <state x="477" y="-284" key="run.anything.popup" timestamp="1608654138019">
-      <screen x="-148" y="-1080" width="1920" height="1080" />
-    </state>
-    <state x="477" y="-284" key="run.anything.popup/-148.-1080.1920.1080/0.0.1680.1050@-148.-1080.1920.1080" timestamp="1608654138019" />
-    <state x="547" y="234" width="670" height="658" key="search.everywhere.popup" timestamp="1610822573988">
+    <state width="1017" height="382" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1611429638475" />
+    <state x="505" y="233" width="670" height="676" key="search.everywhere.popup" timestamp="1611435030719">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="477" y="-839" width="670" height="676" key="search.everywhere.popup/-148.-1080.1920.1080/0.0.1680.1050@-148.-1080.1920.1080" timestamp="1608749101862" />
-    <state x="477" y="-839" width="670" height="676" key="search.everywhere.popup/-148.-1080.1920.1080/0.23.1680.1027@-148.-1080.1920.1080" timestamp="1608752332317" />
-    <state x="547" y="234" width="670" height="658" key="search.everywhere.popup/0.0.1680.1050@0.0.1680.1050" timestamp="1610822573988" />
+    <state x="505" y="233" width="670" height="676" key="search.everywhere.popup/0.0.1680.1050@0.0.1680.1050" timestamp="1611435030719" />
   </component>
 </project>

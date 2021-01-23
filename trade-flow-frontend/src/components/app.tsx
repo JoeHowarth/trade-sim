@@ -6,9 +6,8 @@ import Konva, { Stage, Layer } from "react-konva";
 import { VisualNode, VisualEdge } from "./visual";
 import { KonvaEventObject } from "konva/types/Node";
 import { ViewMarketInfo } from "./InfoBox";
-import * as Random from "./random_gen";
 import _ from "lodash";
-import axios from "axios";
+import { MockApi, Api } from "../sim_api";
 
 const exampleModel: Model = {
   nodes: [],
@@ -16,62 +15,57 @@ const exampleModel: Model = {
   agents: [],
 };
 
-class MockApi implements SimApi {
-  nextState(model: Model): Model {
-    let newModel = _.cloneDeep(model);
-    newModel.nodes[0].markets.get("Grain").price += Math.random() * 2 - 1;
-    return newModel;
-  }
-}
-
-class Api implements SimApi {
-  nextState(model: Model): Model {
-    axios
-      .get("http://127.0.0.1:3030")
-      .then((r) => console.log(r))
-      .catch((e) => console.error(e));
-    let newModel = _.cloneDeep(model);
-    newModel.nodes[0].markets.get("Grain").price += Math.random() * 2 - 1;
-    return newModel;
-  }
-}
-
 const Wrapper = () => {
-  return <App {...Random.GenerateInitial()} />;
+  console.log("top of wrapper");
+  const api = new MockApi();
+  const [initial, setInitial] = useState(null);
+  useEffect(() => {
+    api.initialState().then((data) => setInitial(data));
+  }, []);
+
+  return initial == null ? (
+    <h1>Loading</h1>
+  ) : (
+    <App initial={initial} api={api} />
+  );
 };
 
 const App = ({
-  visualInitial,
-  modelInitial,
+  initial,
+  api,
 }: {
-  visualInitial: RGraph;
-  modelInitial: Model;
+  api: SimApi;
+  initial: {
+    visual: RGraph;
+    model: Model;
+  };
 }) => {
   const [tick, setTick] = useState(0);
   const [isStarted, setIsStarted] = useState(false);
-  const api = new Api();
+  // call backend once per tick
   useEffect(() => {
-    const newModel = api.nextState(model);
-    setModel(newModel);
+    api.nextState(model).then((newModel) => setModel(newModel));
   }, [tick]);
 
+  // control ticking
   useEffect(() => {
     let interval = null;
     if (isStarted) {
       interval = setInterval(() => {
         setTick((tick) => tick + 1);
       }, 1000);
-    } else if (!isStarted) {
-      clearInterval(interval);
     }
     return () => {
-      clearInterval(interval);
-      console.log("clearing interval");
+      if (interval !== null) {
+        clearInterval(interval);
+        console.log("clearing interval");
+      }
     };
   }, [isStarted]);
 
-  const [model, setModel] = useState(modelInitial);
-  const [modelCopy, setModelCopy] = useState(modelInitial);
+  // maintain oldModel
+  const [model, setModel] = useState(initial.model);
+  const [modelCopy, setModelCopy] = useState(initial.model);
   const [oldModel, setOldModel] = useState(null);
   useEffect(() => {
     setOldModel(modelCopy);
@@ -81,8 +75,6 @@ const App = ({
 
   return (
     <>
-      {/* <div className="columns is-mobile is-tablet">
-        <div className="column is-narrow is-narrow-tablet is-narrow-desktop is-narrow-mobile "> */}
       <Box>
         <div className="level is-mobile">
           <div className="level-left">
@@ -100,9 +92,7 @@ const App = ({
           </div>
         </div>
       </Box>
-      {/* </div>
-      </div> */}
-      <Graph graph={visualInitial} model={model} />
+      <Graph graph={initial.visual} model={model} />
     </>
   );
 };

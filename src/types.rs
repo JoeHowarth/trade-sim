@@ -51,7 +51,7 @@ pub struct Agent;
 
 ////////////// Display Types ///////////////
 
-#[derive(Deref, Debug)]
+#[derive(Deref, Debug, Clone, Copy)]
 pub struct Position(pub Vec2);
 
 impl From<Vec2> for Position {

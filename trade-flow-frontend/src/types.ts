@@ -26,6 +26,7 @@ interface RAgent {
 interface MNode {
   id: NodeId
   markets: Map<Good, MarketInfo>
+  links: NodeId[]
 }
 
 interface MEdge {
@@ -55,5 +56,6 @@ interface Model {
 }
 
 interface SimApi {
-  nextState(model: Model): Model
+  async nextState(model: Model): Promise<Model>
+  async initialState(): Promise<{ visual: RGraph; model: Model; }> {
 }

@@ -4,9 +4,6 @@ use crate::{
     prelude::*,
     market::exchanger::MarketInfo,
 };
-use anyhow::Context;
-use bevy::app::{ScheduleRunnerSettings, RunMode, ScheduleRunnerPlugin};
-use std::time::Duration;
 
 #[derive(StructOpt)]
 pub struct Cli {
