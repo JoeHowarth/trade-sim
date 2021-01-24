@@ -57,6 +57,6 @@ interface Model {
 }
 
 interface SimApi {
-  async nextState(): Promise<Model>
-  async initialState(): Promise<{ visual: RGraph; model: Model; }> {
+  nextState(): Promise<Model>
+  initialState(): Promise<{ visual: RGraph; model: Model; }> 
 }

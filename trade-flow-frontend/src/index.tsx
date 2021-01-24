@@ -1,12 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import Wrapper from './components/app'
-
-console.log('Hello from tsx!')
-
-
+import Wrapper from './components/wrapper'
 
 ReactDOM.render(
-  <Wrapper/>
+  <Wrapper/>,
   document.getElementById('root'),
 )

@@ -12,7 +12,6 @@ export class MockApi implements SimApi {
   }
 
   async initialState(): Promise<{ visual: RGraph; model: Model }> {
-    console.log("in generateInitial");
     const x = Random.GenerateInitial();
     this.model = x.modelInitial;
     return { visual: x.visualInitial, model: x.modelInitial };
