@@ -23,11 +23,16 @@ use std::time::Duration;
 use tokio::sync::watch;
 
 #[derive(Debug)]
-pub struct State (pub Vec<(City, LinkedCities, MarketInfo, Position)>);
+pub struct State {
+    pub tick: Tick,
+    pub nodes: Vec<(City, LinkedCities, MarketInfo, Position)>,
+}
 
 fn main() -> Result<(), Box<dyn Error>> {
     let input = init::get_input().context("Failed to get input")?;
-    let (state_tx, state_rx) = watch::channel(State(Vec::new()));
+    let (state_tx, state_rx) = watch::channel(
+        State { tick: Tick(1), nodes: Vec::new() }
+    );
     {
         std::thread::spawn(move || {
             tokio::runtime::Builder::new_current_thread()
@@ -49,14 +54,18 @@ fn main() -> Result<(), Box<dyn Error>> {
         })
         .add_resource(input)
         .add_resource(state_tx)
+        .add_resource(Tick(0))
         .add_plugin(LogPlugin)
         .add_plugin(ReflectPlugin)
         .add_plugin(CorePlugin)
         .add_plugin(DiagnosticsPlugin)
-        .add_plugin(ScheduleRunnerPlugin{})
+        .add_plugin(ScheduleRunnerPlugin {})
         .add_startup_system(init::init.system().chain(fatal_error_handler_system.system()))
-        .add_system(update_cities.system())
-        .add_system(wrap(printer.system()))
+        .add_stage("pre-work", SystemStage::serial()
+            .with_system(update_tick.system()))
+        .add_stage("main-loop", SystemStage::parallel()
+            .with_system(update_cities.system())
+            .with_system(wrap(printer.system())))
         .run();
     Ok(())
 }
@@ -78,6 +87,10 @@ fn fatal_error_handler_system(In(result): In<Result<()>>) {
     }
 }
 
+fn update_tick(mut tick: ResMut<Tick>) {
+    tick.0 += 1;
+}
+
 fn update_cities(mut q: Query<(&City, &mut MarketInfo)>) {
     for (_city, mut market_info) in q.iter_mut() {
         market_info.produce_and_consume();
@@ -90,16 +103,24 @@ impl MarketInfo {
     }
 }
 
-fn printer(state_tx: Res<watch::Sender<State>>, q: Query<(&City, &LinkedCities, &MarketInfo, &Position)>) -> Result<()>{
+fn printer(
+    state_tx: Res<watch::Sender<State>>,
+    tick: Res<Tick>,
+    q: Query<(&City, &LinkedCities, &MarketInfo, &Position)>,
+) -> Result<()> {
     info!("Starting printing combined query");
-    let mut state = State(Vec::with_capacity(100));
+    let mut state = State {
+        tick: Tick(0),
+        nodes: Vec::with_capacity(100),
+    };
     for (city, links, market_info, pos) in q.iter() {
-        state.0.push((city.clone(), links.clone(), market_info.clone(), *pos));
+        state.nodes.push((city.clone(), links.clone(), market_info.clone(), *pos));
         info!("City:          {:?}", city);
         info!("Market Info:   {:?}", market_info);
         info!("Current Price: {:?}", market_info.current_price());
         info!("Links:         {:?}", links);
     }
+    state.tick = tick.clone();
     info!("state:         {:?}", state);
     state_tx.send(state).context("Failed to send state to server")
 }

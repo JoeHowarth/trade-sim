@@ -6,30 +6,38 @@ use std::future::Future;
 use std::result::Result;
 use tokio::sync::watch;
 use std::borrow::Borrow;
+use warp::http::StatusCode;
 
 pub async fn server(state: watch::Receiver<State>) {
     let cors = warp::cors()
         .allow_any_origin();
-    // Match any request and return hello world!
-    // let base = warp::any()
-    //     .and(warp::any().map(move || state.clone()));
     let other_state = state.clone();
+
     let state_route = warp::path("state")
         .and(warp::any().map(move || state.clone()))
-        .and_then(handler);
+        .and_then(handler)
+        .with(cors.clone());
     let rgraph_route = warp::path("rgraph")
         .and(warp::any().map(move || other_state.clone()))
-        .and_then(rgraph_handler);
+        .and_then(rgraph_handler)
+        .with(cors);
 
-    let full = state_route.or(rgraph_route).with(cors);
+    // let full = state_route.or(rgraph_route).with(cors);
 
-    warp::serve(full).run(([127, 0, 0, 1], 3030)).await;
+    warp::serve(
+        state_route
+            .or(rgraph_route)
+            .or(warp::any()
+                .map(|| Ok(StatusCode::NOT_FOUND))
+                .with(warp::cors().allow_any_origin())))
+        .run(([127, 0, 0, 1], 3030)).await;
 }
 
 async fn handler(state: watch::Receiver<State>) -> Result<impl Reply, Rejection> {
     let state = state.borrow();
     info!("State is: {:?}", state);
     let model = state_to_model(&state);
+    info!("Model:{}", serde_json::to_string_pretty(&model).unwrap());
     Ok(warp::reply::json(&model))
 }
 
@@ -42,7 +50,8 @@ async fn rgraph_handler(state: watch::Receiver<State>) -> Result<impl Reply, Rej
 
 fn state_to_model(state: &State) -> Model {
     Model {
-        nodes: state.0.iter().map(|(city, links, market_info, _pos)| {
+        tick: state.tick.0,
+        nodes: state.nodes.iter().map(|(city, links, market_info, _pos)| {
             MNode {
                 id: &city.name,
                 markets: {
@@ -60,7 +69,7 @@ fn state_to_model(state: &State) -> Model {
                     .collect(),
             }
         }).collect(),
-        edges: state.0.iter().flat_map(|(city, links, _market_info, _pos)| {
+        edges: state.nodes.iter().flat_map(|(city, links, _market_info, _pos)| {
             links.0.iter()
                 .map(|to| MEdge {
                     nodes: vec![&city.name, &to.info.name]
@@ -73,7 +82,7 @@ fn state_to_model(state: &State) -> Model {
 
 fn state_to_rgraph(state: &State) -> RGraph {
     let m: HashMap<NodeId, RNode> = HashMap::from_iter(
-        state.0.iter()
+        state.nodes.iter()
             .map(|(city, _links, _market_info, pos)| {
                 (city.name.as_str(),
                  RNode {
@@ -85,7 +94,7 @@ fn state_to_rgraph(state: &State) -> RGraph {
             }));
     RGraph {
         nodes: m.values().cloned().collect(),
-        edges: state.0.iter()
+        edges: state.nodes.iter()
             .flat_map(|(city, links, _market_info, _pos)| {
                 links.0.iter()
                     .map(|to| REdge {
@@ -97,6 +106,7 @@ fn state_to_rgraph(state: &State) -> RGraph {
 
 #[derive(Serialize, Debug)]
 pub struct Model<'a> {
+    tick: u64,
     nodes: Vec<MNode<'a>>,
     edges: Vec<MEdge<'a>>,
     agents: Vec<()>,

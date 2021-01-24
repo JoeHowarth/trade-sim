@@ -17,10 +17,13 @@ const exampleModel: Model = {
 
 const Wrapper = () => {
   console.log("top of wrapper");
-  const api = new MockApi();
+  const api = new Api();
   const [initial, setInitial] = useState(null);
   useEffect(() => {
-    api.initialState().then((data) => setInitial(data));
+    api.initialState().then((data) => {
+      setInitial(data);
+      console.log("Got initial state", data);
+    });
   }, []);
 
   return initial == null ? (
@@ -40,11 +43,24 @@ const App = ({
     model: Model;
   };
 }) => {
+  // maintain oldModel
+  const [model, setModel] = useState(initial.model);
+  const [modelCopy, setModelCopy] = useState(initial.model);
+  const [oldModel, setOldModel] = useState(null);
+  useEffect(() => {
+    setOldModel(modelCopy);
+    setModelCopy(model);
+  }, [model]);
+  console.log("model", model);
+
   const [tick, setTick] = useState(0);
   const [isStarted, setIsStarted] = useState(false);
   // call backend once per tick
   useEffect(() => {
-    api.nextState(model).then((newModel) => setModel(newModel));
+    api.nextState().then((newModel) => {
+      setModel(newModel);
+      console.log("new model:", newModel);
+    });
   }, [tick]);
 
   // control ticking
@@ -62,16 +78,6 @@ const App = ({
       }
     };
   }, [isStarted]);
-
-  // maintain oldModel
-  const [model, setModel] = useState(initial.model);
-  const [modelCopy, setModelCopy] = useState(initial.model);
-  const [oldModel, setOldModel] = useState(null);
-  useEffect(() => {
-    setOldModel(modelCopy);
-    setModelCopy(model);
-  }, [model]);
-  console.log("model", model);
 
   return (
     <>
@@ -92,35 +98,53 @@ const App = ({
           </div>
         </div>
       </Box>
-      <Graph graph={initial.visual} model={model} />
+      <Graph graph={initial.visual} model={model} oldModel={oldModel} />
     </>
   );
 };
 
-const Graph = (props: { graph: RGraph; model: Model }) => {
+const Graph = (props: { graph: RGraph; model: Model; oldModel: Model }) => {
   const [graph, setGraph] = useState(props.graph);
   useEffect(() => {
     setGraph(props.graph);
   }, [props.graph]);
 
-  const nodeMap = new Map(
+  const nodeMap = new Map<
+    NodeId,
+    { visual: RNode; model: MNode; oldModel: MNode }
+  >(
     graph.nodes.map((n) => [
       n.id,
-      { visual: n, model: props.model.nodes.find((m) => m.id === n.id) },
+      {
+        visual: n,
+        model: props.model.nodes.find((m) => m.id === n.id),
+        oldModel: props.oldModel.nodes.find((m) => m.id === n.id),
+      },
     ])
   );
 
   // info components
-  const [nodeClicked, setNodeClicked] = useState(null);
+  const [clickedNodes, setClickedNodes] = useState(new Set<NodeId>());
+
+  const toggleInfo = (id: NodeId) => {
+    if (clickedNodes.has(id)) {
+      clickedNodes.delete(id);
+    } else {
+      clickedNodes.add(id);
+    }
+    setClickedNodes(new Set(clickedNodes));
+  };
 
   return (
     <>
-      {nodeClicked ? (
+      {Array.from(clickedNodes.keys()).map((id) => (
         <ViewMarketInfo
-          position={nodeMap.get(nodeClicked).visual}
-          node={nodeMap.get(nodeClicked).model}
+          key={id}
+          position={nodeMap.get(id).visual}
+          node={nodeMap.get(id).model}
+          oldMarkets={nodeMap.get(id).oldModel.markets}
         />
-      ) : null}
+      ))}
       <Canvas>
         {graph.nodes.map((n) => (
           <VisualNode
@@ -128,7 +152,7 @@ const Graph = (props: { graph: RGraph; model: Model }) => {
             key={n.id}
             onClick={() => {
               console.log("clicked");
-              setNodeClicked(nodeClicked === n.id ? null : n.id);
+              toggleInfo(n.id);
             }}
             onDragEnd={(e: KonvaEventObject<DragEvent>) => {
               const node = graph.nodes.find((node) => node.id === n.id);

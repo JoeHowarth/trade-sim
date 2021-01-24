@@ -2,6 +2,8 @@
 use crate::prelude::*;
 use std::fmt::Formatter;
 
+#[derive(Debug, From, Clone, Eq, PartialEq, Hash)]
+pub struct Tick(pub u64);
 
 #[derive(Debug, From, Clone, Eq, PartialEq, Hash)]
 pub struct City {

@@ -64,8 +64,11 @@ export const CenteredAbove = (props: PropsWithChildren<PosProps>) => {
 };
 
 export const ViewMarketInfo = (
-  props: PropsWithChildren<PosProps & { node: MNode }>
+  props: PropsWithChildren<
+    PosProps & { node: MNode; oldMarkets: Map<Good, MarketInfo> }
+  >
 ) => {
+  console.log("ViewMarketInfo props", props);
   return (
     <CenteredAbove position={transform(props.position, { x: 0, y: -30 })}>
       <Table
@@ -76,16 +79,16 @@ export const ViewMarketInfo = (
           <tr>
             <th className="is-size-7">Good</th>
             <th className="is-size-7">
-              U<span></span>
+              Co<span></span>
             </th>
-            <th className="is-size-7">P</th>
-            <th className="is-size-7">S</th>
-            <th className="is-size-7">P</th>
+            <th className="is-size-7">Pr</th>
+            <th className="is-size-7">Su</th>
+            <th className="is-size-7">Pr</th>
           </tr>
         </thead>
         <tbody>
           {Array.from(props.node.markets, ([good, info]) => (
-            <tr>
+            <tr key={good}>
               <th className="is-size-7">{good}</th>
               <td>
                 <Number>{round(info.consumption, 0)}</Number>
