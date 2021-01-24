@@ -50,6 +50,7 @@ interface MarketInfo {
 }
 
 interface Model {
+  tick: number
   nodes: MNode[]
   edges: MEdge[]
   agents: MAgent[]

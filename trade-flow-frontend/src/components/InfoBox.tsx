@@ -100,7 +100,7 @@ export const ViewMarketInfo = (
                 <Number>{round(info.supply, 0)}</Number>
               </td>
               <td>
-                <Number withDelta oldValue={4.2}>
+                <Number withDelta oldValue={props.oldMarkets.get(good).price}>
                   {info.price}
                 </Number>
               </td>
@@ -132,10 +132,10 @@ export const Number = (
         <span
           style={{
             fontSize: 9,
-            color: oldValue < value ? "rgb(9, 190, 30)" : "rgb(240, 58, 2)",
+            color: value < oldValue ? "rgb(240, 58, 2)" : "rgb(9, 190, 30)",
           }}
         >
-          {(oldValue > value ? "+" : "") + round(oldValue - value, 2)}
+          {(value > oldValue ? "+" : "") + round(value - oldValue, 2)}
         </span>
       ) : null}
     </div>

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom";
 import "react-bulma-components/dist/react-bulma-components.min.css";
 import Bulma, { Box, Column, Columns } from "react-bulma-components";
@@ -10,6 +10,7 @@ import _ from "lodash";
 import { MockApi, Api } from "../sim_api";
 
 const exampleModel: Model = {
+  tick: 0,
   nodes: [],
   edges: [],
   agents: [],
@@ -45,30 +46,33 @@ const App = ({
 }) => {
   // maintain oldModel
   const [model, setModel] = useState(initial.model);
-  const [modelCopy, setModelCopy] = useState(initial.model);
-  const [oldModel, setOldModel] = useState(null);
-  useEffect(() => {
-    setOldModel(modelCopy);
-    setModelCopy(model);
-  }, [model]);
+  // const [modelCopy, setModelCopy] = useState(initial.model);
+  const [oldModel, setOldModel] = useState(initial.model);
+  // useEffect(() => {
+  //   setOldModel(modelCopy);
+  //   setModelCopy(model);
+  // }, [model]);
   console.log("model", model);
+  let tickRef = useRef(model.tick)
+  tickRef.current = model.tick
 
-  const [tick, setTick] = useState(0);
+  // const [tick, setTick] = useState(0);
   const [isStarted, setIsStarted] = useState(false);
-  // call backend once per tick
-  useEffect(() => {
-    api.nextState().then((newModel) => {
-      setModel(newModel);
-      console.log("new model:", newModel);
-    });
-  }, [tick]);
 
-  // control ticking
+  // control fetching model
   useEffect(() => {
     let interval = null;
     if (isStarted) {
       interval = setInterval(() => {
-        setTick((tick) => tick + 1);
+        api.nextState().then((newModel) => {
+          if (newModel.tick > tickRef.current) {
+            setModel(oldModel => {
+              setOldModel(oldModel)
+              return newModel
+            });
+            console.log("new model:", newModel);
+          }
+        });
       }, 1000);
     }
     return () => {
@@ -78,6 +82,7 @@ const App = ({
       }
     };
   }, [isStarted]);
+  console.log("oldModel, newModel ticks", oldModel.tick, model.tick)
 
   return (
     <>
@@ -85,7 +90,7 @@ const App = ({
         <div className="level is-mobile">
           <div className="level-left">
             <div className="level-item">
-              <div className="has-text-centered has-border">Tick: {tick}</div>
+              <div className="has-text-centered has-border">Tick: {model.tick}</div>
             </div>
             <div className="level-item">
               <div onClick={() => setIsStarted(!isStarted)} className="button">
