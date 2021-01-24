@@ -5,20 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="83801d59-c411-4c09-8725-9c8f0d0de8bc" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/jh.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/Check.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/Run_trade_sim.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/init.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/init.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/market/money.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/market/money.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/prelude.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/prelude.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/types.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/types.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/web.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/web.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/testfile.yml" beforeDir="false" afterPath="$PROJECT_DIR$/testfile.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trade-flow-frontend/src/components/InfoBox.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/trade-flow-frontend/src/components/InfoBox.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/trade-flow-frontend/src/components/app.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/trade-flow-frontend/src/components/app.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trade-flow-frontend/src/components/random_gen.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/trade-flow-frontend/src/sim_api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/trade-flow-frontend/src/sim_api.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/trade-flow-frontend/src/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/trade-flow-frontend/src/types.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -75,25 +70,25 @@
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
     <state x="304" y="187" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1680.1050@0.0.1680.1050" timestamp="1611188426876" />
-    <state width="1017" height="382" key="GridCell.Tab.0.bottom" timestamp="1611429638476">
+    <state width="722" height="386" key="GridCell.Tab.0.bottom" timestamp="1611502041363">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1017" height="382" key="GridCell.Tab.0.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1611429638476" />
-    <state width="1017" height="382" key="GridCell.Tab.0.center" timestamp="1611429638475">
+    <state width="722" height="386" key="GridCell.Tab.0.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1611502041363" />
+    <state width="722" height="386" key="GridCell.Tab.0.center" timestamp="1611502041362">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1017" height="382" key="GridCell.Tab.0.center/0.0.1680.1050@0.0.1680.1050" timestamp="1611429638475" />
-    <state width="1017" height="382" key="GridCell.Tab.0.left" timestamp="1611429638474">
+    <state width="722" height="386" key="GridCell.Tab.0.center/0.0.1680.1050@0.0.1680.1050" timestamp="1611502041362" />
+    <state width="722" height="386" key="GridCell.Tab.0.left" timestamp="1611502041361">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1017" height="382" key="GridCell.Tab.0.left/0.0.1680.1050@0.0.1680.1050" timestamp="1611429638474" />
-    <state width="1017" height="382" key="GridCell.Tab.0.right" timestamp="1611429638475">
+    <state width="722" height="386" key="GridCell.Tab.0.left/0.0.1680.1050@0.0.1680.1050" timestamp="1611502041361" />
+    <state width="722" height="386" key="GridCell.Tab.0.right" timestamp="1611502041362">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1017" height="382" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1611429638475" />
-    <state x="505" y="233" width="670" height="676" key="search.everywhere.popup" timestamp="1611435030719">
+    <state width="722" height="386" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1611502041362" />
+    <state x="505" y="233" width="670" height="676" key="search.everywhere.popup" timestamp="1611502192803">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="505" y="233" width="670" height="676" key="search.everywhere.popup/0.0.1680.1050@0.0.1680.1050" timestamp="1611435030719" />
+    <state x="505" y="233" width="670" height="676" key="search.everywhere.popup/0.0.1680.1050@0.0.1680.1050" timestamp="1611502192803" />
   </component>
 </project>
