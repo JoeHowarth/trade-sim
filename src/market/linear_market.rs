@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use crate::market::{LinearMarket, Market, money::Money};
-use crate::types::GoodHandle;
+use crate::types::Good;
 use crate::market::exchanger;
 use crate::market::exchanger::{Exchanger};
 use crate::market::pricer::Pricer;
@@ -8,30 +8,30 @@ use crate::market::pricer::Pricer;
 impl Market for LinearMarket {
     type MarketInfo = exchanger::MarketInfo;
 
-    fn price(&self, good: &GoodHandle) -> Money {
+    fn price(&self, good: &Good) -> Money {
         let info = self.info(good);
         info.pricer.price(info.supply)
     }
 
-    fn cost(&self, good: &GoodHandle, amt: i32) -> Money {
+    fn cost(&self, good: &Good, amt: i32) -> Money {
         self.info(good).cost(amt)
     }
 
-    fn goods(&self) -> hash_map::Keys<GoodHandle, Self::MarketInfo> {
+    fn goods(&self) -> hash_map::Keys<Good, Self::MarketInfo> {
         self.table.keys()
     }
 
-    fn info(&self, good: &GoodHandle) -> &Self::MarketInfo {
+    fn info(&self, good: &Good) -> &Self::MarketInfo {
         self.table.get(&good)
             .expect(&*format!("Good: {} not found in market", **good))
     }
 
-    fn info_mut(&mut self, good: &GoodHandle) -> &mut Self::MarketInfo {
+    fn info_mut(&mut self, good: &Good) -> &mut Self::MarketInfo {
         self.table.get_mut(&good)
             .expect(&*format!("Good: {} not found in market", **good))
     }
 
-    fn buy(&mut self, good: &GoodHandle, wallet: &mut Money, amt: i32) -> Option<Money> {
+    fn buy(&mut self, good: &Good, wallet: &mut Money, amt: i32) -> Option<Money> {
         self.info_mut(good).buy(wallet, amt)
     }
 }

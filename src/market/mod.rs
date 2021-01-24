@@ -17,21 +17,21 @@ pub use crate::market::money::Money;
 pub trait Market {
     type MarketInfo: Exchanger;
     // shared
-    fn price(&self, good: &GoodHandle) -> Money;
-    fn cost(&self, good: &GoodHandle, amt: i32) -> Money;
-    fn goods(&self) -> hash_map::Keys<GoodHandle, Self::MarketInfo>;
-    fn info(&self, good: &GoodHandle) -> &Self::MarketInfo;
+    fn price(&self, good: &Good) -> Money;
+    fn cost(&self, good: &Good, amt: i32) -> Money;
+    fn goods(&self) -> hash_map::Keys<Good, Self::MarketInfo>;
+    fn info(&self, good: &Good) -> &Self::MarketInfo;
     // exclusive
-    fn info_mut(&mut self, good: &GoodHandle) -> &mut Self::MarketInfo;
-    fn buy(&mut self, good: &GoodHandle, wallet: &mut Money, amt: i32) -> Option<Money>;
-    fn sell(&mut self, good: &GoodHandle, wallet: &mut Money, amt: i32) -> Option<Money> {
+    fn info_mut(&mut self, good: &Good) -> &mut Self::MarketInfo;
+    fn buy(&mut self, good: &Good, wallet: &mut Money, amt: i32) -> Option<Money>;
+    fn sell(&mut self, good: &Good, wallet: &mut Money, amt: i32) -> Option<Money> {
         self.buy(good, wallet, -amt)
     }
 }
 
 #[derive(From, Debug)]
 pub struct LinearMarket {
-    pub table: HashMap<GoodHandle, MarketInfo>
+    pub table: HashMap<Good, MarketInfo>
 }
 
 
