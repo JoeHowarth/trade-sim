@@ -23,12 +23,12 @@ impl Market for LinearMarket {
 
     fn info(&self, good: &Good) -> &Self::MarketInfo {
         self.table.get(&good)
-            .expect(&*format!("Good: {} not found in market", **good))
+            .expect(&*format!("Good: {} not found in market", *good))
     }
 
     fn info_mut(&mut self, good: &Good) -> &mut Self::MarketInfo {
         self.table.get_mut(&good)
-            .expect(&*format!("Good: {} not found in market", **good))
+            .expect(&*format!("Good: {} not found in market", *good))
     }
 
     fn buy(&mut self, good: &Good, wallet: &mut Money, amt: i32) -> Option<Money> {
@@ -40,7 +40,7 @@ impl Market for LinearMarket {
 mod test {
     use crate::prelude::*;
     use crate::market::{MarketInfo, LinearMarket, Market, pricer::{LinearPricer, Pricer}, Money};
-    use crate::types::{GoodHandle, Good};
+    use crate::types::{Good};
 
     #[test]
     fn linear_market_cost() {
@@ -55,9 +55,9 @@ mod test {
             supply: 30.,
             ..market_info.clone()
         };
-        let (before, after) = (GoodHandle::from(Good::from("Before")), GoodHandle::from(Good::from("After")));
+        let (before, after) = (Good::from("Before"), Good::from("After"));
         let lm: LinearMarket = [(before.clone(), market_info.clone()), (after.clone(), market_info_after.clone())]
-            .iter().cloned().collect::<HashMap<GoodHandle, MarketInfo>>().into();
+            .iter().cloned().collect::<HashMap<Good, MarketInfo>>().into();
 
         let five_times_current_price: Money = market_info.current_price() * 5.;
         assert!(lm.cost(&before, 5) > five_times_current_price,
@@ -81,15 +81,10 @@ mod test {
             .map(Good::from)
     }
 
-    fn good_handles() -> impl Iterator<Item=GoodHandle> {
-        goods()
-            .map(GoodHandle::from)
-    }
-
     #[test]
     fn linear_market_basics() {
         let base_price = 100.;
-        let good = good_handles().next().unwrap();
+        let good = goods().next().unwrap();
         let pricer = LinearPricer::new(35., base_price, -1.);
         let base_supply = 35.;
         let market_info = MarketInfo {
@@ -98,15 +93,15 @@ mod test {
             production: 29.,
             pricer: pricer.clone(),
         };
-        let lm: LinearMarket = good_handles()
+        let lm: LinearMarket = goods()
             .map(|gh| { (gh, market_info.clone()) })
-            .collect::<HashMap<GoodHandle, MarketInfo>>().into();
+            .collect::<HashMap<Good, MarketInfo>>().into();
 
         // .price(good)
         assert_eq!(lm.price(&good), pricer.price(base_supply));
         // .goods()
-        assert_eq!(lm.goods().cloned().collect::<HashSet<GoodHandle>>(),
-                   good_handles().collect::<HashSet<GoodHandle>>());
+        assert_eq!(lm.goods().cloned().collect::<HashSet<Good>>(),
+                   goods().collect::<HashSet<Good>>());
         // .info(good)
         assert_eq!(lm.info(&good), &market_info)
     }

@@ -65,14 +65,14 @@ fn state_to_model(state: &State) -> Model {
                     m
                 },
                 links: links.0.iter()
-                    .map(|to| to.info.name.as_str())
+                    .map(|to| to.city.name.as_str())
                     .collect(),
             }
         }).collect(),
         edges: state.nodes.iter().flat_map(|(city, links, _market_info, _pos)| {
             links.0.iter()
                 .map(|to| MEdge {
-                    nodes: vec![&city.name, &to.info.name]
+                    nodes: vec![&city.name, &to.city.name]
                 })
                 .collect::<Vec<_>>()
         }).collect(),
@@ -98,7 +98,7 @@ fn state_to_rgraph(state: &State) -> RGraph {
             .flat_map(|(city, links, _market_info, _pos)| {
                 links.0.iter()
                     .map(|to| REdge {
-                        nodes: (m[city.name.as_str()], m[(to.clone()).info.name.as_str()])
+                        nodes: (m[city.name.as_str()], m[(to.clone()).city.name.as_str()])
                     }).collect::<Vec<_>>()
             }).collect(),
     }

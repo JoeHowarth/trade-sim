@@ -20,18 +20,29 @@ pub struct City {
 #[derive(Eq, PartialEq, Hash, Debug)]
 pub struct CityHandle {
     pub entity: Entity,
-    pub info: City,
+    pub city: City,
 }
 
 #[derive(Deref, Debug, Clone)]
 pub struct LinkedCities(pub Vec<CityHandle>);
 
-#[derive(Deref, Eq, Clone, Debug, PartialEq, Hash)]
+#[derive(Deserialize, Eq, Clone, Debug, PartialEq, Hash)]
+#[serde(transparent)]
 pub struct Good {
     pub name: String,
+    // #[serde(default = "default_entity")]
+    // pub entity: Entity,
 }
 
-pub struct Agent;
+fn default_entity() -> Entity {
+    Entity::new(0)
+}
+
+
+#[derive(Deref, Debug, Clone)]
+// Resource representing all known goods
+pub struct Goods(pub HashSet<Good>);
+
 
 ///////////// Market Types ///////////
 
@@ -40,5 +51,5 @@ pub struct Agent;
 ///////////// GeoTypes /////////////
 
 #[derive(Deref, Debug, Clone, Copy)]
-pub struct Position(pub Vec2);
+pub struct GridPosition(pub Vec2);
 

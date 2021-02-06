@@ -11,7 +11,16 @@ export function GenerateInitial(): { visualInitial: RGraph; modelInitial: Model 
   const mnodes = range(3).map((id) => MNode(id.toString()));
   const rnodes = range(3).map((id) => Node(id));
   const medges = Edge(mnodes.map((n, i) => Object.assign(n, rnodes[i])));
+  for (let node of mnodes) {
+    for (let edge of medges) {
+      let idx = edge.nodes.findIndex(id => id === node.id)
+      if (idx != -1) {
+        node.links.push(edge[(idx + 1) % 2])
+      }
+    }
+  }
   const model: Model = {
+    tick: 0,
     nodes: mnodes,
     edges: medges,
     agents: [],
@@ -19,8 +28,8 @@ export function GenerateInitial(): { visualInitial: RGraph; modelInitial: Model 
   const redges = medges.map((e) => ({
     nodes: e.nodes.map((id) => rnodes.find((n1) => n1.id === id)),
   }));
-  const visual = { nodes: rnodes, edges: redges };
-  return { modelInitial: model, visualInitial: visual };
+  const visual = {nodes: rnodes, edges: redges};
+  return {modelInitial: model, visualInitial: visual};
 }
 
 export function MarketInfo(): MarketInfo {
@@ -37,6 +46,7 @@ export function MNode(id: string, goodsList?: string[]): MNode {
   return {
     id,
     markets: new Map(goods.map((g) => [g, MarketInfo()])),
+    links: []
   };
 }
 
@@ -53,7 +63,7 @@ export function Edge(nodes: (MNode & RNode)[]): MEdge[] {
     let edges = [0.7, 0.2, 0.2, 0.2, 0.1].flatMap((p, idx) =>
       Math.random() < p && idx < closest.length - 1 ? [closest[idx].id] : []
     );
-    edges = edges.length === 0? [closest[0].id] : edges 
+    edges = edges.length === 0 ? [closest[0].id] : edges
     console.log("edges", edges)
     return edges.map(
       (id) =>
@@ -85,11 +95,11 @@ function randomIndex(len: number): number {
 
 export function Graph(numNodes: number, numEdges: number): RGraph {
   if (numNodes <= 2) {
-    return { nodes: [], edges: [] };
+    return {nodes: [], edges: []};
   }
 
-  const nodes = Array.from({ length: numNodes }).map((n, i) => Node(i));
-  const edges = Array.from({ length: numEdges })
+  const nodes = Array.from({length: numNodes}).map((n, i) => Node(i));
+  const edges = Array.from({length: numEdges})
     .map(() => {
       const fromIdx = randomIndex(nodes.length);
 
@@ -98,9 +108,9 @@ export function Graph(numNodes: number, numEdges: number): RGraph {
         toIdx = randomIndex(nodes.length);
       }
 
-      return { nodes: [nodes[toIdx], nodes[fromIdx] ]} as REdge;
+      return {nodes: [nodes[toIdx], nodes[fromIdx]]} as REdge;
     })
     .filter((e, i, edges) => !edges.find((e1, i1) => i1 !== i && e1 === e));
 
-  return { nodes, edges };
+  return {nodes, edges};
 }

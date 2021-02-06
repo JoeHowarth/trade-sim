@@ -5,7 +5,7 @@ pub trait Pricer {
     fn price(&self, amt: f64) -> Money;
 }
 
-#[derive(Deserialize, Debug, PartialOrd, PartialEq, Clone)]
+#[derive(Deserialize, Serialize, Debug, PartialOrd, PartialEq, Clone)]
 pub struct LinearPricer {
     pub base_supply: f64,
     pub base_price: f64,

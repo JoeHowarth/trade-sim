@@ -2,8 +2,10 @@ use structopt::StructOpt;
 use crate::{
     types::*,
     prelude::*,
+    agent,
     market::exchanger::MarketInfo,
 };
+use bevy::utils::tracing::field::debug;
 
 #[derive(StructOpt)]
 pub struct Cli {
@@ -14,6 +16,7 @@ pub struct Cli {
 pub struct Input {
     pub settings: Settings,
     cities: Vec<CityInput>,
+    agents: Vec<AgentInput>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -25,49 +28,104 @@ pub struct Settings {
 pub struct CityInput {
     name: String,
     links: Vec<String>,
-    market_info: MarketInfo,
+    market: HashMap<Good, MarketInfo>,
     pos: Option<Vec2>,
+}
+
+#[derive(Deserialize, Debug)]
+struct AgentInput {
+    name: String,
+    position: AgentPositionInput,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(untagged)]
+enum AgentPositionInput {
+    Node(String),
+    // Edge(String, String),
 }
 
 pub fn get_input() -> Result<Input> {
     let args = Cli::from_args();
     let file: std::path::PathBuf = args.file.unwrap_or("testfile.yml".into());
-    let input: Input = serde_yaml::from_reader(io::BufReader::new(fs::File::open(file)?))?;
-    Ok(input)
+    let input: Result<Input, _> = serde_yaml::from_reader(
+        io::BufReader::new(
+            fs::File::open(&file).context("Failed to open input file")?
+        ))
+        .context("Failed to serialize input");
+    match input {
+        ok @ Ok(_) => {
+            ok
+        }
+        e @ Err(_) => {
+            let reader = io::BufReader::new(fs::File::open(&file)?);
+            let json_val: serde_json::Value = serde_yaml::from_reader(reader)?;
+            println!("{}", serde_json::to_string_pretty(&json_val)?);
+            e.with_context(|| format!("Failed to open input file {:?}", &file))
+        }
+    }
 }
 
 pub fn init(
     input: Res<Input>,
     commands: &mut Commands,
 ) -> Result<()> {
+    commands.insert_resource(Goods(input.cities.iter()
+        .flat_map(|_| std::array::IntoIter::new(["Grain"]))
+        .map(Good::from)
+        .collect()));
+    let cities_to_handles = init_cities(commands, &input.cities)?;
+}
 
-    init_cities(commands, &input.cities)
+pub fn init_agents(
+    commands: &mut Commands,
+    input_agents: &Vec<AgentInput>,
+    cities_to_handles: &HashMap<City, CityHandle>,
+) -> Result<()> {
+    use agent::*;
+    for agent in input_agents.iter() {
+            // - Agent - GraphPosition - Cargo - Money
+        let graph_pos: GraphPosition = match &agent.position {
+            AgentPositionInput::Node(city) => {
+                let city_handle = cities_to_handles.get(City(city))
+                    .context("Agent input has non-existant city")?;
+                GraphPosition::Node(city_handle.clone())
+            },
+        };
+        // commands.spawn((
+        //     agent::Agent { name: agent.name.clone() },
+        //     agent::GraphPosition::Node(match agent.position {
+        //         Node(city) => cities_to_handles[]
+        //     })
+        // ))
+    }
+    Ok(())
 }
 
 pub fn init_cities(
     commands: &mut Commands,
     input_cities: &Vec<CityInput>,
-) -> Result<()> {
-    let mut thread_rng = rand::thread_rng();
+) -> Result<HashMap<City, CityHandle>> {
+    let mut thread_rng = SmallRng::from_entropy();
     let cities: Vec<CityHandle> = input_cities.iter().map(|city| {
         let info: City = city.name.clone().into();
-        let entity = commands.spawn((info.clone(), city.market_info.clone()))
-            .with(Position::from(city.pos
+        let entity = commands.spawn((info.clone(), city.market[&("Grain".into())].clone()))
+            .with(GridPosition::from(city.pos
                 .unwrap_or_else(|| Vec2::from((
                     thread_rng.gen::<f32>() * 10.,
                     thread_rng.gen::<f32>() * 10., )))))
             .current_entity().expect("Failed to create entity");
-        CityHandle { entity, info }
+        CityHandle { entity, city: info }
     })
         .collect();
 
     let name_to_ch: HashMap<&String, &CityHandle> = cities.iter()
-        .map(|ch| (&ch.info.name, ch, )).collect();
+        .map(|ch| (&ch.city.name, ch, )).collect();
 
     let links: HashMap<&CityHandle, Vec<CityHandle>> = input_cities.iter()
         .map(|c| (
             name_to_ch[&c.name],
-            c.links.iter().map(|l| name_to_ch[l].clone()).collect(),
+            c.links.iter().flat_map(|l| name_to_ch.get(l).cloned()).cloned().collect(),
         )).collect();
 
     // validate that every edge is bi-directional
@@ -84,9 +142,12 @@ pub fn init_cities(
         }
     }
 
+    let mut cities_to_entities = HashMap::with_capacity(links.len());
     // add links
     for (src, links) in links.into_iter() {
         commands.insert(src.entity, (LinkedCities(links), ));
+        cities_to_entities.insert(src.city.clone(), src.clone());
     }
-    Ok(())
+    commands.insert_resource(cities_to_entities);
+    Ok(cities_to_entities)
 }

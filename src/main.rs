@@ -1,4 +1,5 @@
 #![allow(unused_imports, dead_code)]
+#![feature(array_value_iter)]
 extern crate derive_more;
 
 pub mod types;
@@ -6,10 +7,12 @@ pub mod prelude;
 mod market;
 mod init;
 mod web;
+mod agent;
 
 use crate::{
     types::*,
     prelude::*,
+    agent::{move_agents},
     market::exchanger::{MarketInfo},
 };
 use bevy::{
@@ -25,7 +28,7 @@ use tokio::sync::watch;
 #[derive(Debug)]
 pub struct State {
     pub tick: Tick,
-    pub nodes: Vec<(City, LinkedCities, MarketInfo, Position)>,
+    pub nodes: Vec<(City, LinkedCities, MarketInfo, GridPosition)>,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -55,6 +58,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         .add_resource(input)
         .add_resource(state_tx)
         .add_resource(Tick(0))
+        .add_resource(HashMap::<City, Entity>::default())
         .add_plugin(LogPlugin)
         .add_plugin(ReflectPlugin)
         .add_plugin(CorePlugin)
@@ -63,8 +67,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         .add_startup_system(init::init.system().chain(fatal_error_handler_system.system()))
         .add_stage("pre-work", SystemStage::serial()
             .with_system(update_tick.system()))
-        .add_stage("main-loop", SystemStage::parallel()
+        .add_stage("main-loop", SystemStage::serial()
             .with_system(update_cities.system())
+            .with_system(wrap(move_agents.system())))
+        .add_stage("final-work", SystemStage::serial()
             .with_system(wrap(printer.system())))
         .run();
     Ok(())
@@ -106,7 +112,7 @@ impl MarketInfo {
 fn printer(
     state_tx: Res<watch::Sender<State>>,
     tick: Res<Tick>,
-    q: Query<(&City, &LinkedCities, &MarketInfo, &Position)>,
+    q: Query<(&City, &LinkedCities, &MarketInfo, &GridPosition)>,
 ) -> Result<()> {
     info!("Starting printing combined query");
     let mut state = State {

@@ -1,7 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, {useEffect, useRef, useState} from "react";
 import "react-bulma-components/dist/react-bulma-components.min.css";
-import Bulma, { Box } from "react-bulma-components";
-import _ from "lodash";
+import {Box} from "react-bulma-components";
 import Graph from "./graph";
 
 type AppProps = {
@@ -12,7 +11,7 @@ type AppProps = {
   };
 };
 
-const App = ({ initial, api }: AppProps) => {
+const App = ({initial, api}: AppProps) => {
   // maintain oldModel
   const [model, setModel] = useState(initial.model);
   const [oldModel, setOldModel] = useState(initial.model);
@@ -66,7 +65,7 @@ const App = ({ initial, api }: AppProps) => {
           </div>
         </div>
       </Box>
-      <Graph graph={initial.visual} model={model} oldModel={oldModel} />
+      <Graph graph={initial.visual} model={model} oldModel={oldModel}/>
     </>
   );
 };

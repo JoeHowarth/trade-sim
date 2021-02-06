@@ -22,6 +22,9 @@ pub use serde::{Serialize, Deserialize};
 
 pub use rand::{
     thread_rng,
+    prelude::*,
+    SeedableRng,
+    rngs::SmallRng,
     Rng,
 };
 
