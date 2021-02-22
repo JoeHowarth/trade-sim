@@ -16,20 +16,21 @@ cities:
           base_supply: 35
           base_price: 100
           price_per_supply: -1
-          pos:
-            - 300
-            - 400
-#  - name: "Brussels"
-#    links:
-#      - "Athens"
-#    market_info:
-#      consumption: 25
-#      supply: 20
-#      production: 30
-#      pricer:
-#        base_supply: 35
-#        base_price: 100
-#        price_per_supply: -1
-#    pos:
-#      - 200
-#      - 300
+    pos:
+      - 300
+      - 400
+  - name: "Brussels"
+    links:
+      - "Athens"
+    market:
+      Grain:
+        consumption: 25
+        supply: 20
+        production: 30
+        pricer:
+          base_supply: 35
+          base_price: 100
+          price_per_supply: -1
+    pos:
+      - 200
+      - 300

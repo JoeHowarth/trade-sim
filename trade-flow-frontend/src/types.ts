@@ -8,7 +8,7 @@ interface RGraph {
   edges: REdge[]
 }
 
-interface RNode extends Point{
+interface RNode extends Point {
   id: NodeId
   radius: number
   color?: string
@@ -18,8 +18,7 @@ interface REdge {
   nodes: RNode[]
 }
 
-interface RAgent {
-  edge: REdge
+interface RAgent extends Point {
   id: AgentId
 }
 
@@ -30,14 +29,17 @@ interface MNode {
 }
 
 interface MEdge {
-  nodes: [NodeId]
+  nodes: NodeId[]
 }
 
 interface MAgent {
   id: AgentId
-  location: NodeId | MEdge
+  cargo: Good
+  location: NodeId
+  money: Money
 }
 
+type Money = number
 type Good = string
 type NodeId = string
 type AgentId = string
@@ -58,5 +60,6 @@ interface Model {
 
 interface SimApi {
   nextState(): Promise<Model>
-  initialState(): Promise<{ visual: RGraph; model: Model; }> 
+
+  initialState(): Promise<{ visual: RGraph; model: Model; }>
 }

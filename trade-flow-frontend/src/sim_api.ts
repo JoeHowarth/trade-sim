@@ -40,6 +40,7 @@ export class Api implements SimApi {
       .get<RGraph>(Api.baseUrl + "/rgraph")
       .catch(errorHandler<RGraph>());
     let model = await Api.getModel();
+    console.log("initial model", model)
 
     let visual = (await visualResp).data;
     visual.edges = visual.edges.map(e => {

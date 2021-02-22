@@ -1,13 +1,25 @@
-import React, { useCallback, useEffect, useState } from "react";
-import ReactDOM from "react-dom";
-import { Container } from "react-bulma-components";
-import { Stage, Layer, Star, Text, Rect, Circle, Line } from "react-konva";
+import React, {useCallback, useEffect, useState} from "react";
+import {Stage, Layer, Star, Text, Rect, Ring, Circle, Line} from "react-konva";
 import Konva from "konva";
-import { KonvaEventListener, KonvaEventObject } from "konva/types/Node";
-import { KonvaNodeEvent } from "konva/types/types";
-import { ViewMarketInfo } from "./InfoBox";
+import {KonvaEventObject} from "konva/types/Node";
 
-export const VisualEdge = ({ edge }: { edge: REdge }) => {
+export const VisualAgent = (props: {
+  agent: RAgent, onClick?(e: KonvaEventObject<any>): void
+}) => {
+  const {agent} = props
+  return (
+    <Ring
+      x={agent.x + Math.random() / 5}
+      y={agent.y + Math.random() / 5}
+      innerRadius={3}
+      outerRadius={6}
+      fill="red"
+      {...props}
+    />
+  )
+}
+
+export const VisualEdge = ({edge}: { edge: REdge }) => {
   return (
     <Line
       strokeWidth={2}

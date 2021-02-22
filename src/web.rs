@@ -22,8 +22,6 @@ pub async fn server(state: watch::Receiver<State>) {
         .and_then(rgraph_handler)
         .with(cors);
 
-    // let full = state_route.or(rgraph_route).with(cors);
-
     warp::serve(
         state_route
             .or(rgraph_route)
@@ -76,7 +74,14 @@ fn state_to_model(state: &State) -> Model {
                 })
                 .collect::<Vec<_>>()
         }).collect(),
-        agents: vec![],
+        agents: state.agents.iter().map(|(agent, pos, money, cargo)| {
+            MAgent{
+                id: &agent.name,
+                cargo: &cargo.good.name,
+                location: &pos.city().expect("only node agent positions implemented").city.name,
+                money: money.0,
+            }
+        }).collect(),
     }
 }
 
@@ -109,7 +114,7 @@ pub struct Model<'a> {
     tick: u64,
     nodes: Vec<MNode<'a>>,
     edges: Vec<MEdge<'a>>,
-    agents: Vec<()>,
+    agents: Vec<MAgent<'a>>,
 }
 
 #[derive(Serialize, Debug)]
@@ -121,6 +126,7 @@ pub struct MarketInfo {
 }
 
 pub type NodeId<'a> = &'a str;
+pub type AgentId<'a> = &'a str;
 pub type Good<'a> = &'a str;
 
 #[derive(Serialize, Debug)]
@@ -128,6 +134,14 @@ pub struct MNode<'a> {
     pub id: NodeId<'a>,
     pub markets: HashMap<Good<'a>, MarketInfo>,
     pub links: Vec<NodeId<'a>>,
+}
+
+#[derive(Serialize, Debug)]
+pub struct MAgent<'a> {
+    id: AgentId<'a>,
+    cargo: Good<'a>,
+    location: NodeId<'a>,
+    money: f64,
 }
 
 #[derive(Serialize, Debug)]

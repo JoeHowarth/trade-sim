@@ -12,8 +12,11 @@ mod agent;
 use crate::{
     types::*,
     prelude::*,
-    agent::{move_agents},
-    market::exchanger::{MarketInfo},
+    agent::{move_agents, GraphPosition, Agent, Cargo},
+    market::{
+        Money,
+        exchanger::{MarketInfo}
+    },
 };
 use bevy::{
     log::{LogPlugin, LogSettings},
@@ -29,12 +32,17 @@ use tokio::sync::watch;
 pub struct State {
     pub tick: Tick,
     pub nodes: Vec<(City, LinkedCities, MarketInfo, GridPosition)>,
+    pub agents: Vec<(Agent, GraphPosition, Money, Cargo)>
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
     let input = init::get_input().context("Failed to get input")?;
     let (state_tx, state_rx) = watch::channel(
-        State { tick: Tick(1), nodes: Vec::new() }
+        State {
+            tick: Tick(0),
+            nodes: Vec::new(),
+            agents: Vec::new(),
+        }
     );
     {
         std::thread::spawn(move || {
@@ -112,19 +120,25 @@ impl MarketInfo {
 fn printer(
     state_tx: Res<watch::Sender<State>>,
     tick: Res<Tick>,
-    q: Query<(&City, &LinkedCities, &MarketInfo, &GridPosition)>,
+    cities_q: Query<(&City, &LinkedCities, &MarketInfo, &GridPosition)>,
+    agents_q: Query<(&Agent, &GraphPosition, &Money, &Cargo)>,
 ) -> Result<()> {
     info!("Starting printing combined query");
     let mut state = State {
         tick: Tick(0),
         nodes: Vec::with_capacity(100),
+        agents: Vec::with_capacity(100),
     };
-    for (city, links, market_info, pos) in q.iter() {
+    for (city, links, market_info, pos) in cities_q.iter() {
         state.nodes.push((city.clone(), links.clone(), market_info.clone(), *pos));
-        info!("City:          {:?}", city);
-        info!("Market Info:   {:?}", market_info);
-        info!("Current Price: {:?}", market_info.current_price());
-        info!("Links:         {:?}", links);
+        // info!("City:          {:?}", city);
+        // info!("Market Info:   {:?}", market_info);
+        // info!("Current Price: {:?}", market_info.current_price());
+        // info!("Links:         {:?}", links);
+    }
+    for (agent, pos, money, cargo) in agents_q.iter() {
+        state.agents.push((agent.clone(), pos.clone(), money.clone(), cargo.clone()))
+
     }
     state.tick = tick.clone();
     info!("state:         {:?}", state);

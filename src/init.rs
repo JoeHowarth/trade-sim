@@ -6,6 +6,7 @@ use crate::{
     market::exchanger::MarketInfo,
 };
 use bevy::utils::tracing::field::debug;
+use crate::market::Money;
 
 #[derive(StructOpt)]
 pub struct Cli {
@@ -70,34 +71,43 @@ pub fn init(
     input: Res<Input>,
     commands: &mut Commands,
 ) -> Result<()> {
-    commands.insert_resource(Goods(input.cities.iter()
-        .flat_map(|_| std::array::IntoIter::new(["Grain"]))
-        .map(Good::from)
-        .collect()));
+    let goods = Goods(input.cities.iter()
+        .flat_map(|c| c.market.keys())
+        .cloned()
+        .collect());
     let cities_to_handles = init_cities(commands, &input.cities)?;
+    init_agents(commands, &input.agents, &cities_to_handles, &goods)?;
+
+    commands.insert_resource(goods);
+    Ok(())
 }
 
-pub fn init_agents(
+fn init_agents(
     commands: &mut Commands,
     input_agents: &Vec<AgentInput>,
     cities_to_handles: &HashMap<City, CityHandle>,
+    all_goods: &Goods,
 ) -> Result<()> {
     use agent::*;
+    let mut rng = SmallRng::from_entropy();
     for agent in input_agents.iter() {
-            // - Agent - GraphPosition - Cargo - Money
+        // - Agent - GraphPosition - Cargo - Money
         let graph_pos: GraphPosition = match &agent.position {
             AgentPositionInput::Node(city) => {
-                let city_handle = cities_to_handles.get(City(city))
+                let city_handle = cities_to_handles.get(&City { name: city.clone() })
                     .context("Agent input has non-existant city")?;
                 GraphPosition::Node(city_handle.clone())
-            },
+            }
         };
-        // commands.spawn((
-        //     agent::Agent { name: agent.name.clone() },
-        //     agent::GraphPosition::Node(match agent.position {
-        //         Node(city) => cities_to_handles[]
-        //     })
-        // ))
+        commands.spawn((
+            agent::Agent { name: agent.name.clone() },
+            graph_pos,
+            Cargo{
+                good: all_goods.0.iter().choose(&mut rng).unwrap().clone(),
+                amt: 1,
+            },
+            Money(20.),
+        ));
     }
     Ok(())
 }
@@ -148,6 +158,6 @@ pub fn init_cities(
         commands.insert(src.entity, (LinkedCities(links), ));
         cities_to_entities.insert(src.city.clone(), src.clone());
     }
-    commands.insert_resource(cities_to_entities);
+    commands.insert_resource(cities_to_entities.clone());
     Ok(cities_to_entities)
 }
