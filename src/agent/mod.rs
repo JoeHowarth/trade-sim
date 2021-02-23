@@ -6,6 +6,8 @@ use crate::{
     types::*,
 };
 use rand::prelude::SmallRng;
+use crate::market::exchanger::{MarketInfo, Exchanger};
+use crate::market::{Money, LinearMarket};
 
 /*
 Agent Components:
@@ -39,10 +41,89 @@ pub enum GraphPosition {
 }
 
 /*
-Systems
+Functions
  */
 
-pub fn move_agents(
+fn sell_cargo(
+    cargo: &mut Cargo,
+    wallet: &mut Money,
+    market: &mut MarketInfo,
+) {
+    let amt = cargo.amt.clone();
+    market.sell(wallet, amt as i32);
+    cargo.amt = 0;
+}
+
+fn buy_random(
+    agent: &Agent,
+    cargo: &mut Cargo,
+    wallet: &mut Money,
+    market_info: &mut MarketInfo,
+    // market: &mut LinearMarket,
+) {
+    let mut rng = SmallRng::from_entropy();
+    // match market.table.iter_mut()
+    //     .map(|x| Some(x)).chain(std::iter::once(None))
+    //     .choose(&mut rng) {
+    //     None | Some(None) => { cargo.amt = 0 }
+    //     Some(Some((good, market_info))) => {
+    //         if let Some(_) = market_info.buy(wallet, 1) {
+    //             cargo.good = good.clone();
+    //             cargo.amt = 1;
+    //         } else {
+    //             info!("agent {} doesn't have enough money to buy {}", &agent.name, &good.name)
+    //         }
+    //     }
+    // }
+    if rng.gen_bool(0.5) {
+        if let Some(_) = market_info.buy(wallet, 1) {
+            cargo.amt = 1;
+        } else {
+            info!("agent {} doesn't have enough money to buy {}", &agent.name, &cargo.good.name);
+        }
+    }
+}
+
+/*
+Systems
+
+Order:
+- sell inventory
+- decide where to go next and buy good
+- move
+ */
+
+pub fn agents_sell(
+    mut agent_q: Query<(&mut Cargo, &mut Money, &GraphPosition), With<Agent>>,
+    mut cities_q: Query<(&City, &mut MarketInfo)>,
+) -> Result<()> {
+    for (mut cargo, mut wallet, pos) in agent_q.iter_mut() {
+        let city: &CityHandle = pos.city().context("haven't implemented non-city agents yet")?;
+        let mut market: Mut<MarketInfo> = cities_q
+            .get_component_mut(city.entity)
+            .map_err(ecs_err)?;
+
+        sell_cargo(&mut cargo, &mut wallet, &mut market);
+    }
+    Ok(())
+}
+
+pub fn agents_buy_random(
+    mut agent_q: Query<(&Agent, &mut Cargo, &mut Money, &GraphPosition)>,
+    mut cities_q: Query<&mut MarketInfo, With<City>>,
+) -> Result<()> {
+    for (agent, mut cargo, mut wallet, pos) in agent_q.iter_mut() {
+        let city: &CityHandle = pos.city().context("haven't implemented non-city agents yet")?;
+        let mut market: Mut<MarketInfo> = cities_q
+            .get_component_mut(city.entity)
+            .map_err(ecs_err)?;
+
+        buy_random(agent, &mut cargo, &mut wallet, &mut market);
+    }
+    Ok(())
+}
+
+pub fn move_agents_random(
     mut agent_q: Query<&mut GraphPosition, With<Agent>>,
     cities_q: Query<&LinkedCities, With<City>>,
 ) -> Result<()> {

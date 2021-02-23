@@ -1,5 +1,4 @@
 #![allow(unused_imports, dead_code)]
-#![feature(array_value_iter)]
 extern crate derive_more;
 
 pub mod types;
@@ -12,7 +11,7 @@ mod agent;
 use crate::{
     types::*,
     prelude::*,
-    agent::{move_agents, GraphPosition, Agent, Cargo},
+    agent::{move_agents_random, GraphPosition, Agent, Cargo},
     market::{
         Money,
         exchanger::{MarketInfo}
@@ -27,6 +26,7 @@ use bevy::diagnostic::DiagnosticsPlugin;
 use bevy::app::{ScheduleRunnerPlugin, ScheduleRunnerSettings, RunMode};
 use std::time::Duration;
 use tokio::sync::watch;
+use crate::agent::{agents_sell, agents_buy_random};
 
 #[derive(Debug)]
 pub struct State {
@@ -77,7 +77,9 @@ fn main() -> Result<(), Box<dyn Error>> {
             .with_system(update_tick.system()))
         .add_stage("main-loop", SystemStage::serial()
             .with_system(update_cities.system())
-            .with_system(wrap(move_agents.system())))
+            .with_system(wrap(agents_sell.system()))
+            .with_system(wrap(agents_buy_random.system()))
+            .with_system(wrap(move_agents_random.system())))
         .add_stage("final-work", SystemStage::serial()
             .with_system(wrap(printer.system())))
         .run();
