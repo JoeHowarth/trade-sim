@@ -84,6 +84,31 @@ fn buy_random(
     }
 }
 
+fn decide_single_good(
+    agent: &Agent,
+    cargo: &mut Cargo,
+    wallet: &mut Money,
+    local_market: &mut MarketInfo,
+    adj_markets: &HashMap<City, &MarketInfo>,
+) {
+    let cmp = |(_, l_market), (_, r_market)| {
+        l_market.current_price().cmp(&r_market.current_price())
+    };
+    let dst = match adj_markets.iter().max_by(cmp) {
+        Some((city, market)) => {
+            if market.current_price() <= local_market.current_price() {
+                info!("No adjacent markets have higher prices, moving to lowest price market w/o buying")
+                adj_markets.iter().min_by(cmp).expect("should be non-empty")
+            }
+
+            local_market.buy(wallet, 1);
+            cargo.amt = 1;
+            city
+        }
+        None => {}
+    }
+}
+
 /*
 Systems
 
@@ -104,6 +129,19 @@ pub fn agents_sell(
             .map_err(ecs_err)?;
 
         sell_cargo(&mut cargo, &mut wallet, &mut market);
+    }
+    Ok(())
+}
+
+pub fn agents_move_single_good(
+    mut agent_q: Query<(&Agent, &mut Cargo, &mut Money, &GraphPosition)>,
+    mut cities_q: Query<(&mut MarketInfo, &LinkedCities), With<City>>,
+) -> Result<()> {
+    for (agent, mut cargo, mut wallet, pos) in agent_q.iter_mut() {
+        let city: &CityHandle = pos.city().context("haven't implemented non-city agents yet")?;
+        let (mut market_info, links) = cities_q
+            .get_mut(city.entity)
+            .map_err(ecs_err)?;
     }
     Ok(())
 }
