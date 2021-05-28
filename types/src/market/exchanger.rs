@@ -56,7 +56,6 @@ impl MarketInfo {
 }
 
 mod tests {
-    use super::*;
 
     #[test]
     fn linear_price_pricer() {

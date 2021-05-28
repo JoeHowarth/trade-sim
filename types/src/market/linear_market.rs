@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use crate::market::{LinearMarket, Market, money::Money};
-use crate::types::Good;
+use crate::Good;
 use crate::market::exchanger;
 use crate::market::exchanger::{Exchanger};
 use crate::market::pricer::Pricer;

@@ -2,11 +2,11 @@ use bevy::utils::tracing::field::debug;
 use structopt::StructOpt;
 use warp::Filter;
 
-use lib::prelude::*;
-use lib::agent::{Cargo, GraphPosition};
-use lib::market::Money;
-use lib::types::{CityHandle, City, Goods, Good};
-use lib::market::exchanger::MarketInfo;
+use types::prelude::*;
+use types::agent::{Cargo, GraphPosition};
+use types::market::Money;
+use types::{CityHandle, City, Goods, Good};
+use types::market::exchanger::MarketInfo;
 
 
 #[derive(StructOpt)]
@@ -100,7 +100,7 @@ fn init_agents(
             }
         };
         commands.spawn().insert_bundle((
-            lib::agent::Agent { name: agent.name.clone() },
+            types::agent::Agent { name: agent.name.clone() },
             graph_pos,
             Cargo {
                 good: all_goods.0.iter().choose(&mut rng).unwrap().clone(),
@@ -123,7 +123,7 @@ pub fn init_cities(
             info.clone(),
             city.market[&("Grain".into())].clone()
         ))
-            .insert(lib::types::GridPosition::from(city.pos
+            .insert(types::GridPosition::from(city.pos
                 .unwrap_or_else(|| Vec2::from((
                     thread_rng.gen::<f32>() * 10.,
                     thread_rng.gen::<f32>() * 10., )))))
@@ -159,7 +159,7 @@ pub fn init_cities(
     let mut cities_to_entities = HashMap::with_capacity(links.len());
     // add links
     for (src, links) in links.into_iter() {
-        commands.entity(src.entity).insert(lib::types::LinkedCities(links));
+        commands.entity(src.entity).insert(types::LinkedCities(links));
         cities_to_entities.insert(src.city.clone(), src.clone());
     }
     commands.insert_resource(cities_to_entities.clone());

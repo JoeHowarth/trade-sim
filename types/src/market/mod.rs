@@ -5,7 +5,7 @@ pub mod money;
 
 use crate::{
     prelude::*,
-    types::*,
+    *,
     market::{
         exchanger::{Exchanger, MarketInfo}
     },
@@ -13,7 +13,7 @@ use crate::{
 use std::fmt::Debug;
 
 pub use crate::market::money::Money;
-use crate::types::Good;
+use crate::Good;
 
 pub trait Market {
     type MarketInfo: Exchanger;

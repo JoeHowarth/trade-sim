@@ -1,4 +1,7 @@
 pub mod basic_impls;
+pub mod market;
+pub mod agent;
+pub mod prelude;
 
 pub use basic_impls::*;
 // types for trade-sim

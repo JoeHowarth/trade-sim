@@ -11,22 +11,21 @@ use bevy::core::CorePlugin;
 use bevy::diagnostic::DiagnosticsPlugin;
 use tokio::sync::watch;
 
-use lib::prelude::*;
-use lib::types::*;
+use types::prelude::*;
+use types::*;
 use server::web;
 
-use lib::market::exchanger::MarketInfo;
-use lib::agent::{GraphPosition, Cargo, Agent, agents_sell, agents_buy_random, move_agents_random};
-use lib::market::Money;
+use types::market::exchanger::MarketInfo;
+use types::agent::{GraphPosition, Cargo, Agent};
+use types::market::Money;
+use sim::agent_behavior;
 
 mod init;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    dbg!(lib::from_lib());
-
     let input = init::get_input().context("Failed to get input")?;
     let (state_tx, state_rx) = watch::channel(
-        lib::types::State{
+        types::State {
             tick: Tick(0),
             nodes: Vec::new(),
             agents: Vec::new(),
@@ -59,16 +58,19 @@ fn main() -> Result<(), Box<dyn Error>> {
         .add_plugin(CorePlugin)
         .add_plugin(DiagnosticsPlugin)
         .add_plugin(ScheduleRunnerPlugin {})
-        // .add_startup_system(init::init.chain(fatal_error_handler_system.system()))
-        .add_stage("pre-work", SystemStage::single_threaded()
-            .with_system(update_tick.system()))
-        .add_stage("main-loop", SystemStage::single_threaded()
-            .with_system(update_cities.system())
-            .with_system(wrap(agents_sell.system()))
-            .with_system(wrap(agents_buy_random.system()))
-            .with_system(wrap(move_agents_random.system())))
-        .add_stage("final-work", SystemStage::single_threaded()
-            .with_system(wrap(printer.system())))
+        .add_startup_system(wrap(init::init.system()))
+        .add_stage("pre-work",
+                   SystemStage::single_threaded()
+                       .with_system(update_tick.system()))
+        .add_stage("main-loop",
+                   SystemStage::single_threaded()
+                       .with_system(update_cities.system())
+                       .with_system(wrap(agent_behavior::agents_sell.system()))
+                       .with_system(wrap(agent_behavior::agents_buy_random.system()))
+                       .with_system(wrap(agent_behavior::move_agents_random.system())))
+        .add_stage("final-work",
+                   SystemStage::single_threaded()
+                       .with_system(wrap(printer.system())))
         .run();
     Ok(())
 }
@@ -101,13 +103,13 @@ fn update_cities(mut q: Query<(&City, &mut MarketInfo)>) {
 }
 
 fn printer(
-    state_tx: Res<watch::Sender<lib::types::State>>,
+    state_tx: Res<watch::Sender<types::State>>,
     tick: Res<Tick>,
     cities_q: Query<(&City, &LinkedCities, &MarketInfo, &GridPosition)>,
     agents_q: Query<(&Agent, &GraphPosition, &Money, &Cargo)>,
 ) -> Result<()> {
     info!("Starting printing combined query");
-    let mut state = lib::types::State {
+    let mut state = types::State {
         tick: Tick(0),
         nodes: Vec::with_capacity(100),
         agents: Vec::with_capacity(100),

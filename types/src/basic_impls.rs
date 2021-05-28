@@ -1,5 +1,4 @@
-use crate::types::*;
-use bevy::ecs::system::QueryComponentError;
+use crate::*;
 use bevy::prelude::Vec2;
 use std::error::Error;
 

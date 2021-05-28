@@ -2459,18 +2459,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "830d08ce1d1d941e6b30645f1a0eb5643013d835ce3779a5fc208261dbe10f55"
 
 [[package]]
-name = "lib"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bevy",
- "derive_more",
- "rand 0.8.3",
- "serde",
- "structopt",
-]
-
-[[package]]
 name = "libc"
 version = "0.2.81"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3662,7 +3650,6 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "derive_more",
- "lib",
  "rand 0.8.3",
  "serde",
  "serde_json",
@@ -3670,6 +3657,7 @@ dependencies = [
  "structopt",
  "tokio",
  "tracing",
+ "types",
  "warp",
 ]
 
@@ -3747,6 +3735,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "16f1d0fef1604ba8f7a073c7e701f213e056707210e9020af4528e0101ce11a6"
 dependencies = [
  "libc",
+]
+
+[[package]]
+name = "sim"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bevy",
+ "derive_more",
+ "rand 0.8.3",
+ "serde",
+ "structopt",
+ "types",
 ]
 
 [[package]]
@@ -4325,14 +4326,15 @@ dependencies = [
  "anyhow",
  "bevy",
  "derive_more",
- "lib",
  "rand 0.8.3",
  "serde",
  "serde_json",
  "serde_yaml",
  "server",
+ "sim",
  "structopt",
  "tokio",
+ "types",
  "warp",
 ]
 
@@ -4381,6 +4383,18 @@ name = "typenum"
 version = "1.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "373c8a200f9e67a0c95e62a4f52fbf80c23b4381c05a17845531982fa99e6b33"
+
+[[package]]
+name = "types"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bevy",
+ "derive_more",
+ "rand 0.8.3",
+ "serde",
+ "structopt",
+]
 
 [[package]]
 name = "unicase"
