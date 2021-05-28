@@ -91,22 +91,25 @@ fn decide_single_good(
     local_market: &mut MarketInfo,
     adj_markets: &HashMap<City, &MarketInfo>,
 ) {
-    let cmp = |(_, l_market), (_, r_market)| {
+    let cmp = |(_, l_market): &(&City, &&MarketInfo), (_, r_market): &(&City, &&MarketInfo)| {
         l_market.current_price().cmp(&r_market.current_price())
     };
-    let dst = match adj_markets.iter().max_by(cmp) {
-        Some((city, market)) => {
-            if market.current_price() <= local_market.current_price() {
-                info!("No adjacent markets have higher prices, moving to lowest price market w/o buying")
-                adj_markets.iter().min_by(cmp).expect("should be non-empty")
-            }
-
-            local_market.buy(wallet, 1);
-            cargo.amt = 1;
-            city
+    let a = adj_markets.iter();
+    let dst = adj_markets.iter().max_by(cmp).map(|city, market| {
+        if market.current_price() <= local_market.current_price() {
+            info!("No adjacent markets have higher prices, moving to lowest price market w/o buying");
+            adj_markets.iter().min_by(cmp).expect("should be non-empty").0
         }
-        None => {}
-    }
+
+        local_market.buy(wallet, 1);
+        cargo.amt = 1;
+        city
+    });
+    match dst {
+       Some((city, market)) => {
+       }
+       None => {},
+    };
 }
 
 /*
