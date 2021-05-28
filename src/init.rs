@@ -70,14 +70,14 @@ pub fn get_input() -> Result<Input> {
 
 pub fn init(
     input: Res<Input>,
-    commands: &mut Commands,
+    mut commands: Commands,
 ) -> Result<()> {
     let goods = Goods(input.cities.iter()
         .flat_map(|c| c.market.keys())
         .cloned()
         .collect());
-    let cities_to_handles = init_cities(commands, &input.cities)?;
-    init_agents(commands, &input.agents, &cities_to_handles, &goods)?;
+    let cities_to_handles = init_cities(&mut commands, &input.cities)?;
+    init_agents(&mut commands, &input.agents, &cities_to_handles, &goods)?;
 
     commands.insert_resource(goods);
     Ok(())
@@ -100,10 +100,10 @@ fn init_agents(
                 GraphPosition::Node(city_handle.clone())
             }
         };
-        commands.spawn((
+        commands.spawn().insert_bundle((
             agent::Agent { name: agent.name.clone() },
             graph_pos,
-            Cargo{
+            Cargo {
                 good: all_goods.0.iter().choose(&mut rng).unwrap().clone(),
                 amt: 1,
             },
@@ -120,13 +120,17 @@ pub fn init_cities(
     let mut thread_rng = SmallRng::from_entropy();
     let cities: Vec<CityHandle> = input_cities.iter().map(|city| {
         let info: City = city.name.clone().into();
-        let entity = commands.spawn((info.clone(), city.market[&("Grain".into())].clone()))
-            .with(GridPosition::from(city.pos
+        let entity = commands.spawn_bundle((
+            info.clone(),
+            city.market[&("Grain".into())].clone()
+        ))
+            .insert(GridPosition::from(city.pos
                 .unwrap_or_else(|| Vec2::from((
                     thread_rng.gen::<f32>() * 10.,
                     thread_rng.gen::<f32>() * 10., )))))
-            .current_entity().expect("Failed to create entity");
-        CityHandle { entity, city: info }
+            .id();
+
+        return CityHandle { entity, city: info };
     })
         .collect();
 
@@ -156,7 +160,7 @@ pub fn init_cities(
     let mut cities_to_entities = HashMap::with_capacity(links.len());
     // add links
     for (src, links) in links.into_iter() {
-        commands.insert(src.entity, (LinkedCities(links), ));
+        commands.entity(src.entity).insert(LinkedCities(links));
         cities_to_entities.insert(src.city.clone(), src.clone());
     }
     commands.insert_resource(cities_to_entities.clone());

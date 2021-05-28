@@ -1,6 +1,6 @@
 use crate::types::*;
 use crate::prelude::*;
-use bevy::ecs::QueryError;
+use bevy::ecs::system::QueryComponentError;
 
 impl Clone for CityHandle {
     fn clone(&self) -> Self {
@@ -33,6 +33,6 @@ impl std::fmt::Display for Good {
     }
 }
 
-pub fn ecs_err(e: QueryError) -> anyhow::Error {
+pub fn ecs_err(e: impl Error) -> anyhow::Error {
     anyhow::Error::msg(format!("QueryError: {:?}", e))
 }

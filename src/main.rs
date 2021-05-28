@@ -19,7 +19,6 @@ use crate::{
 };
 use bevy::{
     log::{LogPlugin, LogSettings},
-    reflect::ReflectPlugin,
 };
 use bevy::core::CorePlugin;
 use bevy::diagnostic::DiagnosticsPlugin;
@@ -54,33 +53,32 @@ fn main() -> Result<(), Box<dyn Error>> {
         });
     }
     App::build()
-        .add_resource(LogSettings {
+        .insert_resource(LogSettings {
             level: bevy::log::Level::DEBUG,
             filter: "bevy_ecs=info,bevy_app=info,bevy_core=info".into(),
         })
-        .add_resource(ScheduleRunnerSettings {
+        .insert_resource(ScheduleRunnerSettings {
             run_mode: RunMode::Loop {
-                wait: Some(Duration::from_millis(input.settings.loop_rate))
+                wait: Some(Duration::from_millis(input.settings.loop_rate.clone()))
             }
         })
-        .add_resource(input)
-        .add_resource(state_tx)
-        .add_resource(Tick(0))
-        .add_resource(HashMap::<City, Entity>::default())
+        .insert_resource(input)
+        .insert_resource(state_tx)
+        .insert_resource(Tick(0))
+        .insert_resource(HashMap::<City, Entity>::default())
         .add_plugin(LogPlugin)
-        .add_plugin(ReflectPlugin)
         .add_plugin(CorePlugin)
         .add_plugin(DiagnosticsPlugin)
         .add_plugin(ScheduleRunnerPlugin {})
-        .add_startup_system(init::init.system().chain(fatal_error_handler_system.system()))
-        .add_stage("pre-work", SystemStage::serial()
+        // .add_startup_system(init::init.chain(fatal_error_handler_system.system()))
+        .add_stage("pre-work", SystemStage::single_threaded()
             .with_system(update_tick.system()))
-        .add_stage("main-loop", SystemStage::serial()
+        .add_stage("main-loop", SystemStage::single_threaded()
             .with_system(update_cities.system())
             .with_system(wrap(agents_sell.system()))
             .with_system(wrap(agents_buy_random.system()))
             .with_system(wrap(move_agents_random.system())))
-        .add_stage("final-work", SystemStage::serial()
+        .add_stage("final-work", SystemStage::single_threaded()
             .with_system(wrap(printer.system())))
         .run();
     Ok(())

@@ -95,18 +95,18 @@ fn decide_single_good(
         l_market.current_price().cmp(&r_market.current_price())
     };
     let a = adj_markets.iter();
-    let dst = adj_markets.iter().max_by(cmp).map(|city, market| {
+    let dst = adj_markets.iter().max_by(cmp).map(|(city, market)| {
         if market.current_price() <= local_market.current_price() {
             info!("No adjacent markets have higher prices, moving to lowest price market w/o buying");
-            adj_markets.iter().min_by(cmp).expect("should be non-empty").0
+            return adj_markets.iter().min_by(cmp).expect("should be non-empty").0
         }
 
         local_market.buy(wallet, 1);
         cargo.amt = 1;
-        city
+        return city
     });
     match dst {
-       Some((city, market)) => {
+       Some(city) => {
        }
        None => {},
     };
@@ -140,9 +140,9 @@ pub fn agents_move_single_good(
     mut agent_q: Query<(&Agent, &mut Cargo, &mut Money, &GraphPosition)>,
     mut cities_q: Query<(&mut MarketInfo, &LinkedCities), With<City>>,
 ) -> Result<()> {
-    for (agent, mut cargo, mut wallet, pos) in agent_q.iter_mut() {
+    for (agent, cargo, wallet, pos) in agent_q.iter_mut() {
         let city: &CityHandle = pos.city().context("haven't implemented non-city agents yet")?;
-        let (mut market_info, links) = cities_q
+        let (_, _) = cities_q
             .get_mut(city.entity)
             .map_err(ecs_err)?;
     }
