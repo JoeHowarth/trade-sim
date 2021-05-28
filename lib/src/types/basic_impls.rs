@@ -1,6 +1,7 @@
 use crate::types::*;
-use crate::prelude::*;
 use bevy::ecs::system::QueryComponentError;
+use bevy::prelude::Vec2;
+use std::error::Error;
 
 impl Clone for CityHandle {
     fn clone(&self) -> Self {

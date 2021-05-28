@@ -1,13 +1,13 @@
-use structopt::StructOpt;
-use crate::{
-    types::*,
-    prelude::*,
-    agent,
-    market::exchanger::MarketInfo,
-};
 use bevy::utils::tracing::field::debug;
-use crate::market::Money;
+use structopt::StructOpt;
 use warp::Filter;
+
+use lib::prelude::*;
+use lib::agent::{Cargo, GraphPosition};
+use lib::market::Money;
+use lib::types::{CityHandle, City, Goods, Good};
+use lib::market::exchanger::MarketInfo;
+
 
 #[derive(StructOpt)]
 pub struct Cli {
@@ -89,7 +89,6 @@ fn init_agents(
     cities_to_handles: &HashMap<City, CityHandle>,
     all_goods: &Goods,
 ) -> Result<()> {
-    use agent::*;
     let mut rng = SmallRng::from_entropy();
     for agent in input_agents.iter() {
         // - Agent - GraphPosition - Cargo - Money
@@ -101,7 +100,7 @@ fn init_agents(
             }
         };
         commands.spawn().insert_bundle((
-            agent::Agent { name: agent.name.clone() },
+            lib::agent::Agent { name: agent.name.clone() },
             graph_pos,
             Cargo {
                 good: all_goods.0.iter().choose(&mut rng).unwrap().clone(),
@@ -124,7 +123,7 @@ pub fn init_cities(
             info.clone(),
             city.market[&("Grain".into())].clone()
         ))
-            .insert(GridPosition::from(city.pos
+            .insert(lib::types::GridPosition::from(city.pos
                 .unwrap_or_else(|| Vec2::from((
                     thread_rng.gen::<f32>() * 10.,
                     thread_rng.gen::<f32>() * 10., )))))
@@ -160,7 +159,7 @@ pub fn init_cities(
     let mut cities_to_entities = HashMap::with_capacity(links.len());
     // add links
     for (src, links) in links.into_iter() {
-        commands.entity(src.entity).insert(LinkedCities(links));
+        commands.entity(src.entity).insert(lib::types::LinkedCities(links));
         cities_to_entities.insert(src.city.clone(), src.clone());
     }
     commands.insert_resource(cities_to_entities.clone());
