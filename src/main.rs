@@ -1,43 +1,32 @@
 #![allow(unused_imports, dead_code)]
 extern crate derive_more;
 
-pub mod types;
-pub mod prelude;
-mod market;
-mod init;
-mod web;
-mod agent;
+use std::time::Duration;
 
-use crate::{
-    types::*,
-    prelude::*,
-    agent::{move_agents_random, GraphPosition, Agent, Cargo},
-    market::{
-        Money,
-        exchanger::{MarketInfo}
-    },
-};
 use bevy::{
     log::{LogPlugin, LogSettings},
 };
+use bevy::app::{RunMode, ScheduleRunnerPlugin, ScheduleRunnerSettings};
 use bevy::core::CorePlugin;
 use bevy::diagnostic::DiagnosticsPlugin;
-use bevy::app::{ScheduleRunnerPlugin, ScheduleRunnerSettings, RunMode};
-use std::time::Duration;
 use tokio::sync::watch;
-use crate::agent::{agents_sell, agents_buy_random};
 
-#[derive(Debug)]
-pub struct State {
-    pub tick: Tick,
-    pub nodes: Vec<(City, LinkedCities, MarketInfo, GridPosition)>,
-    pub agents: Vec<(Agent, GraphPosition, Money, Cargo)>
-}
+use lib::prelude::*;
+use lib::types::*;
+use server::web;
+
+use lib::market::exchanger::MarketInfo;
+use lib::agent::{GraphPosition, Cargo, Agent, agents_sell, agents_buy_random, move_agents_random};
+use lib::market::Money;
+
+mod init;
 
 fn main() -> Result<(), Box<dyn Error>> {
+    dbg!(lib::from_lib());
+
     let input = init::get_input().context("Failed to get input")?;
     let (state_tx, state_rx) = watch::channel(
-        State {
+        lib::types::State{
             tick: Tick(0),
             nodes: Vec::new(),
             agents: Vec::new(),
@@ -111,20 +100,14 @@ fn update_cities(mut q: Query<(&City, &mut MarketInfo)>) {
     }
 }
 
-impl MarketInfo {
-    pub fn produce_and_consume(&mut self) {
-        self.supply += self.production - self.consumption
-    }
-}
-
 fn printer(
-    state_tx: Res<watch::Sender<State>>,
+    state_tx: Res<watch::Sender<lib::types::State>>,
     tick: Res<Tick>,
     cities_q: Query<(&City, &LinkedCities, &MarketInfo, &GridPosition)>,
     agents_q: Query<(&Agent, &GraphPosition, &Money, &Cargo)>,
 ) -> Result<()> {
     info!("Starting printing combined query");
-    let mut state = State {
+    let mut state = lib::types::State {
         tick: Tick(0),
         nodes: Vec::with_capacity(100),
         agents: Vec::with_capacity(100),
@@ -138,7 +121,6 @@ fn printer(
     }
     for (agent, pos, money, cargo) in agents_q.iter() {
         state.agents.push((agent.clone(), pos.clone(), money.clone(), cargo.clone()))
-
     }
     state.tick = tick.clone();
     info!("state:         {:?}", state);

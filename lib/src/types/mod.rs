@@ -2,8 +2,21 @@ pub mod basic_impls;
 
 pub use basic_impls::*;
 // types for trade-sim
-use crate::prelude::*;
 use std::fmt::Formatter;
+use std::collections::HashSet;
+use bevy::prelude::{Entity, Vec2};
+pub use derive_more::{Deref, Add, AddAssign, Sum, Mul, MulAssign, Sub, SubAssign, Div, Display, From, Into};
+pub use serde::{Serialize, Deserialize};
+use crate::market::exchanger::MarketInfo;
+use crate::market::Money;
+use crate::agent::{Agent, GraphPosition, Cargo};
+
+#[derive(Debug)]
+pub struct State {
+    pub tick: Tick,
+    pub nodes: Vec<(City, LinkedCities, MarketInfo, GridPosition)>,
+    pub agents: Vec<(Agent, GraphPosition, Money, Cargo)>
+}
 
 ///////// Infrastructure Types /////////
 

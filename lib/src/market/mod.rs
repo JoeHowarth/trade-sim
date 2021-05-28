@@ -13,6 +13,7 @@ use crate::{
 use std::fmt::Debug;
 
 pub use crate::market::money::Money;
+use crate::types::Good;
 
 pub trait Market {
     type MarketInfo: Exchanger;

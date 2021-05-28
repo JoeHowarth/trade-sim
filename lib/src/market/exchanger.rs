@@ -50,8 +50,10 @@ impl MarketInfo {
     pub fn current_price(&self) -> Money {
         self.pricer.price(self.supply)
     }
+    pub fn produce_and_consume(&mut self) {
+        self.supply += self.production - self.consumption
+    }
 }
-
 
 mod tests {
     use super::*;
