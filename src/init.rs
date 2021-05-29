@@ -120,8 +120,8 @@ pub fn init_cities(
     let cities: Vec<CityHandle> = input_cities.iter().map(|city| {
         let info: City = city.name.into();
         let entity = commands.spawn_bundle((
-            info.clone(),
-            city.market[&("Grain".into())].clone()
+            info,
+            city.market[&"Grain".into()].clone()
         ))
             .insert(types::GridPosition::from(city.pos
                 .unwrap_or_else(|| Vec2::from((
@@ -133,13 +133,13 @@ pub fn init_cities(
     })
         .collect();
 
-    let name_to_ch: HashMap<Ustr, &CityHandle> = cities.iter()
-        .map(|ch| (ch.city.name, ch, )).collect();
+    let name_to_ch: HashMap<Ustr, CityHandle> = cities.iter()
+        .map(|ch| (ch.city.name, *ch)).collect();
 
-    let links: HashMap<&CityHandle, Vec<CityHandle>> = input_cities.iter()
+    let links: HashMap<CityHandle, Vec<CityHandle>> = input_cities.iter()
         .map(|c| (
             name_to_ch[&c.name],
-            c.links.iter().flat_map(|l| name_to_ch.get(l).cloned()).cloned().collect(),
+            c.links.iter().flat_map(|l| name_to_ch.get(l)).cloned().collect(),
         )).collect();
 
     // validate that every edge is bi-directional
@@ -160,7 +160,7 @@ pub fn init_cities(
     // add links
     for (src, links) in links.into_iter() {
         commands.entity(src.entity).insert(types::LinkedCities(links));
-        cities_to_entities.insert(src.city.clone(), src.clone());
+        cities_to_entities.insert(src.city, src);
     }
     commands.insert_resource(cities_to_entities.clone());
     Ok(cities_to_entities)

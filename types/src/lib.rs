@@ -48,18 +48,11 @@ pub struct CityHandle {
 #[derive(Deref, Debug, Clone)]
 pub struct LinkedCities(pub Vec<CityHandle>);
 
-#[derive(Deserialize, Eq, Clone, Debug, PartialEq, Hash)]
+#[derive(Deserialize, Eq, Clone, Copy, Debug, PartialEq, Hash)]
 #[serde(transparent)]
 pub struct Good {
     pub name: Ustr,
-    // #[serde(default = "default_entity")]
-    // pub entity: Entity,
 }
-
-fn default_entity() -> Entity {
-    Entity::new(0)
-}
-
 
 #[derive(Deref, Debug, Clone)]
 // Resource representing all known goods

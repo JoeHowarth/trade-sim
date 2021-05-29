@@ -1,19 +1,10 @@
 use types::prelude::*;
-use types::agent::{Agent, Cargo, GraphPosition};
+use types::agent::{Agent, Cargo, GraphPosition, AgentHandle};
 use types::market::{Money, Market};
-use types::market::exchanger::{MarketInfo, Exchanger};
+use types::market::exchanger::{MarketInfo, Exchanger, Order};
 use types::{City, CityHandle, ecs_err, LinkedCities};
 use std::cmp::Ordering;
-
-fn sell_cargo(
-    cargo: &mut Cargo,
-    wallet: &mut Money,
-    market: &mut MarketInfo,
-) {
-    let amt = cargo.amt.clone();
-    market.sell(wallet, amt as i32);
-    cargo.amt = 0;
-}
+use types::prelude::hash_map::RandomState;
 
 fn buy_random(
     agent: &Agent,
@@ -45,44 +36,42 @@ fn buy_random(
     }
 }
 
-fn decide_single_good<'a>(
-    agent: &Agent,
-    cargo: &mut Cargo,
-    wallet: &mut Money,
+fn decide_single_good(
+    agent: AgentHandle,
+    wallet: &Money,
     pos: &mut GraphPosition,
-    city_to_market: &HashMap<&CityHandle, &MarketInfo>,
+    city_to_market: &HashMap<CityHandle, &MarketInfo>,
     city_to_links: &HashMap<CityHandle, &LinkedCities>,
-)  {
-    // let (hm, m): = city_to_market.iter()
-    //     .partition(|m| m.0 == city);
-    // let local_market = m.next().unwrap();
-    let city = pos.city().unwrap();
-    let links = city_to_links[city];
-    let dst: Option<&CityHandle> = links.iter()
+) -> Option<Order> {
+    let good = types::Good::from("Grain");
+
+    let current_city = pos.city().unwrap();
+    let links = city_to_links[&current_city];
+    let max = links.iter()
         .map(|ch| (ch, city_to_market[ch]))
-        .max_by(|(_, a), (_, b)| a.current_price().cmp(&b.current_price()))
-        .map(|(city, market)| {
-            let local_market = city_to_market[city];
+        .max_by(|(_, a), (_, b)| a.current_price().cmp(&b.current_price()));
+    match max {
+        Some((maybe_dst, market)) => {
+            let local_market = city_to_market[maybe_dst];
             if market.current_price() <= local_market.current_price() {
                 info!("No adjacent markets have higher prices, moving to lowest price market w/o buying");
-                links.iter()
+                let cheap_dst = links.iter()
                     .map(|ch| (ch, city_to_market[ch]))
                     .max_by(|(_, a), (_, b)| a.current_price().cmp(&b.current_price()))
                     .expect("should be non-empty").0;
+                *pos = GraphPosition::Node(*cheap_dst);
             }
 
-            // |local_market| local_market.buy(wallet, 1);
-            cargo.amt = 1;
-            return city;
-        });
-    // match dst {
-    //     Some(city) => {
-    //         *pos = GraphPosition::Node(city.clone())
-    //         return |m| m.
-    //     },
-    //     None => {}
-    // };
-
+            *pos = GraphPosition::Node(*maybe_dst);
+            Some(Order { // buy goods in current city to sell at a profit at destination
+                good,
+                market: current_city,
+                agent,
+                amt: 1,
+            })
+        }
+        None => None
+    }
 }
 
 /*
@@ -95,35 +84,42 @@ Order:
  */
 
 pub fn agents_sell(
-    mut agent_q: Query<(&mut Cargo, &mut Money, &GraphPosition), With<Agent>>,
-    mut cities_q: Query<(&City, &mut MarketInfo)>,
+    mut agent_q: Query<(Entity, &Agent, &mut Cargo, &GraphPosition)>,
+    mut orders: EventWriter<Order>,
 ) -> Result<()> {
-    for (mut cargo, mut wallet, pos) in agent_q.iter_mut() {
-        let city: &CityHandle = pos.city().context("haven't implemented non-city agents yet")?;
-        let mut market: Mut<MarketInfo> = cities_q
-            .get_component_mut(city.entity)
-            .map_err(ecs_err)?;
-
-        sell_cargo(&mut cargo, &mut wallet, &mut market);
+    for (agent_entity, agent, mut cargo, pos) in agent_q.iter_mut() {
+        orders.send(Order {
+            good: cargo.good,
+            market: pos.city().context("haven't implemented non-city agents yet")?,
+            agent: AgentHandle { agent: *agent, entity: agent_entity },
+            amt: -(cargo.amt as i32),
+        });
+        cargo.amt = 0
     }
     Ok(())
 }
 
 pub fn agents_move_single_good(
-    mut agent_q: Query<(&Agent, &mut Cargo, &mut Money, &mut GraphPosition)>,
-    mut cities_q: Query<(Entity, &City, &mut MarketInfo, &LinkedCities)>,
+    mut agent_q: Query<(Entity, &Agent, &Money, &mut GraphPosition)>,
+    cities_q: Query<(Entity, &City, &MarketInfo, &LinkedCities)>,
+    mut orders: EventWriter<Order>,
 ) -> Result<()> {
-    let mut city_to_links = HashMap::new();
-    let mut city_to_market: HashMap<CityHandle, Mut<MarketInfo>> = HashMap::from_iter(
-        cities_q.iter_mut().map(|(entity, city, mut market_info, linked_cities): (Entity, &City, Mut<MarketInfo>, &LinkedCities)| {
-            let handle = CityHandle { entity, city: city.clone() };
-            city_to_links.insert(handle.clone(), linked_cities);
-            (handle, market_info)
-        }));
-    for (agent, mut cargo, mut wallet, mut pos) in agent_q.iter_mut() {
+    let mut city_to_links: HashMap<CityHandle, &LinkedCities> = HashMap::with_capacity(20);
+    let mut city_to_market = HashMap::with_capacity(20);
+    cities_q.for_each(|(entity, &city, market, links)| {
+        let ch = CityHandle { entity, city };
+        city_to_links.insert(ch, links);
+        city_to_market.insert(ch, market);
+    });
+
+    for (entity, &agent, wallet, mut pos) in agent_q.iter_mut() {
         let city: CityHandle = pos.city().context("haven't implemented non-city agents yet")?.clone();
-        let city_to_market_static = city_to_market.iter().map(|(k, v)| (k, v.deref())).collect::<HashMap<&CityHandle, &MarketInfo>>();
-        decide_single_good(agent, &mut cargo, &mut wallet, &mut pos,  &city_to_market_static, &city_to_links)
+        let agent = AgentHandle { agent, entity };
+
+
+        if let Some(order) = decide_single_good(agent, &wallet, &mut pos, &city_to_market, &city_to_links) {
+            orders.send(order);
+        }
     }
     Ok(())
 }
@@ -133,7 +129,7 @@ pub fn agents_buy_random(
     mut cities_q: Query<&mut MarketInfo, With<City>>,
 ) -> Result<()> {
     for (agent, mut cargo, mut wallet, pos) in agent_q.iter_mut() {
-        let city: &CityHandle = pos.city().context("haven't implemented non-city agents yet")?;
+        let city: CityHandle = pos.city().context("haven't implemented non-city agents yet")?;
         let mut market: Mut<MarketInfo> = cities_q
             .get_component_mut(city.entity)
             .map_err(ecs_err)?;

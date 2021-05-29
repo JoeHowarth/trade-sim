@@ -28,7 +28,7 @@ pub struct Agent {
     pub name: Ustr,
 }
 
-#[derive(Debug, From, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, From, Clone, Copy, Eq, PartialEq, Hash)]
 pub struct Cargo {
     pub good: Good,
     pub amt: u32,

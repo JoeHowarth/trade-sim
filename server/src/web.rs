@@ -54,10 +54,10 @@ fn state_to_model(state: &State) -> Model {
         tick: state.tick.0,
         nodes: state.nodes.iter().map(|(city, links, market_info, _pos)| {
             MNode {
-                id: &city.name,
+                id: city.name,
                 markets: {
-                    let mut m: HashMap<&str, MarketInfo> = HashMap::new();
-                    m.insert("Grain", MarketInfo {
+                    let mut m: HashMap<Ustr, MarketInfo> = HashMap::new();
+                    m.insert(ustr("Grain"), MarketInfo {
                         supply: market_info.supply,
                         consumption: market_info.consumption,
                         production: market_info.consumption,
@@ -66,22 +66,22 @@ fn state_to_model(state: &State) -> Model {
                     m
                 },
                 links: links.0.iter()
-                    .map(|to| to.city.name.as_str())
+                    .map(|to| to.city.name)
                     .collect(),
             }
         }).collect(),
         edges: state.nodes.iter().flat_map(|(city, links, _market_info, _pos)| {
             links.0.iter()
                 .map(|to| MEdge {
-                    nodes: vec![&city.name, &to.city.name]
+                    nodes: vec![city.name, to.city.name]
                 })
                 .collect::<Vec<_>>()
         }).collect(),
         agents: state.agents.iter().map(|(agent, pos, money, cargo)| {
             MAgent{
-                id: &agent.name,
-                cargo: &cargo.good.name,
-                location: &pos.city().expect("only node agent positions implemented").city.name,
+                id: agent.name,
+                cargo: cargo.good.name,
+                location: pos.city().expect("only node agent positions implemented").city.name,
                 money: money.0,
             }
         }).collect(),
@@ -92,11 +92,11 @@ fn state_to_rgraph(state: &State) -> RGraph {
     let m: HashMap<NodeId, RNode> = HashMap::from_iter(
         state.nodes.iter()
             .map(|(city, _links, _market_info, pos)| {
-                (city.name.as_str(),
+                (city.name,
                  RNode {
                      x: pos.0.x as i32,
                      y: pos.0.y as i32,
-                     id: &city.name,
+                     id: city.name,
                      radius: 1.0,
                  })
             }));
@@ -106,18 +106,18 @@ fn state_to_rgraph(state: &State) -> RGraph {
             .flat_map(|(city, links, _market_info, _pos)| {
                 links.0.iter()
                     .map(|to| REdge {
-                        nodes: (m[city.name.as_str()], m[(to.clone()).city.name.as_str()])
+                        nodes: (m[&city.name], m[&to.city.name])
                     }).collect::<Vec<_>>()
             }).collect(),
     }
 }
 
 #[derive(Serialize, Debug)]
-pub struct Model<'a> {
+pub struct Model {
     tick: u64,
-    nodes: Vec<MNode<'a>>,
-    edges: Vec<MEdge<'a>>,
-    agents: Vec<MAgent<'a>>,
+    nodes: Vec<MNode>,
+    edges: Vec<MEdge>,
+    agents: Vec<MAgent>,
 }
 
 #[derive(Serialize, Debug)]
@@ -128,46 +128,46 @@ pub struct MarketInfo {
     pub price: f64,
 }
 
-pub type NodeId<'a> = &'a str;
-pub type AgentId<'a> = &'a str;
-pub type Good<'a> = &'a str;
+pub type NodeId = Ustr;
+pub type AgentId = Ustr;
+pub type Good = Ustr;
 
 #[derive(Serialize, Debug)]
-pub struct MNode<'a> {
-    pub id: NodeId<'a>,
-    pub markets: HashMap<Good<'a>, MarketInfo>,
-    pub links: Vec<NodeId<'a>>,
+pub struct MNode {
+    pub id: NodeId,
+    pub markets: HashMap<Good, MarketInfo>,
+    pub links: Vec<NodeId>,
 }
 
 #[derive(Serialize, Debug)]
-pub struct MAgent<'a> {
-    id: AgentId<'a>,
-    cargo: Good<'a>,
-    location: NodeId<'a>,
+pub struct MAgent {
+    id: AgentId,
+    cargo: Good,
+    location: NodeId,
     money: f64,
 }
 
 #[derive(Serialize, Debug)]
-pub struct MEdge<'a> {
-    pub nodes: Vec<NodeId<'a>>
+pub struct MEdge {
+    pub nodes: Vec<NodeId>
 }
 
 #[derive(Serialize, Debug)]
-pub struct RGraph<'a> {
-    pub nodes: Vec<RNode<'a>>,
-    pub edges: Vec<REdge<'a>>,
+pub struct RGraph {
+    pub nodes: Vec<RNode>,
+    pub edges: Vec<REdge>,
 }
 
 #[derive(Serialize, Debug, Clone, Copy)]
-pub struct RNode<'a> {
+pub struct RNode {
     x: i32,
     y: i32,
-    id: NodeId<'a>,
+    id: NodeId,
     radius: f32,
 }
 
 #[derive(Serialize, Debug, Clone, Copy)]
-pub struct REdge<'a> {
-    pub nodes: (RNode<'a>, RNode<'a>)
+pub struct REdge {
+    pub nodes: (RNode, RNode)
 }
 
