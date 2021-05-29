@@ -1,4 +1,5 @@
 pub mod agent_behavior;
+pub mod order_clearing;
 
 #[cfg(test)]
 mod tests {

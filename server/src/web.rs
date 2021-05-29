@@ -1,16 +1,15 @@
 use warp::{Filter, Rejection, Reply};
 use std::{
-    convert::Infallible,
-    future::Future,
     result::Result,
     collections::HashMap,
     iter::FromIterator
 };
+use types::prelude::*;
 use tokio::sync::watch;
 use warp::http::StatusCode;
 use types::State;
-use tracing::{info, debug};
-use serde::{Serialize, Deserialize};
+use tracing::{info};
+use serde::{Serialize};
 
 pub async fn server(state: watch::Receiver<State>) {
     let cors = warp::cors()

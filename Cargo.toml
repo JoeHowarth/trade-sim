@@ -28,4 +28,5 @@ tokio = { version = "1.6.0", features = ["full"] }
 types = { path = "./types" }
 sim = { path = "./sim" }
 server = { path = "./server" }
+ustr = "0.8.0"
 

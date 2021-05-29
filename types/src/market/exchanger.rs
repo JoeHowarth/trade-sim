@@ -1,5 +1,7 @@
 use crate::prelude::*;
 use crate::market::{money::Money, pricer::{LinearPricer, Pricer}};
+use crate::CityHandle;
+use crate::agent::AgentHandle;
 
 pub trait Exchanger {
     fn cost(&self, amt: i32) -> Money;
@@ -15,6 +17,14 @@ pub struct MarketInfo {
     pub supply: f64,
     pub production: f64,
     pub pricer: LinearPricer,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct Order {
+    pub good: crate::Good,
+    pub market: CityHandle,
+    pub agent: AgentHandle,
+    pub amt: i32,
 }
 
 impl Exchanger for MarketInfo {
@@ -56,6 +66,9 @@ impl MarketInfo {
 }
 
 mod tests {
+    use crate::market::pricer::{LinearPricer, Pricer};
+    use crate::market::exchanger::{MarketInfo, Exchanger};
+    use crate::market::Money;
 
     #[test]
     fn linear_price_pricer() {

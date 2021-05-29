@@ -12,3 +12,4 @@ derive_more = "0.99.14"
 serde = "1.0.126"
 structopt = "0.3.21"
 rand = { version = "0.8.3", features = ["small_rng"] }
+ustr = {version = "0.8", features = ["serialization"] }

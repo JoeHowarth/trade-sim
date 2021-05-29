@@ -28,22 +28,22 @@ pub struct Settings {
 
 #[derive(Deserialize, Debug)]
 pub struct CityInput {
-    name: String,
-    links: Vec<String>,
+    name: Ustr,
+    links: Vec<Ustr>,
     market: HashMap<Good, MarketInfo>,
     pos: Option<Vec2>,
 }
 
 #[derive(Deserialize, Debug)]
 struct AgentInput {
-    name: String,
+    name: Ustr,
     position: AgentPositionInput,
 }
 
 #[derive(Deserialize, Debug)]
 #[serde(untagged)]
 enum AgentPositionInput {
-    Node(String),
+    Node(Ustr),
     // Edge(String, String),
 }
 
@@ -92,15 +92,15 @@ fn init_agents(
     let mut rng = SmallRng::from_entropy();
     for agent in input_agents.iter() {
         // - Agent - GraphPosition - Cargo - Money
-        let graph_pos: GraphPosition = match &agent.position {
+        let graph_pos: GraphPosition = match agent.position {
             AgentPositionInput::Node(city) => {
-                let city_handle = cities_to_handles.get(&City { name: city.clone() })
-                    .context("Agent input has non-existant city")?;
-                GraphPosition::Node(city_handle.clone())
+                let city_handle = cities_to_handles.get(&City { name: city })
+                    .context("Agent input has non-existent city")?;
+                GraphPosition::Node(*city_handle)
             }
         };
         commands.spawn().insert_bundle((
-            types::agent::Agent { name: agent.name.clone() },
+            types::agent::Agent { name: ustr(&agent.name) },
             graph_pos,
             Cargo {
                 good: all_goods.0.iter().choose(&mut rng).unwrap().clone(),
@@ -118,7 +118,7 @@ pub fn init_cities(
 ) -> Result<HashMap<City, CityHandle>> {
     let mut thread_rng = SmallRng::from_entropy();
     let cities: Vec<CityHandle> = input_cities.iter().map(|city| {
-        let info: City = city.name.clone().into();
+        let info: City = city.name.into();
         let entity = commands.spawn_bundle((
             info.clone(),
             city.market[&("Grain".into())].clone()
@@ -133,8 +133,8 @@ pub fn init_cities(
     })
         .collect();
 
-    let name_to_ch: HashMap<&String, &CityHandle> = cities.iter()
-        .map(|ch| (&ch.city.name, ch, )).collect();
+    let name_to_ch: HashMap<Ustr, &CityHandle> = cities.iter()
+        .map(|ch| (ch.city.name, ch, )).collect();
 
     let links: HashMap<&CityHandle, Vec<CityHandle>> = input_cities.iter()
         .map(|c| (

@@ -2,17 +2,15 @@ use crate::*;
 use bevy::prelude::Vec2;
 use std::error::Error;
 
-impl Clone for CityHandle {
-    fn clone(&self) -> Self {
-        Self {
-            entity: self.entity.clone(),
-            city: self.city.clone(),
-        }
-    }
+
+impl<'a, T: Into<&'a str>> From<T> for Good {
+    fn from(x: T) -> Self { Good { name: ustr(x.into()) } }
 }
 
-impl<T: Into<String>> From<T> for Good {
-    fn from(x: T) -> Self { Good { name: x.into() } }
+impl From<String> for City {
+    fn from(s: String) -> Self {
+        City{ name: ustr(&s) }
+    }
 }
 
 impl From<Vec2> for GridPosition {

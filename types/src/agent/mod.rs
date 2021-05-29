@@ -17,15 +17,15 @@ Agent Components:
 - Money
  */
 
-#[derive(Eq, PartialEq, Hash, Debug)]
+#[derive(Eq, PartialEq, Hash, Debug, Clone, Copy)]
 pub struct AgentHandle {
     pub agent: Agent,
     pub entity: Entity,
 }
 
-#[derive(Debug, From, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, From, Clone, Eq, PartialEq, Hash, Copy)]
 pub struct Agent {
-    pub name: String,
+    pub name: Ustr,
 }
 
 #[derive(Debug, From, Clone, Eq, PartialEq, Hash)]

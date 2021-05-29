@@ -4,36 +4,42 @@ pub mod agent;
 pub mod prelude;
 
 pub use basic_impls::*;
-// types for trade-sim
-use std::fmt::Formatter;
-use std::collections::HashSet;
+use std::{
+    fmt::{Formatter},
+    collections::HashSet,
+};
 use bevy::prelude::{Entity, Vec2};
 pub use derive_more::{Deref, Add, AddAssign, Sum, Mul, MulAssign, Sub, SubAssign, Div, Display, From, Into};
 pub use serde::{Serialize, Deserialize};
-use crate::market::exchanger::MarketInfo;
-use crate::market::Money;
-use crate::agent::{Agent, GraphPosition, Cargo};
+use crate::{
+    agent::{Agent, GraphPosition, Cargo},
+    market::{
+        Money,
+        exchanger::MarketInfo,
+    },
+    prelude::*,
+};
 
 #[derive(Debug)]
 pub struct State {
     pub tick: Tick,
     pub nodes: Vec<(City, LinkedCities, MarketInfo, GridPosition)>,
-    pub agents: Vec<(Agent, GraphPosition, Money, Cargo)>
+    pub agents: Vec<(Agent, GraphPosition, Money, Cargo)>,
 }
 
 ///////// Infrastructure Types /////////
 
-#[derive(Debug, From, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, From, Clone, Copy, Eq, PartialEq, Hash)]
 pub struct Tick(pub u64);
 
 //////// General Simulation Types ////////
 
-#[derive(Debug, From, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, From, Clone, Copy, Eq, PartialEq, Hash)]
 pub struct City {
-    pub name: String,
+    pub name: Ustr,
 }
 
-#[derive(Eq, PartialEq, Hash, Debug)]
+#[derive(Eq, PartialEq, Hash, Debug, Clone, Copy)]
 pub struct CityHandle {
     pub entity: Entity,
     pub city: City,
@@ -45,7 +51,7 @@ pub struct LinkedCities(pub Vec<CityHandle>);
 #[derive(Deserialize, Eq, Clone, Debug, PartialEq, Hash)]
 #[serde(transparent)]
 pub struct Good {
-    pub name: String,
+    pub name: Ustr,
     // #[serde(default = "default_entity")]
     // pub entity: Entity,
 }

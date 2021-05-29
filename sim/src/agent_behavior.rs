@@ -1,8 +1,9 @@
 use types::prelude::*;
 use types::agent::{Agent, Cargo, GraphPosition};
-use types::market::Money;
+use types::market::{Money, Market};
 use types::market::exchanger::{MarketInfo, Exchanger};
 use types::{City, CityHandle, ecs_err, LinkedCities};
+use std::cmp::Ordering;
 
 fn sell_cargo(
     cargo: &mut Cargo,
@@ -44,32 +45,44 @@ fn buy_random(
     }
 }
 
-fn decide_single_good(
+fn decide_single_good<'a>(
     agent: &Agent,
     cargo: &mut Cargo,
     wallet: &mut Money,
-    local_market: &mut MarketInfo,
-    adj_markets: &HashMap<City, &MarketInfo>,
-) {
-    let cmp = |(_, l_market): &(&City, &&MarketInfo), (_, r_market): &(&City, &&MarketInfo)| {
-        l_market.current_price().cmp(&r_market.current_price())
-    };
-    let a = adj_markets.iter();
-    let dst = adj_markets.iter().max_by(cmp).map(|(city, market)| {
-        if market.current_price() <= local_market.current_price() {
-            info!("No adjacent markets have higher prices, moving to lowest price market w/o buying");
-            return adj_markets.iter().min_by(cmp).expect("should be non-empty").0
-        }
+    pos: &mut GraphPosition,
+    city_to_market: &HashMap<&CityHandle, &MarketInfo>,
+    city_to_links: &HashMap<CityHandle, &LinkedCities>,
+)  {
+    // let (hm, m): = city_to_market.iter()
+    //     .partition(|m| m.0 == city);
+    // let local_market = m.next().unwrap();
+    let city = pos.city().unwrap();
+    let links = city_to_links[city];
+    let dst: Option<&CityHandle> = links.iter()
+        .map(|ch| (ch, city_to_market[ch]))
+        .max_by(|(_, a), (_, b)| a.current_price().cmp(&b.current_price()))
+        .map(|(city, market)| {
+            let local_market = city_to_market[city];
+            if market.current_price() <= local_market.current_price() {
+                info!("No adjacent markets have higher prices, moving to lowest price market w/o buying");
+                links.iter()
+                    .map(|ch| (ch, city_to_market[ch]))
+                    .max_by(|(_, a), (_, b)| a.current_price().cmp(&b.current_price()))
+                    .expect("should be non-empty").0;
+            }
 
-        local_market.buy(wallet, 1);
-        cargo.amt = 1;
-        return city
-    });
-    match dst {
-        Some(city) => {
-        }
-        None => {},
-    };
+            // |local_market| local_market.buy(wallet, 1);
+            cargo.amt = 1;
+            return city;
+        });
+    // match dst {
+    //     Some(city) => {
+    //         *pos = GraphPosition::Node(city.clone())
+    //         return |m| m.
+    //     },
+    //     None => {}
+    // };
+
 }
 
 /*
@@ -97,14 +110,20 @@ pub fn agents_sell(
 }
 
 pub fn agents_move_single_good(
-    mut agent_q: Query<(&Agent, &mut Cargo, &mut Money, &GraphPosition)>,
-    mut cities_q: Query<(&mut MarketInfo, &LinkedCities), With<City>>,
+    mut agent_q: Query<(&Agent, &mut Cargo, &mut Money, &mut GraphPosition)>,
+    mut cities_q: Query<(Entity, &City, &mut MarketInfo, &LinkedCities)>,
 ) -> Result<()> {
-    for (agent, cargo, wallet, pos) in agent_q.iter_mut() {
-        let city: &CityHandle = pos.city().context("haven't implemented non-city agents yet")?;
-        let (_, _) = cities_q
-            .get_mut(city.entity)
-            .map_err(ecs_err)?;
+    let mut city_to_links = HashMap::new();
+    let mut city_to_market: HashMap<CityHandle, Mut<MarketInfo>> = HashMap::from_iter(
+        cities_q.iter_mut().map(|(entity, city, mut market_info, linked_cities): (Entity, &City, Mut<MarketInfo>, &LinkedCities)| {
+            let handle = CityHandle { entity, city: city.clone() };
+            city_to_links.insert(handle.clone(), linked_cities);
+            (handle, market_info)
+        }));
+    for (agent, mut cargo, mut wallet, mut pos) in agent_q.iter_mut() {
+        let city: CityHandle = pos.city().context("haven't implemented non-city agents yet")?.clone();
+        let city_to_market_static = city_to_market.iter().map(|(k, v)| (k, v.deref())).collect::<HashMap<&CityHandle, &MarketInfo>>();
+        decide_single_good(agent, &mut cargo, &mut wallet, &mut pos,  &city_to_market_static, &city_to_links)
     }
     Ok(())
 }

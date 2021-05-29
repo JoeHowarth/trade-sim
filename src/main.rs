@@ -2,22 +2,22 @@
 extern crate derive_more;
 
 use std::time::Duration;
-
+use tokio::sync::watch;
 use bevy::{
     log::{LogPlugin, LogSettings},
+    app::{RunMode, ScheduleRunnerPlugin, ScheduleRunnerSettings},
+    core::CorePlugin,
+    diagnostic::DiagnosticsPlugin
 };
-use bevy::app::{RunMode, ScheduleRunnerPlugin, ScheduleRunnerSettings};
-use bevy::core::CorePlugin;
-use bevy::diagnostic::DiagnosticsPlugin;
-use tokio::sync::watch;
 
-use types::prelude::*;
-use types::*;
+use types::{
+    *,
+    prelude::*,
+    market::exchanger::MarketInfo,
+    agent::{GraphPosition, Cargo, Agent},
+    market::Money
+};
 use server::web;
-
-use types::market::exchanger::MarketInfo;
-use types::agent::{GraphPosition, Cargo, Agent};
-use types::market::Money;
 use sim::agent_behavior;
 
 mod init;

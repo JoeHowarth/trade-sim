@@ -4335,6 +4335,7 @@ dependencies = [
  "structopt",
  "tokio",
  "types",
+ "ustr",
  "warp",
 ]
 
@@ -4394,6 +4395,7 @@ dependencies = [
  "rand 0.8.3",
  "serde",
  "structopt",
+ "ustr",
 ]
 
 [[package]]
@@ -4485,6 +4487,19 @@ dependencies = [
  "idna",
  "matches",
  "percent-encoding",
+]
+
+[[package]]
+name = "ustr"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fb975d3ddaf19128799ec5be6300d4d371b2ee1c977d6115385749dda011e790"
+dependencies = [
+ "ahash 0.7.4",
+ "byteorder",
+ "lazy_static",
+ "parking_lot",
+ "serde",
 ]
 
 [[package]]
