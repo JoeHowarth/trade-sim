@@ -1,5 +1,4 @@
 use types::{
-    agent::{AgentHandle},
     market::{
         exchanger::MarketInfo,
         Money,

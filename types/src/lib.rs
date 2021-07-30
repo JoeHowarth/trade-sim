@@ -1,3 +1,4 @@
+#![allow(unused_imports, dead_code)]
 pub mod basic_impls;
 pub mod market;
 pub mod agent;

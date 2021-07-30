@@ -1,6 +1,6 @@
 use types::prelude::*;
 use types::agent::{Agent, Cargo, GraphPosition, AgentHandle};
-use types::market::{Money, Market};
+use types::market::{Money};
 use types::market::exchanger::{MarketInfo, Exchanger, Order};
 use types::{City, CityHandle, ecs_err, LinkedCities};
 use std::cmp::Ordering;
@@ -53,7 +53,7 @@ fn decide_single_good(
     match max {
         Some((maybe_dst, market)) => {
             let local_market = city_to_market[maybe_dst];
-            if market.current_price() <= local_market.current_price() {
+            if market.current_price() <= local_market.current_price() || &local_market.cost(1) > wallet {
                 info!("No adjacent markets have higher prices, moving to lowest price market w/o buying");
                 let cheap_dst = links.iter()
                     .map(|ch| (ch, city_to_market[ch]))
@@ -113,10 +113,7 @@ pub fn agents_move_single_good(
     });
 
     for (entity, &agent, wallet, mut pos) in agent_q.iter_mut() {
-        let city: CityHandle = pos.city().context("haven't implemented non-city agents yet")?.clone();
         let agent = AgentHandle { agent, entity };
-
-
         if let Some(order) = decide_single_good(agent, &wallet, &mut pos, &city_to_market, &city_to_links) {
             orders.send(order);
         }
