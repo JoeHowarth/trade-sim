@@ -19,6 +19,8 @@ use types::{
 };
 use server::web;
 use sim::agent_behavior;
+use bevy::app::Events;
+use types::market::exchanger::Order;
 
 mod init;
 
@@ -54,6 +56,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         .insert_resource(state_tx)
         .insert_resource(Tick(0))
         .insert_resource(HashMap::<City, Entity>::default())
+        .add_event::<Order>()
         .add_plugin(LogPlugin)
         .add_plugin(CorePlugin)
         .add_plugin(DiagnosticsPlugin)
