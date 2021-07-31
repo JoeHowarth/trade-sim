@@ -2,26 +2,48 @@ use warp::{Filter, Rejection, Reply};
 use std::{
     result::Result,
     collections::HashMap,
-    iter::FromIterator
+    iter::FromIterator,
 };
 use types::prelude::*;
-use tokio::sync::watch;
+use tokio::sync::{watch, RwLock};
 use warp::http::StatusCode;
 use types::State;
 use tracing::{info};
 use serde::{Serialize};
+use vec_map::VecMap;
+use futures::future::{AbortHandle, Abortable};
+
+type ModelHandle = Arc<RwLock<VecMap<Model>>>;
+
+pub fn start_model_worker(
+    mut state: watch::Receiver<State>,
+    model_map: ModelHandle,
+) -> AbortHandle {
+    let (abort_handle, abort_registration) = AbortHandle::new_pair();
+    let model_worker = Abortable::new(async move {
+        while state.changed().await.is_ok() {
+            let model = state_to_model(&state.borrow());
+            let mut write = model_map.write().await;
+            write.insert(model.tick as usize, model.clone());
+        }
+    }, abort_registration);
+    tokio::task::spawn(model_worker);
+    abort_handle
+}
 
 pub async fn server(state: watch::Receiver<State>) {
     let cors = warp::cors()
         .allow_any_origin();
-    let other_state = state.clone();
+    let model_map = Arc::new(RwLock::new(VecMap::with_capacity(100)));
+    let model_worker_handle = start_model_worker(state.clone(), model_map.clone());
 
-    let state_route = warp::path("state")
-        .and(warp::any().map(move || state.clone()))
+
+    let state_route = warp::path!("state" / usize)
+        .and(warp::any().map(move || model_map.clone()))
         .and_then(handler)
         .with(cors.clone());
     let rgraph_route = warp::path("rgraph")
-        .and(warp::any().map(move || other_state.clone()))
+        .and(warp::any().map(move || state.clone()))
         .and_then(rgraph_handler)
         .with(cors);
 
@@ -32,14 +54,19 @@ pub async fn server(state: watch::Receiver<State>) {
                 .map(|| Ok(StatusCode::NOT_FOUND))
                 .with(warp::cors().allow_any_origin())))
         .run(([127, 0, 0, 1], 3030)).await;
+    model_worker_handle.abort();
 }
 
-async fn handler(state: watch::Receiver<State>) -> Result<impl Reply, Rejection> {
-    let state = state.borrow();
-    info!("State is: {:?}", state);
-    let model = state_to_model(&state);
-    info!("Model:{}", serde_json::to_string_pretty(&model).unwrap());
-    Ok(warp::reply::json(&model))
+async fn handler(tick: usize, model_map: ModelHandle) -> Result<impl Reply, Rejection> {
+    match model_map.read().await.get(tick) {
+        Some(model) => {
+            info!("Sending model at tick {}", tick);
+            Ok(warp::reply::json(&model))
+        }
+        None => {
+            Err(warp::reject::not_found())
+        }
+    }
 }
 
 async fn rgraph_handler(state: watch::Receiver<State>) -> Result<impl Reply, Rejection> {
@@ -78,7 +105,7 @@ fn state_to_model(state: &State) -> Model {
                 .collect::<Vec<_>>()
         }).collect(),
         agents: state.agents.iter().map(|(agent, pos, money, cargo)| {
-            MAgent{
+            MAgent {
                 id: agent.name,
                 cargo: cargo.good.name,
                 location: pos.city().expect("only node agent positions implemented").city.name,
@@ -112,7 +139,7 @@ fn state_to_rgraph(state: &State) -> RGraph {
     }
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct Model {
     tick: u64,
     nodes: Vec<MNode>,
@@ -120,7 +147,7 @@ pub struct Model {
     agents: Vec<MAgent>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct MarketInfo {
     pub supply: f64,
     pub consumption: f64,
@@ -132,14 +159,14 @@ pub type NodeId = Ustr;
 pub type AgentId = Ustr;
 pub type Good = Ustr;
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct MNode {
     pub id: NodeId,
     pub markets: HashMap<Good, MarketInfo>,
     pub links: Vec<NodeId>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct MAgent {
     id: AgentId,
     cargo: Good,
@@ -147,18 +174,18 @@ pub struct MAgent {
     money: f64,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct MEdge {
-    pub nodes: Vec<NodeId>
+    pub nodes: Vec<NodeId>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct RGraph {
     pub nodes: Vec<RNode>,
     pub edges: Vec<REdge>,
 }
 
-#[derive(Serialize, Debug, Clone, Copy)]
+#[derive(Serialize, Clone, Debug, Copy)]
 pub struct RNode {
     x: i32,
     y: i32,
@@ -168,6 +195,6 @@ pub struct RNode {
 
 #[derive(Serialize, Debug, Clone, Copy)]
 pub struct REdge {
-    pub nodes: (RNode, RNode)
+    pub nodes: (RNode, RNode),
 }
 

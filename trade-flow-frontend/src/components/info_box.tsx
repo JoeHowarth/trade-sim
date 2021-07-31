@@ -98,48 +98,54 @@ export const ViewAgentInfo = (
   );
 };
 
+export const MarketInfoTable = (
+  props: PropsWithChildren<{ node: MNode; oldMarkets: Map<Good, MarketInfo> }>
+) => {
+  return <Table
+    style={{zIndex: 1}}
+    className="is-narrow is-bordered is-striped is-hoverable mb-0"
+  >
+    <thead>
+    <tr>
+      <th className="is-size-7">Good</th>
+      <th className="is-size-7">
+        Co<span/>
+      </th>
+      <th className="is-size-7">Pr</th>
+      <th className="is-size-7">Su</th>
+      <th className="is-size-7">Pr</th>
+    </tr>
+    </thead>
+    <tbody>
+    {Array.from(props.node.markets, ([good, info]) => (
+      <tr key={good}>
+        <th className="is-size-7">{good}</th>
+        <td>
+          <Number>{round(info.consumption, 0)}</Number>
+        </td>
+        <td>
+          <Number>{round(info.production, 0)}</Number>
+        </td>
+        <td>
+          <Number>{round(info.supply, 0)}</Number>
+        </td>
+        <td>
+          <Number oldValue={props.oldMarkets.get(good).price}>
+            {info.price}
+          </Number>
+        </td>
+      </tr>
+    ))}
+    </tbody>
+  </Table>
+}
+
 export const ViewMarketInfo = (
   props: PropsWithChildren<PosProps & { node: MNode; oldMarkets: Map<Good, MarketInfo> }>
 ) => {
   return (
     <CenteredAbove position={transform(props.position, {x: 0, y: -30})}>
-      <Table
-        style={{zIndex: 1}}
-        className="is-narrow is-bordered is-striped is-hoverable"
-      >
-        <thead>
-        <tr>
-          <th className="is-size-7">Good</th>
-          <th className="is-size-7">
-            Co<span/>
-          </th>
-          <th className="is-size-7">Pr</th>
-          <th className="is-size-7">Su</th>
-          <th className="is-size-7">Pr</th>
-        </tr>
-        </thead>
-        <tbody>
-        {Array.from(props.node.markets, ([good, info]) => (
-          <tr key={good}>
-            <th className="is-size-7">{good}</th>
-            <td>
-              <Number>{round(info.consumption, 0)}</Number>
-            </td>
-            <td>
-              <Number>{round(info.production, 0)}</Number>
-            </td>
-            <td>
-              <Number>{round(info.supply, 0)}</Number>
-            </td>
-            <td>
-              <Number oldValue={props.oldMarkets.get(good).price}>
-                {info.price}
-              </Number>
-            </td>
-          </tr>
-        ))}
-        </tbody>
-      </Table>
+      <MarketInfoTable node={props.node} oldMarkets={props.oldMarkets}/>
     </CenteredAbove>
   );
 };
@@ -158,7 +164,7 @@ export const Number = (
   return (
     <div>
       <span className="is-size-7">{value} </span>
-      {oldValue === null ? (
+      {oldValue !== undefined ? (
         <span
           style={{
             fontSize: 9,

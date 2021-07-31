@@ -2,6 +2,7 @@ import React, {useEffect, useRef, useState} from "react";
 import "react-bulma-components/dist/react-bulma-components.min.css";
 import {Box} from "react-bulma-components";
 import Graph from "./graph";
+import {InfoTable} from "./info_table";
 
 type AppProps = {
   api: SimApi;
@@ -16,24 +17,27 @@ const App = ({initial, api}: AppProps) => {
   const [model, setModel] = useState(initial.model);
   const [oldModel, setOldModel] = useState(initial.model);
 
-  // for use inside control fetching callback
+  // for use inside control-fetching callback
   let tickRef = useRef(model.tick);
   tickRef.current = model.tick;
   const [isStarted, setIsStarted] = useState(true);
 
-  // control fetching model
+  // control fetching the model
   useEffect(() => {
     let interval = null;
     if (isStarted) {
-      interval = setInterval(() => {
-        api.nextState().then((newModel) => {
-          if (newModel.tick > tickRef.current) {
-            setModel((oldModel) => {
-              setOldModel(oldModel);
-              return newModel;
-            });
-          }
-        });
+      interval = setInterval(async () => {
+        const newModel = await api.getModel()
+        if (newModel === undefined) {
+          console.warn("not expecting undefined model")
+          return
+        }
+        if (newModel.tick > tickRef.current) {
+          setModel((oldModel) => {
+            setOldModel(oldModel);
+            return newModel;
+          });
+        }
       }, 1000);
     }
     return () => {
@@ -43,6 +47,8 @@ const App = ({initial, api}: AppProps) => {
       }
     };
   }, [isStarted]);
+
+  const [cityTableVisible, setCityTableVisible] = useState(false)
 
   return (
     <>
@@ -55,19 +61,42 @@ const App = ({initial, api}: AppProps) => {
               </div>
             </div>
             <div className="level-item">
-              <div onClick={() => setIsStarted(!isStarted)} className="button">
+              <div
+                onClick={() => setIsStarted(!isStarted)}
+                className="button"
+              >
                 {isStarted ? "Stop" : "Start"}
               </div>
             </div>
             <div className="level-item">
-              <div className="button">Bye</div>
+              <div
+                onClick={() => setCityTableVisible(!cityTableVisible)}
+                className="button"
+              >
+                City Table
+              </div>
             </div>
           </div>
         </div>
       </Box>
+
+      {
+        cityTableVisible ?
+          <Box style={{
+            margin: 20,
+            width: 300,
+            border: '1px solid rgba(0, 0, 0, 0.05)',
+            maxWidth: '50%'
+          }}>
+            <InfoTable model={model} oldModel={oldModel}/>
+          </Box>
+          : null
+      }
       <Graph graph={initial.visual} model={model} oldModel={oldModel}/>
     </>
-  );
+  )
+    ;
 };
+
 
 export default App;

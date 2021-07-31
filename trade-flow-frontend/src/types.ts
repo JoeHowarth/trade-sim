@@ -51,6 +51,8 @@ interface MarketInfo {
   price: number
 }
 
+type Models = Model[]
+
 interface Model {
   tick: number
   nodes: MNode[]
@@ -59,7 +61,8 @@ interface Model {
 }
 
 interface SimApi {
-  nextState(): Promise<Model>
-
+  // if tick is not provided, attempt to fetch the next model
+  getModel(tick?: number): Promise<Model>
+  getModels(): Promise<Models>
   initialState(): Promise<{ visual: RGraph; model: Model; }>
 }
