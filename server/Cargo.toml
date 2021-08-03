@@ -6,17 +6,23 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+trade-sim-grpc = { path = "../trade-sim-grpc" }
+types = { path = "../types" }
+
 anyhow = "1.0.36"
 derive_more = "0.99.11"
 rand = { version = "0.8.0", features = ["small_rng"] }
 serde = "1.0.118"
 serde_yaml = "0.8.14"
 structopt = "0.3.21"
-warp = "0.3.0"
 serde_json = "1.0.61"
 tokio = { version = "1.0.2", features = ["full"] }
-types = { path = "../types" }
 tracing = "0.1"
 futures-util = "0.3.16"
 vec_map = "0.8.2"
 futures = "0.3.16"
+tonic = "0.4.3"
+prost = "0.7.0"
+
+[build-dependencies]
+tonic-build = "0.4"

@@ -7,7 +7,7 @@ use bevy::{
     log::{LogPlugin, LogSettings},
     app::{RunMode, ScheduleRunnerPlugin, ScheduleRunnerSettings},
     core::CorePlugin,
-    diagnostic::DiagnosticsPlugin
+    diagnostic::DiagnosticsPlugin,
 };
 
 use types::{
@@ -15,7 +15,7 @@ use types::{
     prelude::*,
     market::exchanger::MarketInfo,
     agent::{GraphPosition, Cargo, Agent},
-    market::Money
+    market::Money,
 };
 use server::web;
 use sim::agent_behavior;
@@ -33,17 +33,9 @@ fn main() -> Result<(), Box<dyn Error>> {
             agents: Vec::new(),
         }
     );
-    {
-        std::thread::spawn(move || {
-            tokio::runtime::Builder::new_current_thread()
-                .enable_all()
-                .build()
-                .unwrap()
-                .block_on(web::server(state_rx));
-        });
-    }
-    App::build()
-        .insert_resource(LogSettings {
+    let mut app = App::build();
+    app.
+        insert_resource(LogSettings {
             level: bevy::log::Level::DEBUG,
             filter: "bevy_ecs=info,bevy_app=info,bevy_core=info".into(),
         })
@@ -73,8 +65,20 @@ fn main() -> Result<(), Box<dyn Error>> {
                        .with_system(wrap(agent_behavior::move_agents_random.system())))
         .add_stage("final-work",
                    SystemStage::single_threaded()
-                       .with_system(wrap(printer.system())))
-        .run();
+                       .with_system(wrap(printer.system())));
+    {
+        std::thread::spawn(move || {
+            info!("Starting tokio runtime");
+            tokio::runtime::Builder::new_multi_thread()
+                .enable_all()
+                .build()
+                .unwrap()
+                .block_on(web::server(state_rx))
+                .expect("Expected tokio to not error");
+            info!("Shutting down tokio runtime");
+        });
+    }
+    app.run();
     Ok(())
 }
 

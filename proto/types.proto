@@ -1,0 +1,14 @@
+syntax = "proto3";
+package trade_sim;
+
+service model_server {
+  rpc GetModel (ModelRequest) returns (ModelReply);
+}
+
+message ModelRequest {
+  uint64 tick = 1;
+}
+
+message ModelReply {
+  uint64 tick = 1;
+}

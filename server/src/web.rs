@@ -1,4 +1,3 @@
-use warp::{Filter, Rejection, Reply};
 use std::{
     result::Result,
     collections::HashMap,
@@ -6,74 +5,83 @@ use std::{
 };
 use types::prelude::*;
 use tokio::sync::{watch, RwLock};
-use warp::http::StatusCode;
 use types::State;
 use tracing::{info};
 use serde::{Serialize};
 use vec_map::VecMap;
-use futures::future::{AbortHandle, Abortable};
+use futures::future::{AbortHandle, Abortable, Aborted};
+use tokio::task::JoinHandle;
+use trade_sim_grpc::{ModelReply, ModelRequest};
+use tonic::{Request, Response, Status};
+use std::borrow::BorrowMut;
+use tonic::transport::Server;
 
 type ModelHandle = Arc<RwLock<VecMap<Model>>>;
 
 pub fn start_model_worker(
     mut state: watch::Receiver<State>,
     model_map: ModelHandle,
-) -> AbortHandle {
+) -> (AbortHandle, JoinHandle<Result<(), Aborted>>) {
     let (abort_handle, abort_registration) = AbortHandle::new_pair();
     let model_worker = Abortable::new(async move {
+        info!("Starting model worker task");
         while state.changed().await.is_ok() {
+            info!("Detected model change. Updating model map");
             let model = state_to_model(&state.borrow());
             let mut write = model_map.write().await;
             write.insert(model.tick as usize, model.clone());
         }
     }, abort_registration);
-    tokio::task::spawn(model_worker);
-    abort_handle
+    (abort_handle, tokio::task::spawn(model_worker))
 }
 
-pub async fn server(state: watch::Receiver<State>) {
-    let cors = warp::cors()
-        .allow_any_origin();
-    let model_map = Arc::new(RwLock::new(VecMap::with_capacity(100)));
-    let model_worker_handle = start_model_worker(state.clone(), model_map.clone());
 
-
-    let state_route = warp::path!("state" / usize)
-        .and(warp::any().map(move || model_map.clone()))
-        .and_then(handler)
-        .with(cors.clone());
-    let rgraph_route = warp::path("rgraph")
-        .and(warp::any().map(move || state.clone()))
-        .and_then(rgraph_handler)
-        .with(cors);
-
-    warp::serve(
-        state_route
-            .or(rgraph_route)
-            .or(warp::any()
-                .map(|| Ok(StatusCode::NOT_FOUND))
-                .with(warp::cors().allow_any_origin())))
-        .run(([127, 0, 0, 1], 3030)).await;
-    model_worker_handle.abort();
+#[derive(Debug, Default)]
+struct ModelServerImpl {
+    pub tick: Arc<Mutex<usize>>,
 }
 
-async fn handler(tick: usize, model_map: ModelHandle) -> Result<impl Reply, Rejection> {
-    match model_map.read().await.get(tick) {
-        Some(model) => {
-            info!("Sending model at tick {}", tick);
-            Ok(warp::reply::json(&model))
-        }
-        None => {
-            Err(warp::reject::not_found())
-        }
+#[tonic::async_trait]
+impl trade_sim_grpc::model_server_server::ModelServer for ModelServerImpl {
+    async fn get_model(&self, request: Request<ModelRequest>) -> Result<Response<ModelReply>, Status> {
+        let tick = request.into_inner().tick;
+        *self.tick.lock().unwrap() = tick.clone() as usize;
+        info!("tick {}", tick);
+        Ok(Response::new(ModelReply {
+            tick,
+        }))
     }
 }
 
-async fn rgraph_handler(state: watch::Receiver<State>) -> Result<impl Reply, Rejection> {
-    let state = state.borrow();
-    info!("RGraph is: {:?}", state);
-    let model = state_to_rgraph(&state);
-    Ok(warp::reply::json(&model))
+pub async fn server(state: watch::Receiver<State>) -> Result<(), anyhow::Error> {
+    let service = trade_sim_grpc::model_server_server::ModelServerServer::new(ModelServerImpl {
+        tick: Arc::new(Mutex::new(12))
+    });
+
+    let model_map = Arc::new(RwLock::new(VecMap::with_capacity(100)));
+    let (mw_abort, mw_join) = start_model_worker(state.clone(), model_map.clone());
+
+    info!("Starting server");
+    Server::builder()
+        .add_service(service)
+        .serve("127.0.0.1:3030".parse()?)
+        .await?;
+    info!("Server thread returning");
+    // mw_join.await;
+    // mw_abort.abort();
+
+
+    mw_abort.abort();
+    Ok(())
+}
+
+async fn handler(tick: usize, model_map: ModelHandle) {
+    match model_map.read().await.get(tick) {
+        Some(model) => {
+            info!("Sending model at tick {}", tick);
+        }
+        None => {}
+    }
 }
 
 fn state_to_model(state: &State) -> Model {
