@@ -87,8 +87,8 @@ const App = ({initial, api}: AppProps) => {
             width: 300,
             border: '1px solid rgba(0, 0, 0, 0.05)',
             maxWidth: '50%'
-          }}>
-            <InfoTable model={model} oldModel={oldModel}/>
+          }} onClick={() => console.warn("I've been clicked")}>
+            <InfoTable  model={model} oldModel={oldModel}/>
           </Box>
           : null
       }

@@ -1,13 +1,14 @@
 #![allow(unused_imports, dead_code)]
+#![feature(async_closure)]
 extern crate derive_more;
 
 use std::time::Duration;
-use tokio::sync::watch;
+use tokio::sync::mpsc;
 use bevy::{
     log::{LogPlugin, LogSettings},
     app::{RunMode, ScheduleRunnerPlugin, ScheduleRunnerSettings},
     core::CorePlugin,
-    diagnostic::DiagnosticsPlugin
+    diagnostic::DiagnosticsPlugin,
 };
 
 use types::{
@@ -15,7 +16,7 @@ use types::{
     prelude::*,
     market::exchanger::MarketInfo,
     agent::{GraphPosition, Cargo, Agent},
-    market::Money
+    market::Money,
 };
 use server::web;
 use sim::agent_behavior;
@@ -26,23 +27,9 @@ mod init;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let input = init::get_input().context("Failed to get input")?;
-    let (state_tx, state_rx) = watch::channel(
-        types::State {
-            tick: Tick(0),
-            nodes: Vec::new(),
-            agents: Vec::new(),
-        }
-    );
-    {
-        std::thread::spawn(move || {
-            tokio::runtime::Builder::new_current_thread()
-                .enable_all()
-                .build()
-                .unwrap()
-                .block_on(web::server(state_rx));
-        });
-    }
-    App::build()
+    let (state_tx, state_rx) = mpsc::unbounded_channel();
+    let mut app = App::build();
+    app
         .insert_resource(LogSettings {
             level: bevy::log::Level::DEBUG,
             filter: "bevy_ecs=info,bevy_app=info,bevy_core=info".into(),
@@ -73,8 +60,22 @@ fn main() -> Result<(), Box<dyn Error>> {
                        .with_system(wrap(agent_behavior::move_agents_random.system())))
         .add_stage("final-work",
                    SystemStage::single_threaded()
-                       .with_system(wrap(printer.system())))
-        .run();
+                       .with_system(wrap(printer.system())));
+    {
+        std::thread::spawn(move || {
+            match tokio::runtime::Builder::new_current_thread()
+                .enable_all()
+                .build()
+                .unwrap()
+                .block_on(web::server(state_rx)) {
+                Ok(_) => {}
+                Err(e) => {
+                    error!("Error encountered in server. {}", e);
+                }
+            }
+        });
+    }
+    app.run();
     Ok(())
 }
 
@@ -95,7 +96,11 @@ fn fatal_error_handler_system(In(result): In<Result<()>>) {
     }
 }
 
-fn update_tick(mut tick: ResMut<Tick>) {
+fn update_tick(mut tick: ResMut<Tick>, mut has_run: Local<bool>) {
+    if !*has_run {
+        *has_run = true;
+        return
+    }
     tick.0 += 1;
 }
 
@@ -106,7 +111,7 @@ fn update_cities(mut q: Query<(&City, &mut MarketInfo)>) {
 }
 
 fn printer(
-    state_tx: Res<watch::Sender<types::State>>,
+    state_tx: Res<mpsc::UnboundedSender<types::State>>,
     tick: Res<Tick>,
     cities_q: Query<(&City, &LinkedCities, &MarketInfo, &GridPosition)>,
     agents_q: Query<(&Agent, &GraphPosition, &Money, &Cargo)>,
@@ -129,6 +134,7 @@ fn printer(
     }
     state.tick = tick.clone();
     info!("state:         {:?}", state);
-    state_tx.send(state).context("Failed to send state to server")
+    state_tx.send(state)?;
+    Ok(())
 }
 

@@ -16,7 +16,7 @@ interface InfoTableProps {
 
 const InfoTable = ({model, oldModel}: InfoTableProps) => {
   return (
-    <div>
+    <div onClick={() => console.warn("I've been clicked 2")}>
       {
         Array.from(model.nodes, (node, idx) => (
           <div key={idx} style={{marginBottom: 5}}>

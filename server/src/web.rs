@@ -1,79 +1,90 @@
-use warp::{Filter, Rejection, Reply};
 use std::{
-    result::Result,
     collections::HashMap,
     iter::FromIterator,
 };
 use types::prelude::*;
-use tokio::sync::{watch, RwLock};
-use warp::http::StatusCode;
+use std::sync::RwLock;
 use types::State;
 use tracing::{info};
 use serde::{Serialize};
-use vec_map::VecMap;
 use futures::future::{AbortHandle, Abortable};
+use rouille::{Response, Request, router};
+use tokio::sync::{mpsc};
 
-type ModelHandle = Arc<RwLock<VecMap<Model>>>;
+type ModelHandle = Arc<RwLock<Vec<Model>>>;
 
 pub fn start_model_worker(
-    mut state: watch::Receiver<State>,
+    mut state: mpsc::UnboundedReceiver<State>,
     model_map: ModelHandle,
+    state_list: Arc<RwLock<Vec<State>>>,
 ) -> AbortHandle {
     let (abort_handle, abort_registration) = AbortHandle::new_pair();
     let model_worker = Abortable::new(async move {
-        while state.changed().await.is_ok() {
-            let model = state_to_model(&state.borrow());
-            let mut write = model_map.write().await;
-            write.insert(model.tick as usize, model.clone());
+        while let Some(val) = state.recv().await {
+            let model = state_to_model(&val);
+            state_list.write().unwrap().push(val);
+            let mut write = model_map.write().expect("couldn't get model map lock");
+            write.insert(model.tick.clone() as usize, model);
         }
     }, abort_registration);
+    info!("Starting model worker task");
     tokio::task::spawn(model_worker);
     abort_handle
 }
 
-pub async fn server(state: watch::Receiver<State>) {
-    let cors = warp::cors()
-        .allow_any_origin();
-    let model_map = Arc::new(RwLock::new(VecMap::with_capacity(100)));
-    let model_worker_handle = start_model_worker(state.clone(), model_map.clone());
+pub async fn server(state: mpsc::UnboundedReceiver<State>) -> anyhow::Result<()> {
+    let model_map = Arc::new(RwLock::new(Vec::with_capacity(100)));
+    let state_list = Arc::new(RwLock::new(Vec::with_capacity(100)));
+    let model_worker_handle = start_model_worker(state, model_map.clone(), state_list.clone());
 
-
-    let state_route = warp::path!("state" / usize)
-        .and(warp::any().map(move || model_map.clone()))
-        .and_then(handler)
-        .with(cors.clone());
-    let rgraph_route = warp::path("rgraph")
-        .and(warp::any().map(move || state.clone()))
-        .and_then(rgraph_handler)
-        .with(cors);
-
-    warp::serve(
-        state_route
-            .or(rgraph_route)
-            .or(warp::any()
-                .map(|| Ok(StatusCode::NOT_FOUND))
-                .with(warp::cors().allow_any_origin())))
-        .run(([127, 0, 0, 1], 3030)).await;
+    let server_handle = tokio::task::spawn_blocking(move || {
+        let state_list = state_list.clone();
+        let model_map = model_map.clone();
+        rouille::Server::new("127.0.0.1:3030", move |request| {
+            info!("Received request: {:?}", &request);
+            rouille::router!(request,
+                (GET) (/state) => {
+                    model_handler(request, 0, model_map.clone())
+                },
+                (GET) (/state/{tick: usize}) => {
+                    model_handler(request, tick, model_map.clone())
+                },
+                (GET) (/rgraph) => {
+                    let state_list = state_list.read().unwrap();
+                    match state_list.last() {
+                        Some(state) => Response::json(&state_to_rgraph(state)),
+                        None => {
+                            error!("Expected non-empty state_list");
+                            Response::text("Expected non-empty state list")
+                            .with_status_code(500)
+                        }
+                    }
+                },
+                _ => {
+                    info!("Unrecognized path {}", request.url());
+                    Response::empty_404()
+            })
+                .with_additional_header("Access-Control-Allow-Origin", "*")
+                .with_additional_header("Access-Control-Allow-Headers", "*")
+        })
+            .unwrap().run();
+    });
+    server_handle.await?;
     model_worker_handle.abort();
+    Ok(())
 }
 
-async fn handler(tick: usize, model_map: ModelHandle) -> Result<impl Reply, Rejection> {
-    match model_map.read().await.get(tick) {
+fn model_handler(_req: &Request, tick: usize, model_map: ModelHandle) -> Response {
+    match &model_map.read().expect("couldn't get model map lock").get(tick) {
         Some(model) => {
             info!("Sending model at tick {}", tick);
-            Ok(warp::reply::json(&model))
+            Response::json(model)
         }
         None => {
-            Err(warp::reject::not_found())
+            warn!("Model at tick {} not found", tick);
+            Response::empty_404()
         }
     }
-}
-
-async fn rgraph_handler(state: watch::Receiver<State>) -> Result<impl Reply, Rejection> {
-    let state = state.borrow();
-    info!("RGraph is: {:?}", state);
-    let model = state_to_rgraph(&state);
-    Ok(warp::reply::json(&model))
 }
 
 fn state_to_model(state: &State) -> Model {
