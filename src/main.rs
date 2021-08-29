@@ -1,5 +1,5 @@
 #![allow(unused_imports, dead_code)]
-#![feature(async_closure)]
+// #![feature(async_closure)]
 extern crate derive_more;
 
 use std::time::Duration;
