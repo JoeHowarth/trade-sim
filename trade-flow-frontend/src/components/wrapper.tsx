@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { MockApi, Api } from "../sim_api";
+import { Api } from "../sim_api";
 import App from './app'
 
 

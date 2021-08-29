@@ -52,46 +52,55 @@ const App = ({initial, api}: AppProps) => {
 
   return (
     <>
-      <Box>
-        <div className="level is-mobile">
-          <div className="level-left">
-            <div className="level-item">
-              <div className="has-text-centered has-border">
-                Tick: {model.tick}
+      <div
+        style={{
+          zIndex: 2,
+          position: "absolute",
+          top: 0,
+          left: 0,
+        }}>
+        <Box>
+          <div className="level is-mobile">
+            <div className="level-left">
+              <div className="level-item">
+                <div className="has-text-centered has-border">
+                  Tick: {model.tick}
+                </div>
               </div>
-            </div>
-            <div className="level-item">
-              <div
-                onClick={() => setIsStarted(!isStarted)}
-                className="button"
-              >
-                {isStarted ? "Stop" : "Start"}
+              <div className="level-item">
+                <div
+                  onClick={() => setIsStarted(!isStarted)}
+                  className="button"
+                >
+                  {isStarted ? "Stop" : "Start"}
+                </div>
               </div>
-            </div>
-            <div className="level-item">
-              <div
-                onClick={() => setCityTableVisible(!cityTableVisible)}
-                className="button"
-              >
-                City Table
+              <div className="level-item">
+                <div
+                  onClick={() => setCityTableVisible(!cityTableVisible)}
+                  className="button"
+                >
+                  City Table
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </Box>
+        </Box>
 
-      {
-        cityTableVisible ?
-          <Box style={{
-            margin: 20,
-            width: 300,
-            border: '1px solid rgba(0, 0, 0, 0.05)',
-            maxWidth: '50%'
-          }} onClick={() => console.warn("I've been clicked")}>
-            <InfoTable  model={model} oldModel={oldModel}/>
-          </Box>
-          : null
-      }
+        {
+          cityTableVisible ?
+            <Box style={{
+              zIndex: 2,
+              margin: 20,
+              width: 300,
+              border: '1px solid rgba(0, 0, 0, 0.05)',
+              maxWidth: '50%'
+            }} onClick={() => console.warn("I've been clicked")}>
+              <InfoTable model={model} oldModel={oldModel}/>
+            </Box>
+            : null
+        }
+      </div>
       <Graph graph={initial.visual} model={model} oldModel={oldModel}/>
     </>
   )

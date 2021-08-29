@@ -17,16 +17,10 @@ export default (props: GraphProps) => {
       n.id,
       {
         visual: n,
-        model: model.nodes.find((m) => m.id === n.id),
-        oldModel: oldModel.nodes.find((m) => m.id === n.id),
+        model: model.nodes.get(n.id),
+        oldModel: oldModel.nodes.get(n.id)
       },
     ])
-  )
-  const agentMap: AgentMap = new Map(
-    model.agents.map(a => [a.id, {
-      agent: a,
-      oldAgent: oldModel.agents.find(a2 => a2.id === a.id)
-    }])
   )
 
   // info components
@@ -61,7 +55,7 @@ export default (props: GraphProps) => {
         />
       ))}
       {Array.from(clickedAgents.keys()).map(id => {
-        const agent = agentMap.get(id);
+        const agent = {agent: model.agents.get(id), oldAgent: oldModel.agents.get(id)};
         const node = nodeMap.get(agent.agent.location).visual
         return <ViewAgentInfo
           key={id}
@@ -90,13 +84,13 @@ export default (props: GraphProps) => {
         {graph.edges.map((e, i) => (
           <VisualEdge edge={e} key={i}/>
         ))}
-        {model.agents.map((a, i) => {
+        {Array.from(model.agents, ([id, a]) => {
           let node = nodeMap.get(a.location).visual
           return <VisualAgent
-            key={a.id}
-            onClick={() => toggleAgentInfo(a.id)}
+            key={id}
+            onClick={() => toggleAgentInfo(id)}
             agent={{
-              id: a.id,
+              id: id,
               x: node.x,
               y: node.y,
             }}/>

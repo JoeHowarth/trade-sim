@@ -5,7 +5,7 @@ export default (props) => {
   const { children } = props;
   return (
     <Stage
-      style={{ position: "absolute", top: 0, right: 0, zIndex: -1 }}
+      style={{ position: "absolute", top: 0, right: 0, zIndex: 1 }}
       width={window.innerWidth}
       height={window.innerHeight}
       {...props}

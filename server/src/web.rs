@@ -15,7 +15,7 @@ type ModelHandle = Arc<RwLock<Vec<Model>>>;
 
 pub fn start_model_worker(
     mut state: mpsc::UnboundedReceiver<State>,
-    model_map: ModelHandle,
+    model_list: ModelHandle,
     state_list: Arc<RwLock<Vec<State>>>,
 ) -> AbortHandle {
     let (abort_handle, abort_registration) = AbortHandle::new_pair();
@@ -23,8 +23,11 @@ pub fn start_model_worker(
         while let Some(val) = state.recv().await {
             let model = state_to_model(&val);
             state_list.write().unwrap().push(val);
-            let mut write = model_map.write().expect("couldn't get model map lock");
-            write.insert(model.tick.clone() as usize, model);
+            let mut write = model_list.write().expect("couldn't get model map lock");
+            if write.len() != model.tick as usize {
+                error!("dropped a model! len {}, tick {}", write.len(), model.tick);
+            }
+            write.push(model);
         }
     }, abort_registration);
     info!("Starting model worker task");
@@ -33,21 +36,21 @@ pub fn start_model_worker(
 }
 
 pub async fn server(state: mpsc::UnboundedReceiver<State>) -> anyhow::Result<()> {
-    let model_map = Arc::new(RwLock::new(Vec::with_capacity(100)));
+    let model_list = Arc::new(RwLock::new(Vec::with_capacity(100)));
     let state_list = Arc::new(RwLock::new(Vec::with_capacity(100)));
-    let model_worker_handle = start_model_worker(state, model_map.clone(), state_list.clone());
+    let model_worker_handle = start_model_worker(state, model_list.clone(), state_list.clone());
 
     let server_handle = tokio::task::spawn_blocking(move || {
         let state_list = state_list.clone();
-        let model_map = model_map.clone();
+        let model_list = model_list.clone();
         rouille::Server::new("127.0.0.1:3030", move |request| {
             info!("Received request: {:?}", &request);
             rouille::router!(request,
                 (GET) (/state) => {
-                    model_handler(request, 0, model_map.clone())
+                    model_handler(request, model_list.read().unwrap().len()-1, model_list.clone())
                 },
                 (GET) (/state/{tick: usize}) => {
-                    model_handler(request, tick, model_map.clone())
+                    model_handler(request, tick, model_list.clone())
                 },
                 (GET) (/rgraph) => {
                     let state_list = state_list.read().unwrap();
@@ -91,7 +94,7 @@ fn state_to_model(state: &State) -> Model {
     Model {
         tick: state.tick.0,
         nodes: state.nodes.iter().map(|(city, links, market_info, _pos)| {
-            MNode {
+            (city.name, MNode {
                 id: city.name,
                 markets: {
                     let mut m: HashMap<Ustr, MarketInfo> = HashMap::new();
@@ -106,7 +109,7 @@ fn state_to_model(state: &State) -> Model {
                 links: links.0.iter()
                     .map(|to| to.city.name)
                     .collect(),
-            }
+            })
         }).collect(),
         edges: state.nodes.iter().flat_map(|(city, links, _market_info, _pos)| {
             links.0.iter()
@@ -116,12 +119,12 @@ fn state_to_model(state: &State) -> Model {
                 .collect::<Vec<_>>()
         }).collect(),
         agents: state.agents.iter().map(|(agent, pos, money, cargo)| {
-            MAgent {
+            (agent.name, MAgent {
                 id: agent.name,
                 cargo: cargo.good.name,
                 location: pos.city().expect("only node agent positions implemented").city.name,
                 money: money.0,
-            }
+            })
         }).collect(),
     }
 }
@@ -153,9 +156,9 @@ fn state_to_rgraph(state: &State) -> RGraph {
 #[derive(Serialize, Debug, Clone)]
 pub struct Model {
     tick: u64,
-    nodes: Vec<MNode>,
+    nodes: HashMap<NodeId, MNode>,
     edges: Vec<MEdge>,
-    agents: Vec<MAgent>,
+    agents: HashMap<AgentId, MAgent>,
 }
 
 #[derive(Serialize, Debug, Clone)]

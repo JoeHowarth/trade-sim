@@ -22,7 +22,7 @@ sim = { path = "./sim" }
 server = { path = "./server" }
 
 anyhow = "1.0.40"
-bevy = { version = "0.5.0", features = ["dynamic"] }
+bevy = { version = "0.5.0" }
 derive_more = "0.99.14"
 rand = { version = "0.8.3", features = ["small_rng"] }
 serde = "1.0.126"

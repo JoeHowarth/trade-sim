@@ -1,28 +1,27 @@
-import * as Random from "./random_gen";
 import axios from "axios";
 import _ from "lodash";
 
-export class MockApi implements SimApi {
-  private model: Model;
-  private models: Models
-
-  async initialState(): Promise<{ visual: RGraph; model: Model }> {
-    const x = Random.GenerateInitial();
-    this.model = x.modelInitial;
-    return {visual: x.visualInitial, model: x.modelInitial};
-  }
-
-  async getModel(tick?: number): Promise<Model> {
-    let newModel = _.cloneDeep(this.model);
-    newModel.nodes[0].markets.get("Grain").price += Math.random() * 2 - 1;
-    this.models.push(newModel)
-    return newModel;
-  }
-
-  async getModels(): Promise<Models> {
-    return this.models
-  }
-}
+// export class MockApi implements SimApi {
+//   private model: Model;
+//   private models: Models
+//
+//   async initialState(): Promise<{ visual: RGraph; model: Model }> {
+//     const x = Random.GenerateInitial();
+//     this.model = x.modelInitial;
+//     return {visual: x.visualInitial, model: x.modelInitial};
+//   }
+//
+//   async getModel(tick?: number): Promise<Model> {
+//     let newModel = _.cloneDeep(this.model);
+//     newModel.nodes[0].markets.get("Grain").price += Math.random() * 2 - 1;
+//     this.models.push(newModel)
+//     return newModel;
+//   }
+//
+//   async getModels(): Promise<Models> {
+//     return this.models
+//   }
+// }
 
 export class Api implements SimApi {
   static baseUrl: string = "http://127.0.0.1:3030";
@@ -35,7 +34,9 @@ export class Api implements SimApi {
   async getModel(i?: number): Promise<Model | undefined> {
     const maybeTick = i === undefined? "": "/" + i
     return get<Model>(Api.modelUrl + maybeTick).then(data => {
-      data.nodes = data.nodes.map((n) => {
+      data.agents = new Map(Object.entries(data.agents))
+      data.nodes = new Map(Object.entries(data.nodes))
+      data.nodes.forEach((n, _) => {
         n.markets = new Map(Object.entries(n.markets));
         return n;
       });

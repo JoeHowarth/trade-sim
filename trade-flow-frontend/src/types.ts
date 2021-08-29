@@ -55,9 +55,9 @@ type Models = Model[]
 
 interface Model {
   tick: number
-  nodes: MNode[]
+  nodes: Map<NodeId, MNode>
   edges: MEdge[]
-  agents: MAgent[]
+  agents: Map<AgentId, MAgent>
 }
 
 interface SimApi {

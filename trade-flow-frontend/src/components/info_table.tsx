@@ -18,10 +18,10 @@ const InfoTable = ({model, oldModel}: InfoTableProps) => {
   return (
     <div onClick={() => console.warn("I've been clicked 2")}>
       {
-        Array.from(model.nodes, (node, idx) => (
-          <div key={idx} style={{marginBottom: 5}}>
-            <h4>{node.id}</h4>
-            <MarketInfoTable  node={node} oldMarkets={oldModel.nodes[idx].markets}/>
+        Array.from(model.nodes, ([id, node]) => (
+          <div key={id} style={{marginBottom: 5}}>
+            <h4>{id}</h4>
+            <MarketInfoTable  node={node} oldMarkets={oldModel.nodes.get(id).markets}/>
           </div>
         ))
       }
