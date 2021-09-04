@@ -43,7 +43,7 @@ pub async fn server(state: mpsc::UnboundedReceiver<State>) -> anyhow::Result<()>
     let server_handle = tokio::task::spawn_blocking(move || {
         let state_list = state_list.clone();
         let model_list = model_list.clone();
-        rouille::Server::new("127.0.0.1:3030", move |request| {
+        rouille::Server::new("0.0.0.0:3030", move |request| {
             info!("Received request: {:?}", &request);
             rouille::router!(request,
                 (GET) (/state) => {

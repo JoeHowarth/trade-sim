@@ -1,0 +1,23 @@
+version: "3.9"
+services: 
+  trade-sim:
+    tty: true
+    build: .
+    # command: cargo watch -x 'run testfile.yml'
+    command: cargo watch -- ./start.sh
+    volumes:
+      - type: bind
+        source: ./src
+        target: /app/src
+      - type: bind
+        source: ./server
+        target: /app/server
+      - type: bind
+        source: ./sim
+        target: /app/sim
+      - type: bind
+        source: ./types
+        target: /app/types
+    ports: 
+      - 3030:3030
+      

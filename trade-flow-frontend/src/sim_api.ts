@@ -24,7 +24,7 @@ import _ from "lodash";
 // }
 
 export class Api implements SimApi {
-  static baseUrl: string = "http://127.0.0.1:3030";
+  static baseUrl: string = "http://0.0.0.0:3030";
   static visualUrl: string = Api.baseUrl + "/rgraph"
   static modelUrl: string = Api.baseUrl + "/state"
 
