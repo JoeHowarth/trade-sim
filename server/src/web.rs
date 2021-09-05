@@ -64,6 +64,12 @@ pub(crate) fn state_to_rgraph(state: &State) -> RGraph {
     }
 }
 
+#[derive(Serialize)]
+pub(crate) struct SaveFormat<'a> {
+    pub(crate) models: HashMap<u64, &'a Model>,
+    pub(crate) visual: &'a RGraph,
+}
+
 #[derive(Serialize, Debug, Clone)]
 pub struct Model {
     pub tick: u64,

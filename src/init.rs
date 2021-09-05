@@ -10,6 +10,7 @@ use types::market::exchanger::MarketInfo;
 #[derive(StructOpt)]
 pub struct Cli {
     file: Option<std::path::PathBuf>,
+    serve_static: Option<std::path::PathBuf>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -44,6 +45,8 @@ enum AgentPositionInput {
     Node(Ustr),
     // Edge(String, String),
 }
+
+
 
 pub fn get_input() -> Result<Input> {
     let args = Cli::from_args();

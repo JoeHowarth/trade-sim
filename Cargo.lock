@@ -3213,8 +3213,6 @@ dependencies = [
  "rouille",
  "serde",
  "serde_json",
- "serde_yaml",
- "structopt",
  "tokio",
  "tracing",
  "types",
@@ -3280,7 +3278,6 @@ dependencies = [
  "derive_more",
  "rand",
  "serde",
- "structopt",
  "types",
 ]
 
@@ -3833,7 +3830,6 @@ dependencies = [
  "derive_more",
  "rand",
  "serde",
- "structopt",
  "ustr",
 ]
 

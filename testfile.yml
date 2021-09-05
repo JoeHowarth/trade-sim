@@ -1,5 +1,5 @@
 settings:
-  loop_rate: 3000
+  loop_rate: 9000
 agents:
   - name: "Bob"
     position: "Athens"

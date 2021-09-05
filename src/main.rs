@@ -1,4 +1,4 @@
-#![allow( dead_code)]
+#![allow(unused_imports, dead_code)]
 // #![feature(async_closure)]
 extern crate derive_more;
 
@@ -26,6 +26,18 @@ mod init;
 fn main() -> Result<(), Box<dyn Error>> {
     let input = init::get_input().context("Failed to get input")?;
     let (state_tx, state_rx) = mpsc::unbounded_channel();
+    let mut app = build_app(input, state_tx);
+
+    server::spawn(state_rx);
+
+    app.run();
+    Ok(())
+}
+
+fn build_app(
+    input: init::Input,
+    state_tx: mpsc::UnboundedSender<types::State>,
+) -> AppBuilder {
     let mut app = App::build();
     app
         .insert_resource(LogSettings {
@@ -59,22 +71,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         .add_stage("final-work",
                    SystemStage::single_threaded()
                        .with_system(wrap(printer.system())));
-    {
-        std::thread::spawn(move || {
-            match tokio::runtime::Builder::new_current_thread()
-                .enable_all()
-                .build()
-                .unwrap()
-                .block_on(server::server(state_rx)) {
-                Ok(_) => {}
-                Err(e) => {
-                    error!("Error encountered in server. {}", e);
-                }
-            }
-        });
-    }
-    app.run();
-    Ok(())
+    app
 }
 
 fn wrap<T: System<In=(), Out=Result<()>>>(inner: T) -> impl System<In=(), Out=()> {
@@ -97,7 +94,7 @@ fn fatal_error_handler_system(In(result): In<Result<()>>) {
 fn update_tick(mut tick: ResMut<Tick>, mut has_run: Local<bool>) {
     if !*has_run {
         *has_run = true;
-        return
+        return;
     }
     tick.0 += 1;
 }
