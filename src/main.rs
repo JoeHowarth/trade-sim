@@ -1,4 +1,4 @@
-#![allow(unused_imports, dead_code)]
+#![allow( dead_code)]
 // #![feature(async_closure)]
 extern crate derive_more;
 
@@ -18,9 +18,7 @@ use types::{
     agent::{GraphPosition, Cargo, Agent},
     market::Money,
 };
-use server::web;
 use sim::agent_behavior;
-use bevy::app::Events;
 use types::market::exchanger::Order;
 
 mod init;
@@ -67,7 +65,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 .enable_all()
                 .build()
                 .unwrap()
-                .block_on(web::server(state_rx)) {
+                .block_on(server::server(state_rx)) {
                 Ok(_) => {}
                 Err(e) => {
                     error!("Error encountered in server. {}", e);

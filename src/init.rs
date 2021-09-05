@@ -1,4 +1,3 @@
-use bevy::utils::tracing::field::debug;
 use structopt::StructOpt;
 
 use types::prelude::*;
