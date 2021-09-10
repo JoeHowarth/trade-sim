@@ -20,17 +20,29 @@ use types::{
 };
 use sim::agent_behavior;
 use types::market::exchanger::Order;
+use structopt::StructOpt;
+use crate::init::Cli;
 
 mod init;
 
-fn main() -> Result<(), Box<dyn Error>> {
-    let input = init::get_input().context("Failed to get input")?;
+fn main() -> Result<()> {
+    let args = Cli::from_args();
+    if let Some(serve_static_filename) = args.serve_static {
+        return server::static_server(serve_static_filename);
+    }
+
+    let input = init::get_input(args).context("Failed to get input")?;
     let (state_tx, state_rx) = mpsc::unbounded_channel();
     let mut app = build_app(input, state_tx);
 
     server::spawn(state_rx);
 
     app.run();
+    Ok(())
+}
+
+fn serve_static(save_name: std::path::PathBuf) -> Result<()> {
+    server::spawn(state_rx);
     Ok(())
 }
 

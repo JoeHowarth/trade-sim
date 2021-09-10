@@ -9,8 +9,8 @@ use types::market::exchanger::MarketInfo;
 
 #[derive(StructOpt)]
 pub struct Cli {
-    file: Option<std::path::PathBuf>,
-    serve_static: Option<std::path::PathBuf>,
+    pub file: Option<std::path::PathBuf>,
+    pub serve_static: Option<std::path::PathBuf>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -48,8 +48,7 @@ enum AgentPositionInput {
 
 
 
-pub fn get_input() -> Result<Input> {
-    let args = Cli::from_args();
+pub fn get_input(args: Cli) -> Result<Input> {
     let file: std::path::PathBuf = args.file.unwrap_or("testfile.yml".into());
     let input: Result<Input, _> = serde_yaml::from_reader(
         io::BufReader::new(

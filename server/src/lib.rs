@@ -3,11 +3,21 @@ pub mod web;
 use crate::web::Model;
 use futures::future::{AbortHandle, Abortable};
 use rouille::{router, Request, Response};
-use std::sync::RwLock;
+use std::{
+    sync::RwLock,
+    path,
+    cell,
+};
 use tokio::sync::mpsc;
 use tracing::info;
 use types::prelude::*;
-use types::State;
+use types::{
+    State,
+    Read
+};
+use tokio::sync::mpsc::UnboundedReceiver;
+use tokio::task::JoinHandle;
+use std::sync::atomic::Ordering;
 
 type Handle<T> = Arc<RwLock<Vec<T>>>;
 type ModelHandle = Handle<Model>;
@@ -15,13 +25,27 @@ type ModelHandle = Handle<Model>;
 const SAVES_DIR: &str = "saves/";
 const SAVE_FILENAME: &str = "savefile";
 
+pub fn static_server(path_to_save_file: path::PathBuf) -> Result<()> {
+    let save: web::SaveFormat = serde_json::from_slice(&fs::read(path_to_save_file)?)?;
+
+    Ok(())
+}
+
 pub fn spawn(state_rx: mpsc::UnboundedReceiver<State>) {
     std::thread::spawn(move || {
+        let model_list = Arc::new(RwLock::new(Vec::with_capacity(100)));
+        // let state_list = Arc::new(RwLock::new(Vec::with_capacity(100)));
+        let rgraph = ReadIfSet::default();
+        std::fs::create_dir_all(SAVES_DIR)?;
+
         match tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()
             .unwrap()
-            .block_on(server(state_rx)) {
+            .block_on(async {
+                let model_worker_handle = start_model_worker(state_rx, model_list.clone(), &rgraph);
+                let server_handle = server(model_list, &rgraph);
+            }) {
             Ok(_) => {}
             Err(e) => {
                 error!("Error encountered in server. {}", e);
@@ -30,15 +54,9 @@ pub fn spawn(state_rx: mpsc::UnboundedReceiver<State>) {
     });
 }
 
-pub async fn server(state: mpsc::UnboundedReceiver<State>) -> anyhow::Result<()> {
-    let model_list = Arc::new(RwLock::new(Vec::with_capacity(100)));
-    let state_list = Arc::new(RwLock::new(Vec::with_capacity(100)));
-    let model_worker_handle = start_model_worker(state, model_list.clone(), state_list.clone());
 
-    std::fs::create_dir_all(SAVES_DIR)?;
-
+pub async fn server(model_list: ModelHandle, rgraph: ReadIfSet<web::RGraph>) -> JoinHandle<()> {
     let server_handle = tokio::task::spawn_blocking(move || {
-        let state_list = state_list.clone();
         let model_list = model_list.clone();
         rouille::Server::new("0.0.0.0:3030", move |request| {
             info!("Received request: {:?}", &request);
@@ -50,24 +68,22 @@ pub async fn server(state: mpsc::UnboundedReceiver<State>) -> anyhow::Result<()>
                     model_handler(request, tick, model_list.clone())
                 },
                 (GET) (/rgraph) => {
-                    let state_list = state_list.read().unwrap();
-                    match state_list.last() {
-                        Some(state) => Response::json(&web::state_to_rgraph(state)),
+                    match rgraph.get() {
+                        Some(rgraph) => Response::json(rgraph),
                         None => {
-                            error!("Expected non-empty state_list");
-                            Response::text("Expected non-empty state list")
-                            .with_status_code(500)
+                            error!("Expected rgraph to be initialized");
+                            Response::text("Expected rgraph to be initialized").with_status_code(500)
                         }
                     }
                 },
                 (POST) (/save) => {
-                    match save_handler("", model_list.clone(), state_list.clone()) {
+                    match save_handler("", model_list.clone(), &rgraph) {
                         Ok(r) => r,
                         Err(e) => Response::text(format!("Error saving file to desired path. Error={}", e))
                     }
                 },
                 (POST) (/save/{path: String}) => {
-                    match save_handler(&path, model_list.clone(), state_list.clone()) {
+                    match save_handler(&path, model_list.clone(), &rgraph) {
                         Ok(r) => r,
                         Err(e) => Response::text(format!("Error saving file to desired path. Path={}, Error={}", path, e))
                     }
@@ -82,15 +98,13 @@ pub async fn server(state: mpsc::UnboundedReceiver<State>) -> anyhow::Result<()>
         })
             .unwrap().run();
     });
-    server_handle.await?;
-    model_worker_handle.abort();
-    Ok(())
+    server_handle
 }
 
 fn save_handler(
     fname: &str,
     model_list: ModelHandle,
-    state_list: Handle<State>,
+    visual: &web::RGraph,
 ) -> Result<Response> {
     let model_list = model_list.read().unwrap();
     let mut models = HashMap::with_capacity(model_list.len());
@@ -99,7 +113,7 @@ fn save_handler(
     }
     let save = web::SaveFormat {
         models,
-        visual: &web::state_to_rgraph(state_list.read().unwrap().get(0).unwrap()),
+        visual,
     };
     let dir = std::path::Path::new(SAVES_DIR);
     let mut path = if !fname.is_empty() {
@@ -147,14 +161,15 @@ fn model_handler(_req: &Request, tick: usize, model_map: ModelHandle) -> Respons
 pub fn start_model_worker(
     mut state: mpsc::UnboundedReceiver<State>,
     model_list: ModelHandle,
-    state_list: Arc<RwLock<Vec<State>>>,
+    rgraph: ReadIfSet<web::RGraph>,
 ) -> AbortHandle {
     let (abort_handle, abort_registration) = AbortHandle::new_pair();
     let model_worker = Abortable::new(
         async move {
             while let Some(val) = state.recv().await {
+                rgraph.set_with()
+
                 let model = web::state_to_model(&val);
-                state_list.write().unwrap().push(val);
                 let mut write = model_list.write().expect("couldn't get model map lock");
                 if write.len() != model.tick as usize {
                     error!("dropped a model! len {}, tick {}", write.len(), model.tick);
