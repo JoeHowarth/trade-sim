@@ -3,7 +3,7 @@ pub mod basic_impls;
 pub mod market;
 pub mod agent;
 pub mod prelude;
-mod utility;
+pub mod utility;
 
 pub use basic_impls::*;
 use std::{

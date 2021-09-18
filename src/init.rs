@@ -9,7 +9,9 @@ use types::market::exchanger::MarketInfo;
 
 #[derive(StructOpt)]
 pub struct Cli {
+    #[structopt(short, long)]
     pub file: Option<std::path::PathBuf>,
+    #[structopt(short, long)]
     pub serve_static: Option<std::path::PathBuf>,
 }
 

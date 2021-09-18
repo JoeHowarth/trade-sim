@@ -1,5 +1,6 @@
 use types::prelude::*;
 use types::State;
+use std::collections::BTreeMap;
 
 pub(crate) fn state_to_model(state: &State) -> Model {
     Model {
@@ -64,13 +65,13 @@ pub(crate) fn state_to_rgraph(state: &State) -> RGraph {
     }
 }
 
-#[derive(Serialize)]
-pub(crate) struct SaveFormat<'a> {
-    pub(crate) models: HashMap<u64, &'a Model>,
-    pub(crate) visual: &'a RGraph,
+#[derive(Serialize, Deserialize)]
+pub(crate) struct SaveFormat {
+    pub(crate) models: BTreeMap<u64, Model>,
+    pub(crate) visual: RGraph,
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Model {
     pub tick: u64,
     nodes: HashMap<NodeId, MNode>,
@@ -78,7 +79,7 @@ pub struct Model {
     agents: HashMap<AgentId, MAgent>,
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct MarketInfo {
     pub supply: f64,
     pub consumption: f64,
@@ -90,14 +91,14 @@ pub type NodeId = Ustr;
 pub type AgentId = Ustr;
 pub type Good = Ustr;
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct MNode {
     pub id: NodeId,
     pub markets: HashMap<Good, MarketInfo>,
     pub links: Vec<NodeId>,
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct MAgent {
     id: AgentId,
     cargo: Good,
@@ -105,18 +106,18 @@ pub struct MAgent {
     money: f64,
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct MEdge {
     pub nodes: Vec<NodeId>,
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RGraph {
     pub nodes: Vec<RNode>,
     pub edges: Vec<REdge>,
 }
 
-#[derive(Serialize, Clone, Debug, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct RNode {
     x: i32,
     y: i32,
@@ -124,7 +125,7 @@ pub struct RNode {
     radius: f32,
 }
 
-#[derive(Serialize, Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct REdge {
     pub nodes: (RNode, RNode),
 }

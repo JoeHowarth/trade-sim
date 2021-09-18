@@ -41,11 +41,6 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn serve_static(save_name: std::path::PathBuf) -> Result<()> {
-    server::spawn(state_rx);
-    Ok(())
-}
-
 fn build_app(
     input: init::Input,
     state_tx: mpsc::UnboundedSender<types::State>,
