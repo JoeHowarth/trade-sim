@@ -24,6 +24,8 @@ use crate::{
     prelude::*,
 };
 
+pub type EntityMapMut<'a, T> = HashMap<Entity, Mut<'a, T>>;
+
 #[derive(Debug)]
 pub struct State {
     pub tick: Tick,

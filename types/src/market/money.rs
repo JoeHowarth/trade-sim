@@ -33,7 +33,7 @@ impl Mul<Money> for Money {
 
 impl<__RhsT> ::core::ops::Mul<__RhsT> for Money
     where
-        f64: ::core::ops::Mul<__RhsT, Output = f64>,
+        f64: ::core::ops::Mul<__RhsT, Output=f64>,
 {
     type Output = Money;
     #[inline]

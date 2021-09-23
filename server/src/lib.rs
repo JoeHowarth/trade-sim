@@ -44,8 +44,14 @@ pub fn spawn(state_recv: mpsc::UnboundedReceiver<State>, save_signal: mpsc::Unbo
             .build()
             .unwrap()
             .block_on(async {
-                let model_worker_handle = start_model_worker(state_recv, model_list.clone(), visual_read_if_set.clone());
-                let save_on_signal_worker_handle = start_save_on_signal_worker(save_signal, model_list.clone(), visual_read_if_set.clone());
+                let model_worker_handle = start_model_worker(
+                    state_recv,
+                    model_list.clone(),
+                    visual_read_if_set.clone());
+                let save_on_signal_worker_handle = start_save_on_signal_worker(
+                    save_signal,
+                    model_list.clone(),
+                    visual_read_if_set.clone());
                 let server_handle = tokio::task::spawn_blocking(move || {
                     server(model_list, visual_read_if_set.clone());
                 });

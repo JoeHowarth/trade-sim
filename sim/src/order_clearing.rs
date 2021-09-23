@@ -1,25 +1,25 @@
-use types::{
-    market::{
-        exchanger::MarketInfo,
-        Money,
-        exchanger::Order,
-    },
-    prelude::*,
-    City,
-    CityHandle,
-};
+use types::{market::{
+    exchanger::MarketInfo,
+    Money,
+    exchanger::Order,
+}, prelude::*, City, CityHandle, EntityMapMut};
 use types::agent::{Agent, Cargo};
 use types::market::exchanger::Exchanger;
 
 pub fn clear_orders(
-    mut markets: Query<&mut MarketInfo, With<City>>,
-    mut agents: Query<(&mut Money, &mut Cargo), With<Agent>>,
+    mut markets: Query<(Entity, &mut MarketInfo), With<City>>,
+    mut agents: Query<(Entity, &mut Money, &mut Cargo), With<Agent>>,
     mut orders: EventReader<Order>,
     mut failed_orders: EventWriter<Order>,
+    m: Mut<Money>,
 ) {
+
+    let mut agents = HashMap::<Entity,(M_>::from_iter(agents.iter_mut().map(|(e,m,c)| (e, (m,c))));
+    let mut markets: EntityMapMut<'_, MarketInfo> = HashMap::from_iter(markets.iter_mut());
+
     orders.iter().for_each(|order: &Order| {
-        let mut market: Mut<MarketInfo> = markets.get_mut(order.market.entity).expect("market entity not in markets query");
-        let (mut wallet, mut cargo): (Mut<Money>, Mut<Cargo>) = agents.get_mut(order.agent.entity).expect("agent entity not in agents query");
+        let mut market = markets.get_mut(&order.market.entity).expect("market entity not in markets query");
+        let (mut wallet, mut cargo) = agents.get_mut(&order.agent.entity).expect("agent entity not in agents query");
         match market.buy(&mut wallet, order.amt) {
             Some(_) => {
                 cargo.good = order.good;

@@ -24,6 +24,7 @@ pub struct Order {
     pub good: crate::Good,
     pub market: CityHandle,
     pub agent: AgentHandle,
+    /// positive amt means buy order, negative means sell order
     pub amt: i32,
 }
 
