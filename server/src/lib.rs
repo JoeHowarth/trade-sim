@@ -1,6 +1,6 @@
 pub mod web;
 
-use crate::web::Model;
+use crate::web::{Model};
 use futures::future::{AbortHandle, Abortable};
 use rouille::{router, Request, Response};
 use std::{
@@ -33,11 +33,10 @@ pub fn static_server(path_to_save_file: path::PathBuf) -> Result<()> {
     Ok(())
 }
 
-pub fn spawn(state_rx: mpsc::UnboundedReceiver<State>) {
+pub fn spawn(state_recv: mpsc::UnboundedReceiver<State>, save_signal: mpsc::UnboundedReceiver<Option<String>>) {
     std::thread::spawn(move || {
         let model_list = Arc::new(RwLock::new(Vec::with_capacity(100)));
-        // let state_list = Arc::new(RwLock::new(Vec::with_capacity(100)));
-        let rgraph = Arc::new(utility::ReadIfSet::default());
+        let visual_read_if_set = Arc::new(utility::ReadIfSet::default());
         std::fs::create_dir_all(SAVES_DIR).expect("Couldn't create saves directory");
 
         tokio::runtime::Builder::new_current_thread()
@@ -45,18 +44,39 @@ pub fn spawn(state_rx: mpsc::UnboundedReceiver<State>) {
             .build()
             .unwrap()
             .block_on(async {
-                let model_worker_handle = start_model_worker(state_rx, model_list.clone(), rgraph.clone());
+                let model_worker_handle = start_model_worker(state_recv, model_list.clone(), visual_read_if_set.clone());
+                let save_on_signal_worker_handle = start_save_on_signal_worker(save_signal, model_list.clone(), visual_read_if_set.clone());
                 let server_handle = tokio::task::spawn_blocking(move || {
-                    server(model_list, rgraph.clone());
+                    server(model_list, visual_read_if_set.clone());
                 });
                 server_handle.await.unwrap();
                 model_worker_handle.abort();
+                save_on_signal_worker_handle.abort();
             });
     });
 }
 
+fn start_save_on_signal_worker(
+    mut signal: mpsc::UnboundedReceiver<Option<String>>,
+    model_list: ModelHandle,
+    visual_reader: Arc<utility::ReadIfSet<web::RGraph>>) -> AbortHandle
+{
+    let worker = async move {
+        while let Some(file_name) = signal.recv().await {
+            let file_name: &str = file_name.as_ref().map(|s| s.as_str()).unwrap_or("");
+            if let Err(e) = save_state_to_file(file_name, model_list.clone(), visual_reader.clone()) {
+                error!("Save signal worker failed, e= {}", e.to_string());
+            }
+        }
+    };
+    info!("Starting save signal worker");
+    let (handle, registration) = AbortHandle::new_pair();
+    tokio::task::spawn(Abortable::new(worker, registration));
+    handle
+}
 
-pub fn server(model_list: ModelHandle, rgraph: Arc<utility::ReadIfSet<web::RGraph>>) {
+
+pub fn server(model_list: ModelHandle, visual_reader: Arc<utility::ReadIfSet<web::RGraph>>) {
     let model_list = model_list.clone();
     rouille::Server::new("0.0.0.0:3030", move |request| {
         debug!("Received request, url={}", request.url());
@@ -68,7 +88,7 @@ pub fn server(model_list: ModelHandle, rgraph: Arc<utility::ReadIfSet<web::RGrap
                 model_handler(request, tick, model_list.clone())
             },
             (GET) (/rgraph) => {
-                match rgraph.get() {
+                match visual_reader.get() {
                     Some(rgraph) => Response::json(&rgraph),
                     None => {
                         error!("Expected rgraph to be initialized");
@@ -76,24 +96,8 @@ pub fn server(model_list: ModelHandle, rgraph: Arc<utility::ReadIfSet<web::RGrap
                     }
                 }
             },
-            (POST) (/save) => {
-                let result = rgraph.get().ok_or(anyhow::Error::msg("Visual not set yet")).and_then(|rgraph| {
-                    save_handler("", model_list.clone(), rgraph)
-                });
-                match result {
-                    Ok(r) => r,
-                    Err(e) => Response::text(format!("Error saving file to desired path. Error={}", e))
-                }
-            },
-            (POST) (/save/{path: String}) => {
-                let result = rgraph.get().ok_or(anyhow::Error::msg("Visual not set yet")).and_then(|rgraph| {
-                    save_handler(&path, model_list.clone(), rgraph)
-                });
-                match result {
-                    Ok(r) => r,
-                    Err(e) => Response::text(format!("Error saving file to desired path. Path={}, Error={}", path, e))
-                }
-            },
+            (POST) (/save) => { save_handler("", model_list.clone(), visual_reader.clone()) },
+            (POST) (/save/{path: String}) => { save_handler(&path, model_list.clone(), visual_reader.clone()) },
             _ => {
                 warn!("Unrecognized path {}", request.url());
                 Response::empty_404()
@@ -104,23 +108,28 @@ pub fn server(model_list: ModelHandle, rgraph: Arc<utility::ReadIfSet<web::RGrap
     }).unwrap().run();
 }
 
-fn save_handler(
-    fname: &str,
+fn save_state_to_file(
+    file_name: &str,
     model_list: ModelHandle,
-    visual: &web::RGraph,
-) -> Result<Response> {
-    let model_list = model_list.read().unwrap();
-    let mut models = BTreeMap::new();
-    for m in model_list.iter() {
-        models.insert(m.tick, m.clone());
-    }
+    visual_reader: Arc<utility::ReadIfSet<web::RGraph>>,
+) -> Result<web::SaveFormat> {
+    let visual = visual_reader.get()
+        .ok_or(anyhow::Error::msg("Visual not set yet"))?;
+    let model_list = model_list.read()
+        .map_err(|e| anyhow::Error::msg(e.to_string()))?;
+    let models: BTreeMap<_, _> = model_list.iter()
+        .cloned()
+        .map(|m| (m.tick.clone(), m))
+        .collect();
+
     let save = web::SaveFormat {
         models,
         visual: visual.clone(),
     };
-    let dir = std::path::Path::new(SAVES_DIR);
-    let mut path = if !fname.is_empty() {
-        dir.join(fname)
+
+    let dir = path::Path::new(SAVES_DIR);
+    let mut path = if !file_name.is_empty() {
+        dir.join(file_name)
     } else {
         let num = fs::read_dir(SAVES_DIR).context("Reading saves directory")?
             .into_iter()
@@ -141,7 +150,18 @@ fn save_handler(
 
     debug!("writing file: {:?}", &path);
     fs::write(path, serde_json::to_vec(&save)?)?;
-    Ok(Response::json(&save))
+    Ok(save)
+}
+
+fn save_handler(
+    file_name: &str,
+    model_list: ModelHandle,
+    visual_reader: Arc<utility::ReadIfSet<web::RGraph>>,
+) -> Response {
+    match save_state_to_file(file_name, model_list, visual_reader) {
+        Ok(r) => Response::json(&r),
+        Err(e) => Response::text(format!("Error saving file to desired path. Error= {}", e))
+    }
 }
 
 fn model_handler(_req: &Request, tick: usize, model_map: ModelHandle) -> Response {

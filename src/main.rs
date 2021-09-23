@@ -33,9 +33,10 @@ fn main() -> Result<()> {
 
     let input = init::get_input(args).context("Failed to get input")?;
     let (state_tx, state_rx) = mpsc::unbounded_channel();
-    let mut app = build_app(input, state_tx);
+    let (save_signal_sender, save_signal_recv) = mpsc::unbounded_channel();
+    let mut app = build_app(input, state_tx, save_signal_sender);
 
-    server::spawn(state_rx);
+    server::spawn(state_rx, save_signal_recv);
 
     app.run();
     Ok(())
@@ -44,6 +45,7 @@ fn main() -> Result<()> {
 fn build_app(
     input: init::Input,
     state_tx: mpsc::UnboundedSender<types::State>,
+    _save_signal_sender: mpsc::UnboundedSender<Option<String>>, // TODO save on key press
 ) -> AppBuilder {
     let mut app = App::build();
     app
