@@ -25,7 +25,12 @@ use crate::{
     prelude::*,
 };
 
-pub type EntityMapMut<'a, T> = HashMap<Entity, Mut<'a, T>>;
+#[derive(Debug, From, Clone, Copy, PartialEq)]
+pub struct Movement {
+    pub from: GridPosition,
+    pub to: GridPosition,
+    pub entity: Entity,
+}
 
 #[derive(Debug)]
 pub struct State {
@@ -72,6 +77,6 @@ pub struct Goods(pub HashSet<Good>);
 
 ///////////// GeoTypes /////////////
 
-#[derive(Deref, Debug, Clone, Copy)]
+#[derive(Deref, PartialEq, Debug, Clone, Copy)]
 pub struct GridPosition(pub Vec2);
 

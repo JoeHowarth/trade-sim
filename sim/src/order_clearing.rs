@@ -2,7 +2,7 @@ use types::{market::{
     exchanger::MarketInfo,
     Money,
     exchanger::Order,
-}, prelude::*, City, CityHandle, EntityMapMut};
+}, prelude::*, City, CityHandle};
 use types::agent::{Agent, Cargo};
 use types::market::exchanger::Exchanger;
 

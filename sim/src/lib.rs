@@ -6,6 +6,7 @@ use crate::order_clearing::Failed;
 
 pub mod agent_behavior;
 pub mod order_clearing;
+pub mod movement;
 
 pub(crate) fn setup_tests() -> bevy::app::AppBuilder {
     use bevy::app;
