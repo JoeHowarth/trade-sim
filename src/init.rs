@@ -118,7 +118,7 @@ pub fn init_cities(
     commands: &mut Commands,
     input_cities: &Vec<CityInput>,
 ) -> Result<HashMap<City, CityHandle>> {
-    let mut thread_rng = SmallRng::from_entropy();
+    let mut rng = SmallRng::from_entropy();
     let cities: Vec<CityHandle> = input_cities.iter().map(|city| {
         let info: City = city.name.into();
         let entity = commands.spawn_bundle((
@@ -127,8 +127,8 @@ pub fn init_cities(
         ))
             .insert(types::GridPosition::from(city.pos
                 .unwrap_or_else(|| Vec2::from((
-                    thread_rng.gen::<f32>() * 10.,
-                    thread_rng.gen::<f32>() * 10., )))))
+                    rng.gen::<f32>() * 10.,
+                    rng.gen::<f32>() * 10., )))))
             .id();
 
         return CityHandle { entity, city: info };

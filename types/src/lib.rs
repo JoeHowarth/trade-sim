@@ -6,6 +6,7 @@ pub mod prelude;
 pub mod utility;
 
 pub use basic_impls::*;
+pub use market::exchanger::Order;
 use std::{
     fmt::{Formatter},
     collections::HashSet,

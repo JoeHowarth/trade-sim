@@ -1,4 +1,5 @@
 pub use bevy::prelude::*;
+pub use bevy::app;
 
 pub use std::{
     collections::{

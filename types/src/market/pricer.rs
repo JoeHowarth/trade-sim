@@ -20,7 +20,7 @@ impl Pricer for LinearPricer {
 
 impl LinearPricer {
     pub fn new(base_supply: f64, base_price: f64, price_per_supply: f64) -> Self {
-        if price_per_supply < 0. {
+        if price_per_supply > 0. {
             warn!("Expected price per supply to be negative, actually: {:?}", price_per_supply);
         }
         LinearPricer { base_price, base_supply, price_per_supply }
