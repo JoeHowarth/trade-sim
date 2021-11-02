@@ -42,7 +42,7 @@ pub(crate) fn state_to_model(state: &State) -> Model {
 }
 
 pub(crate) fn state_to_rgraph(state: &State) -> RGraph {
-    let m: HashMap<NodeId, RNode> = HashMap::from_iter(
+    let m: BTreeMap<NodeId, RNode> = BTreeMap::from_iter(
         state.nodes.iter()
             .map(|(city, _links, _market_info, pos)| {
                 (city.name,
@@ -54,7 +54,7 @@ pub(crate) fn state_to_rgraph(state: &State) -> RGraph {
                  })
             }));
     RGraph {
-        nodes: m.values().cloned().collect(),
+        nodes: m.cloned().collect(),
         edges: state.nodes.iter()
             .flat_map(|(city, links, _market_info, _pos)| {
                 links.0.iter()

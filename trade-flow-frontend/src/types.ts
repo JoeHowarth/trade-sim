@@ -4,8 +4,13 @@ interface Point {
 }
 
 interface RGraph {
-  nodes: RNode[]
+  nodes: Map<NodeId, RNode>
   edges: REdge[]
+}
+
+interface WireRGraph {
+  nodes: Map<NodeId, RNode>
+  edges: WireREdge[]
 }
 
 interface RNode extends Point {
@@ -16,6 +21,10 @@ interface RNode extends Point {
 
 interface REdge {
   nodes: RNode[]
+}
+
+interface WireREdge {
+  nodes: NodeId[]
 }
 
 interface RAgent extends Point {
