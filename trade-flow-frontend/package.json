@@ -2,7 +2,6 @@
   "name": "trade-flow-frontend",
   "version": "1.0.0",
   "description": "frontend for trade-graph-hs",
-  "main": "index.html",
   "browserslist": [
     "last 3 and_chr versions",
     "last 3 chrome versions",
