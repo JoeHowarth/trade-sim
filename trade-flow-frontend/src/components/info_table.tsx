@@ -1,4 +1,4 @@
-import {isNumber} from "lodash";
+import { isNumber } from "lodash";
 import React, {
   FC,
   PropsWithChildren,
@@ -6,30 +6,55 @@ import React, {
   useRef,
   useState,
 } from "react";
-import {Table} from "react-bulma-components";
-import {AtPosition, CenteredAbove, MarketInfoTable} from "./info_box";
+import { Table } from "react-bulma-components";
+import {
+  AgentInfoTable,
+  AtPosition,
+  CenteredAbove,
+  MarketInfoTable,
+} from "./info_box";
+
+export enum InfoTableMode {
+  cities = "cities",
+  agents = "agents",
+  singleGood = "singleGood",
+}
 
 interface InfoTableProps {
-  model: Model
-  oldModel: Model
+  model: Model;
+  oldModel: Model;
+  mode: InfoTableMode;
 }
 
-const InfoTable = ({model, oldModel}: InfoTableProps) => {
-  return (
-    <div onClick={() => console.warn("I've been clicked 2")}>
-      {
-        Array.from(model.nodes, ([id, node]) => (
-          <div key={id} style={{marginBottom: 5}}>
+export const InfoTable = ({ model, oldModel, mode }: InfoTableProps) => {
+  if (mode == InfoTableMode.cities) {
+    return (
+      <div>
+        {Array.from(model.nodes, ([id, node]) => (
+          <div key={id} style={{ marginBottom: 5 }}>
             <h4>{id}</h4>
-            <MarketInfoTable  node={node} oldMarkets={oldModel.nodes.get(id).markets}/>
+            <MarketInfoTable
+              node={node}
+              oldMarkets={oldModel.nodes.get(id).markets}
+            />
           </div>
-        ))
-      }
-    </div>
-  )
-}
+        ))}
+      </div>
+    );
+  } else if (mode == InfoTableMode.agents) {
+    return (
+      <div>
+        {Array.from(model.agents, ([id, agent]) => (
+          <div key={id} style={{ marginBottom: 5 }}>
+            <h4>{id}</h4>
+            <AgentInfoTable
+              agent={agent}
+              oldAgent={oldModel.agents.get(id)}
+            />
+          </div>
+        ))}
+      </div>
+    );
+  }
+};
 
-export
-{
-  InfoTable
-}

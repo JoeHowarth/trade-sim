@@ -1,54 +1,35 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "react-bulma-components/dist/react-bulma-components.min.css";
-import {Box} from "react-bulma-components";
+import { Box } from "react-bulma-components";
 import Graph from "./graph";
-import {InfoTable} from "./info_table";
+import { InfoTable, InfoTableMode } from "./info_table";
 
 type AppProps = {
   api: SimApi;
-  initial: {
-    visual: RGraph;
-    model: Model;
-  };
+  initialVisual: RGraph;
 };
 
-const App = ({initial, api}: AppProps) => {
-  // maintain oldModel
-  const [model, setModel] = useState(initial.model);
-  const [oldModel, setOldModel] = useState(initial.model);
-
-  // for use inside control-fetching callback
-  let tickRef = useRef(model.tick);
-  tickRef.current = model.tick;
+const App = ({ api, initialVisual }: AppProps) => {
+  const [visual, setVisual] = useState(initialVisual);
+  const [tick, setTick] = useState(api.lastModel().tick);
   const [isStarted, setIsStarted] = useState(true);
+  const [infoTableMode, setInfoTableMode] = useState(null);
 
   // control fetching the model
-  useEffect(() => {
-    let interval = null;
+  useEffect(async () => {
     if (isStarted) {
-      interval = setInterval(async () => {
-        const newModel = await api.getModel()
-        if (newModel === undefined) {
-          console.warn("not expecting undefined model")
-          return
-        }
-        if (newModel.tick > tickRef.current) {
-          setModel((oldModel) => {
-            setOldModel(oldModel);
-            return newModel;
-          });
-        }
-      }, 1000);
-    }
-    return () => {
-      if (interval !== null) {
-        clearInterval(interval);
-        console.log("clearing interval");
+      const nextModel = await api.nextModel();
+      if (isStarted) { // check again after fetching. Is it possible for this callback to observe isStarted changing?
+        setTick((oldTick: number) => {
+          console.assert(
+            oldTick < nextModel?.tick,
+            "Expected old tick to be < nextModel.tick"
+          );
+          return nextModel.tick;
+        });
       }
-    };
+    }
   }, [isStarted]);
-
-  const [cityTableVisible, setCityTableVisible] = useState(false)
 
   return (
     <>
@@ -58,14 +39,13 @@ const App = ({initial, api}: AppProps) => {
           position: "absolute",
           top: 0,
           left: 0,
-        }}>
+        }}
+      >
         <Box>
           <div className="level is-mobile">
             <div className="level-left">
               <div className="level-item">
-                <div className="has-text-centered has-border">
-                  Tick: {model.tick}
-                </div>
+                <div className="has-text-centered has-border">Tick: {tick}</div>
               </div>
               <div className="level-item">
                 <div
@@ -77,35 +57,58 @@ const App = ({initial, api}: AppProps) => {
               </div>
               <div className="level-item">
                 <div
-                  onClick={() => setCityTableVisible(!cityTableVisible)}
+                  onClick={() =>
+                    setInfoTableMode((mode) =>
+                      mode == InfoTableMode.cities ? null : InfoTableMode.cities
+                    )
+                  }
                   className="button"
                 >
                   City Table
+                </div>
+              </div>
+              <div className="level-item">
+                <div
+                  onClick={() =>
+                    setInfoTableMode((mode) =>
+                      mode == InfoTableMode.agents ? null : InfoTableMode.agents
+                    )
+                  }
+                  className="button"
+                >
+                  Agent Table
                 </div>
               </div>
             </div>
           </div>
         </Box>
 
-        {
-          cityTableVisible ?
-            <Box style={{
+        {infoTableMode ? (
+          <Box
+            style={{
               zIndex: 2,
               margin: 20,
               width: 300,
-              border: '1px solid rgba(0, 0, 0, 0.05)',
-              maxWidth: '50%'
-            }} onClick={() => console.warn("I've been clicked")}>
-              <InfoTable model={model} oldModel={oldModel}/>
-            </Box>
-            : null
-        }
+              border: "1px solid rgba(0, 0, 0, 0.05)",
+              maxWidth: "50%",
+            }}
+            onClick={() => console.warn("I've been clicked")}
+          >
+            <InfoTable
+              mode={infoTableMode}
+              model={api.getModel(tick)}
+              oldModel={api.getModel(tick - 1)}
+            />
+          </Box>
+        ) : null}
       </div>
-      <Graph graph={initial.visual} model={model} oldModel={oldModel}/>
+      <Graph
+        graph={visual}
+        model={api.getModel(tick)}
+        oldModel={api.getModel(tick - 1)}
+      />
     </>
-  )
-    ;
+  );
 };
-
 
 export default App;

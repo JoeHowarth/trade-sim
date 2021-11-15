@@ -61,12 +61,11 @@ export const CenteredAbove = (props: PropsWithChildren<PosProps>) => {
   );
 };
 
-export const ViewAgentInfo = (
-  props: PropsWithChildren<PosProps & { agent: MAgent; oldAgent: MAgent }>
+export const AgentInfoTable = (
+  props: PropsWithChildren<{ agent: MAgent; oldAgent: MAgent }>
 ) => {
   const {agent, oldAgent} = props
   return (
-    <CenteredAbove position={transform(props.position, {x: 0, y: -30})}>
       <Table
         style={{zIndex: 1}}
         className="is-narrow is-bordered is-striped is-hoverable"
@@ -94,7 +93,6 @@ export const ViewAgentInfo = (
         </tr>
         </tbody>
       </Table>
-    </CenteredAbove>
   );
 };
 
@@ -140,15 +138,31 @@ export const MarketInfoTable = (
   </Table>
 }
 
-export const ViewMarketInfo = (
-  props: PropsWithChildren<PosProps & { node: MNode; oldMarkets: Map<Good, MarketInfo> }>
+export const View = (
+  props: PropsWithChildren<PosProps>
 ) => {
   return (
     <CenteredAbove position={transform(props.position, {x: 0, y: -30})}>
-      <MarketInfoTable node={props.node} oldMarkets={props.oldMarkets}/>
+      {props.children}
     </CenteredAbove>
   );
 };
+
+function meanPriceAndStdDev(models: Models, goods?: Good[]): {mean: number, stdDev: number} {
+  if (!goods) {
+    let set = new Set<Good>()
+    models[0].nodes.forEach(node => {
+      node.markets.forEach((_,good) => set.add(good))
+    })
+    goods = Array.from(set)
+  }
+  // TODO use filter to only consider some goods
+
+  return {
+    mean: 0,
+    stdDev: 0
+  }
+}
 
 export const Number = (
   props: {

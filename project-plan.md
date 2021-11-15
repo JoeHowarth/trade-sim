@@ -1,6 +1,3 @@
-
-
-
 # Publish Trade Sim
 **Contents** 
 1. Requirements

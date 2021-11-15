@@ -54,7 +54,7 @@ pub(crate) fn state_to_rgraph(state: &State) -> RGraph {
                  })
             }));
     RGraph {
-        nodes: m.cloned().collect(),
+        nodes: m.values().cloned().collect(),
         edges: state.nodes.iter()
             .flat_map(|(city, links, _market_info, _pos)| {
                 links.0.iter()

@@ -18,6 +18,11 @@ pub struct Cli {
 #[derive(Deserialize, Debug)]
 pub struct Input {
     pub settings: Settings,
+    scenario: Scenario,
+}
+
+#[derive(Deserialize, Debug)]
+struct Scenario {
     cities: Vec<CityInput>,
     agents: Vec<AgentInput>,
 }
@@ -74,12 +79,12 @@ pub fn init(
     input: Res<Input>,
     mut commands: Commands,
 ) -> Result<()> {
-    let goods = Goods(input.cities.iter()
+    let goods = Goods(input.scenario.cities.iter()
         .flat_map(|c| c.market.keys())
         .cloned()
         .collect());
-    let cities_to_handles = init_cities(&mut commands, &input.cities)?;
-    init_agents(&mut commands, &input.agents, &cities_to_handles, &goods)?;
+    let cities_to_handles = init_cities(&mut commands, &input.scenario.cities)?;
+    init_agents(&mut commands, &input.scenario.agents, &cities_to_handles, &goods)?;
 
     commands.insert_resource(goods);
     Ok(())

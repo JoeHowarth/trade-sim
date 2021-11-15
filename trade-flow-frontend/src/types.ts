@@ -4,74 +4,79 @@ interface Point {
 }
 
 interface RGraph {
-  nodes: Map<NodeId, RNode>
-  edges: REdge[]
+  nodes: Map<NodeId, RNode>;
+  edges: REdge[];
 }
 
 interface WireRGraph {
-  nodes: Map<NodeId, RNode>
-  edges: WireREdge[]
+  nodes: Map<NodeId, RNode>;
+  edges: WireREdge[];
 }
 
 interface RNode extends Point {
-  id: NodeId
-  radius: number
-  color?: string
+  id: NodeId;
+  radius: number;
+  color?: string;
 }
 
 interface REdge {
-  nodes: RNode[]
+  nodes: RNode[];
 }
 
 interface WireREdge {
-  nodes: NodeId[]
+  nodes: NodeId[];
 }
 
 interface RAgent extends Point {
-  id: AgentId
+  id: AgentId;
 }
 
 interface MNode {
-  id: NodeId
-  markets: Map<Good, MarketInfo>
-  links: NodeId[]
+  id: NodeId;
+  markets: Map<Good, MarketInfo>;
+  links: NodeId[];
 }
 
 interface MEdge {
-  nodes: NodeId[]
+  nodes: NodeId[];
 }
 
 interface MAgent {
-  id: AgentId
-  cargo: Good
-  location: NodeId
-  money: Money
+  id: AgentId;
+  cargo: Good;
+  location: NodeId;
+  money: Money;
 }
 
-type Money = number
-type Good = string
-type NodeId = string
-type AgentId = string
+type Money = number;
+type Good = string;
+type NodeId = string;
+type AgentId = string;
 
 interface MarketInfo {
-  supply: number
-  consumption: number
-  production: number
-  price: number
+  supply: number;
+  consumption: number;
+  production: number;
+  price: number;
 }
 
-type Models = Model[]
+type Models = Model[];
 
 interface Model {
-  tick: number
-  nodes: Map<NodeId, MNode>
-  edges: MEdge[]
-  agents: Map<AgentId, MAgent>
+  tick: number;
+  nodes: Map<NodeId, MNode>;
+  edges: MEdge[];
+  agents: Map<AgentId, MAgent>;
 }
 
 interface SimApi {
-  // if tick is not provided, attempt to fetch the next model
-  getModel(tick?: number): Promise<Model>
-  getModels(): Promise<Models>
-  initialState(): Promise<{ visual: RGraph; model: Model; }>
+  fetchModel(tick: number): Promise<Model>;
+  fetchModels(): Promise<Models>;
+  nextModel(): Promise<Model>;
+
+  getModel(tick: number): Model|undefined
+  getModels(): Models
+  lastModel(): Model;
+
+  initialState(): Promise<{ visual: RGraph; model: Model }>;
 }

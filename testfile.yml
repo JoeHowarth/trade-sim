@@ -1,76 +1,77 @@
 settings:
   loop_rate: 9000
-agents:
-  - name: "Bob"
-    position: "Athens"
-#  - name: "Joe"
-#    position: "Athens"
-#  - name: "Clara"
-#    position: "Athens"
-cities:
-  - name: "Athens"
-    links:
-      - "Rome"
-      - "Berlin"
-    market:
-      Grain:
-        consumption: 30
-        production: 25
-        supply: 35
-        pricer:
-          base_supply: 35
-          base_price: 100
-          price_per_supply: -1
-    pos:
-      - 600
-      - 700
-  - name: "Brussels"
-    links:
-      - "Rome"
-      - "Berlin"
-    market:
-      Grain:
-        consumption: 25
-        production: 30
-        supply: 20
-        pricer:
-          base_supply: 35
-          base_price: 100
-          price_per_supply: -1
-    pos:
-      - 200
-      - 300
-  - name: "Rome"
-    links:
-      - "Athens"
-      - "Brussels"
-      - "Berlin"
-    market:
-      Grain:
-        consumption: 27
-        production: 30
-        supply: 20
-        pricer:
-          base_supply: 35
-          base_price: 100
-          price_per_supply: -1
-    pos:
-      - 400
-      - 600
-  - name: "Berlin"
-    links:
-      - "Athens"
-      - "Brussels"
-      - "Rome"
-    market:
-      Grain:
-        consumption: 27
-        production: 35
-        supply: 20
-        pricer:
-          base_supply: 35
-          base_price: 100
-          price_per_supply: -1
-    pos:
-      - 400
-      - 300
+scenario: 
+  agents:
+    - name: "Bob"
+      position: "Athens"
+  #  - name: "Joe"
+  #    position: "Athens"
+  #  - name: "Clara"
+  #    position: "Athens"
+  cities:
+    - name: "Athens"
+      links:
+        - "Rome"
+        - "Berlin"
+      market:
+        Grain:
+          consumption: 30
+          production: 25
+          supply: 35
+          pricer:
+            base_supply: 35
+            base_price: 100
+            price_per_supply: -1
+      pos:
+        - 600
+        - 700
+    - name: "Brussels"
+      links:
+        - "Rome"
+        - "Berlin"
+      market:
+        Grain:
+          consumption: 25
+          production: 30
+          supply: 20
+          pricer:
+            base_supply: 35
+            base_price: 100
+            price_per_supply: -1
+      pos:
+        - 200
+        - 300
+    - name: "Rome"
+      links:
+        - "Athens"
+        - "Brussels"
+        - "Berlin"
+      market:
+        Grain:
+          consumption: 27
+          production: 30
+          supply: 20
+          pricer:
+            base_supply: 35
+            base_price: 100
+            price_per_supply: -1
+      pos:
+        - 400
+        - 600
+    - name: "Berlin"
+      links:
+        - "Athens"
+        - "Brussels"
+        - "Rome"
+      market:
+        Grain:
+          consumption: 27
+          production: 35
+          supply: 20
+          pricer:
+            base_supply: 35
+            base_price: 100
+            price_per_supply: -1
+      pos:
+        - 400
+        - 300

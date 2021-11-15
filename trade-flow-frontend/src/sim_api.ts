@@ -31,50 +31,72 @@ export class Api implements SimApi {
   // models indexed by tick
   private models: Models = [];
 
-  async getModel(i: number): Promise<Model | undefined> {
+  async fetchModel(i: number): Promise<Model | undefined> {
+    // only use network if model not already cached
+    if (this.models[i] !== undefined) {
+      return this.models[i]
+    }
     let data = await get<Model>(Api.modelUrl + "/" + i);
+    if (data === null) {
+      return undefined
+    }
     data.agents = new Map(Object.entries(data.agents));
     data.nodes = new Map(Object.entries(data.nodes));
     data.nodes.forEach((n, _) => {
       n.markets = new Map(Object.entries(n.markets));
       return n;
     });
+    // cache model
+    this.models[data.tick] = data;
     return data;
   }
 
-  async nextState(): Promise<Model> {
-    const model = await this.getModel(this.lastModel().tick+1);
-    // TODO: if model == undefined (i.e. 404), retry in a loop until success
-    if (model.tick > this.models[this.models.length - 1].tick) {
-      this.models[model.tick] = model;
+  getModel(i: number): Model|undefined {
+    if (this.models[i] === undefined) {
+      console.log("Found missing model. Fetching...", i);
+      this.getModel(i);
+    }
+    return this.models[i]
+  }
+
+  getModels(): Models {
+    return this.models
+  }
+
+  async nextModel(): Promise<Model> {
+    let model: Model
+    while (model === undefined) {
+      // TODO: rate limit using promise based timer
+      model = await this.getModel(this.lastModel().tick+1);
     }
     return model;
   }
 
   async initialState(): Promise<{ visual: RGraph; model: Model }> {
     const visual = Api.getVisual();
-    const model = this.getModel();
+    const model = this.getModel(0);
     const ret = { visual: await visual, model: await model };
     console.log("Initial model:", ret.model);
     return ret;
   }
 
-  async getModels(): Promise<Models> {
+  async fetchModels(): Promise<Models> {
     const last = this.lastModel();
+    let promises = []
     for (let i = 0; i < last.tick; ++i) {
       if (this.models[i] === undefined) {
         console.log("Found missing model. Fetching...", i);
-        this.models[i] = await this.getState(i);
+        promises.push(this.getModel(i))
       }
+    }
+    // TODO: look up how to block on all promises cleanly
+    for (let promise of promises) {
+      await promise
     }
     return this.models;
   }
 
-  async getState(tick: number): Promise<Model> {
-    return this.getModel(tick);
-  }
-
-  private lastModel(): Model {
+  lastModel(): Model {
     return this.models[this.models.length - 1];
   }
 
