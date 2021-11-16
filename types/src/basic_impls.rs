@@ -25,6 +25,12 @@ impl GridPosition {
     }
 }
 
+impl std::fmt::Display for City {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.name)
+    }
+}
+
 impl std::fmt::Display for Good {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.name)

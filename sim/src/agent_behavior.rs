@@ -99,6 +99,40 @@ pub fn agents_sell(
     Ok(())
 }
 
+fn decide(
+    agent_q: Query<(Entity, &Agent, &Cargo, &Money, &GraphPosition)>,
+    cities_q: Query<(Entity, &City, &MarketInfo, &LinkedCities)>,
+    mut orders: EventWriter<Order>,
+) -> Result<()> {
+    for a in agent_q.iter() {
+        decide_single(a, &cities_q, &mut orders)?;
+    }
+    Ok(())
+}
+
+fn decide_single(
+    (entity, agent, cargo, money, pos): (Entity, &Agent, &Cargo, &Money, &GraphPosition),
+    cities_q: &Query<(Entity, &City, &MarketInfo, &LinkedCities)>,
+    mut orders: &mut EventWriter<Order>,
+) -> Result<()> {
+    let agent_handle = AgentHandle { agent: *agent, entity };
+    // sell cargo if present
+    if cargo.amt > 0 {
+        orders.send(Order {
+            good: cargo.good,
+            market: pos.city_res()?,
+            agent: agent_handle,
+            amt: -cargo.amt as i32,
+        });
+    }
+
+    // find neighbor with lowest price
+    let (_, src_city, src_market, links): (_, &City, &MarketInfo, &LinkedCities) = *cities_q.get_component(pos.city_res()?.entity)?;
+    let linked_markets = links.0.iter()
+    Ok(())
+}
+
+
 pub fn agents_move_single_good(
     mut agent_q: Query<(Entity, &Agent, &Money, &mut GraphPosition)>,
     cities_q: Query<(Entity, &City, &MarketInfo, &LinkedCities)>,
