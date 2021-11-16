@@ -122,13 +122,23 @@ fn decide_single(
             good: cargo.good,
             market: pos.city_res()?,
             agent: agent_handle,
-            amt: -cargo.amt as i32,
+            amt: -(cargo.amt as i32),
         });
     }
 
     // find neighbor with lowest price
-    let (_, src_city, src_market, links): (_, &City, &MarketInfo, &LinkedCities) = *cities_q.get_component(pos.city_res()?.entity)?;
-    let linked_markets = links.0.iter()
+    let (_, src_city, src_market, links): (_, &City, &MarketInfo, &LinkedCities) = *cities_q.get(pos.city_res()?.entity)?;
+    let linked_markets: Vec<(CityHandle, &MarketInfo)> = links.0.iter()
+        .map(|ch| (*ch, cities_q.get_component::<MarketInfo>(ch.entity)))
+        .collect();
+    if let Some((lowest_city, lowest_market)) = linked_markets
+        .iter()
+        .min_by(|(_, a), (_, b)| a.current_price().cmp(*b.current_price())) {
+
+    } else {
+        
+    }
+
     Ok(())
 }
 
