@@ -22,6 +22,12 @@ import _ from "lodash";
 //     return this.models
 //   }
 // }
+let models: Models = []
+
+export function dbg<T>(x: T): T {
+  console.log(x)
+  return x
+}
 
 export class Api implements SimApi {
   static baseUrl: string = "http://0.0.0.0:3030";
@@ -29,15 +35,18 @@ export class Api implements SimApi {
   static modelUrl: string = Api.baseUrl + "/state";
 
   // models indexed by tick
-  private models: Models = [];
+  // models: Models = [];
+  called = 0
 
   async fetchModel(i: number): Promise<Model | undefined> {
+    this.called++
     // only use network if model not already cached
-    if (this.models[i] !== undefined) {
-      return this.models[i]
+    if (models[i] !== undefined) {
+      return models[i]
     }
     let data = await get<Model>(Api.modelUrl + "/" + i);
     if (data === null) {
+      console.debug("fetchModel got null data", i, data)
       return undefined
     }
     data.agents = new Map(Object.entries(data.agents));
@@ -47,34 +56,38 @@ export class Api implements SimApi {
       return n;
     });
     // cache model
-    this.models[data.tick] = data;
+    models[data.tick] = data;
     return data;
   }
 
   getModel(i: number): Model|undefined {
-    if (this.models[i] === undefined) {
+    if (i >= 0 && models[i] === undefined) {
       console.log("Found missing model. Fetching...", i);
-      this.getModel(i);
+      this.fetchModel(i);
     }
-    return this.models[i]
+    return models[i]
   }
 
   getModels(): Models {
-    return this.models
+    return models
   }
 
   async nextModel(): Promise<Model> {
     let model: Model
+    console.log("[nextModel]  new nextModel call")
     while (model === undefined) {
-      // TODO: rate limit using promise based timer
-      model = await this.getModel(this.lastModel().tick+1);
+      model = await this.fetchModel(this.lastModel().tick+1);
+      if (model !== undefined) {
+        console.log("[nextModel]  found model")
+      }
+      await new Promise(r => setTimeout(r, 3000))
     }
     return model;
   }
 
   async initialState(): Promise<{ visual: RGraph; model: Model }> {
     const visual = Api.getVisual();
-    const model = this.getModel(0);
+    const model = this.fetchModel(0);
     const ret = { visual: await visual, model: await model };
     console.log("Initial model:", ret.model);
     return ret;
@@ -84,7 +97,7 @@ export class Api implements SimApi {
     const last = this.lastModel();
     let promises = []
     for (let i = 0; i < last.tick; ++i) {
-      if (this.models[i] === undefined) {
+      if (models[i] === undefined) {
         console.log("Found missing model. Fetching...", i);
         promises.push(this.getModel(i))
       }
@@ -93,19 +106,21 @@ export class Api implements SimApi {
     for (let promise of promises) {
       await promise
     }
-    return this.models;
+    return models;
   }
 
   lastModel(): Model {
-    return this.models[this.models.length - 1];
+    return models[models.length - 1];
   }
 
   private static async getVisual(): Promise<RGraph> {
     let d = await get<WireRGraph>(Api.visualUrl);
+    // console.log("wire rgraph", d)
+    const nodes = new Map(Object.entries(d.nodes))
     return {
-      nodes: new Map(Object.entries(d.nodes)),
+      nodes,
       edges: d.edges.map((e) => ({
-        nodes: e.nodes.map((n) => d.nodes[n]),
+        nodes: e.nodes.map((n) => nodes.get((n))),
       })),
     };
   }

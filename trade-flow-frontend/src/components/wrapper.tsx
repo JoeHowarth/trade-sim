@@ -1,21 +1,28 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Api } from "../sim_api";
 import App from './app'
 
 
 export default () => {
   const api = new Api();
-  const [hasInitial, setInitial] = useState(false);
+  const [initialVisual, setInitialVisual] = useState(null);
   useEffect(() => {
     api.initialState().then((data) => {
-      setInitial(data !== undefined);
+      setInitialVisual(data?.visual);
       console.log("Got initial state", data);
     });
   }, []);
 
-  return hasInitial? (
-    <App api={api} />
-  ) : (
-    <h1>Loading</h1>
-  );
+  if  (initialVisual) {
+    console.log("models from wrapper", api.getModels(), api.called)
+    console.log("initialVisual", initialVisual)
+    return <App api={api} initialVisual={initialVisual} />
+  } else {
+    console.log("bye")
+    return <h1>Loading</h1>
+  }
+
+  // return initialVisual? (
+  // ) : (
+  // );
 };

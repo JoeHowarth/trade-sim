@@ -120,7 +120,7 @@ fn printer(
     cities_q: Query<(&City, &LinkedCities, &MarketInfo, &GridPosition)>,
     agents_q: Query<(&Agent, &GraphPosition, &Money, &Cargo)>,
 ) -> Result<()> {
-    info!("Starting printing combined query");
+    // info!("Starting printing combined query");
     let mut state = types::State {
         tick: Tick(0),
         nodes: Vec::with_capacity(100),
@@ -137,7 +137,7 @@ fn printer(
         state.agents.push((agent.clone(), pos.clone(), money.clone(), cargo.clone()))
     }
     state.tick = tick.clone();
-    info!("state:         {:?}", state);
+    // info!("state:         {:?}", state);
     state_tx.send(state)?;
     Ok(())
 }

@@ -1,18 +1,17 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import {
   AgentInfoTable,
   MarketInfoTable,
   View,
-  ViewMarketInfo,
 } from "./info_box";
-import { VisualAgent, VisualEdge, VisualNode } from "./visual";
-import { KonvaEventObject } from "konva/types/node";
+import {VisualAgent, VisualEdge, VisualNode} from "./visual";
+import {KonvaEventObject} from "konva/types/node";
 import Canvas from "./canvas";
 
 type GraphProps = { graph: RGraph; model: Model; oldModel: Model };
 
 export default (props: GraphProps) => {
-  const { model, oldModel } = props;
+  const {model, oldModel} = props;
   const [graph, setGraph]: [RGraph, any] = useState(props.graph);
 
   // info components
@@ -80,15 +79,16 @@ export default (props: GraphProps) => {
               const node = graph.nodes.get(n.id);
               node.x = e.target.x();
               node.y = e.target.y();
-              setGraph({ ...graph });
+              setGraph({...graph});
             }}
           />
         ))}
         {graph.edges.map((e, i) => (
-          <VisualEdge edge={e} key={i} />
+          <VisualEdge edge={e} key={i}/>
         ))}
         {Array.from(model.agents, ([id, a]) => {
           let node = graph.nodes.get(a.location);
+          console.log("logging graph and node on 91", graph, node)
           return (
             <VisualAgent
               key={id}

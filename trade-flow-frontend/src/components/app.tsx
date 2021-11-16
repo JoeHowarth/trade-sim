@@ -3,9 +3,10 @@ import "react-bulma-components/dist/react-bulma-components.min.css";
 import { Box } from "react-bulma-components";
 import Graph from "./graph";
 import { InfoTable, InfoTableMode } from "./info_table";
+import {Api} from "../sim_api";
 
 type AppProps = {
-  api: SimApi;
+  api: Api;
   initialVisual: RGraph;
 };
 
@@ -16,20 +17,22 @@ const App = ({ api, initialVisual }: AppProps) => {
   const [infoTableMode, setInfoTableMode] = useState(null);
 
   // control fetching the model
-  useEffect(async () => {
-    if (isStarted) {
-      const nextModel = await api.nextModel();
-      if (isStarted) { // check again after fetching. Is it possible for this callback to observe isStarted changing?
-        setTick((oldTick: number) => {
-          console.assert(
-            oldTick < nextModel?.tick,
-            "Expected old tick to be < nextModel.tick"
-          );
-          return nextModel.tick;
-        });
+  useEffect(() => {
+    (async () => {
+      if (isStarted) {
+        const nextModel = await api.nextModel();
+        if (isStarted) { // check again after fetching. Is it possible for this callback to observe isStarted changing?
+          setTick((oldTick: number) => {
+            console.assert(
+                oldTick < nextModel?.tick,
+                "Expected old tick to be < nextModel.tick"
+            );
+            return nextModel.tick;
+          });
+        }
       }
-    }
-  }, [isStarted]);
+    })()
+  }, [tick, isStarted]);
 
   return (
     <>

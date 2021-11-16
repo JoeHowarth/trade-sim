@@ -42,8 +42,9 @@ pub(crate) fn state_to_model(state: &State) -> Model {
 }
 
 pub(crate) fn state_to_rgraph(state: &State) -> RGraph {
-    let m: BTreeMap<NodeId, RNode> = BTreeMap::from_iter(
-        state.nodes.iter()
+    RGraph {
+        nodes: BTreeMap::from_iter(state.nodes
+            .iter()
             .map(|(city, _links, _market_info, pos)| {
                 (city.name,
                  RNode {
@@ -52,14 +53,12 @@ pub(crate) fn state_to_rgraph(state: &State) -> RGraph {
                      id: city.name,
                      radius: 1.0,
                  })
-            }));
-    RGraph {
-        nodes: m.values().cloned().collect(),
+            })),
         edges: state.nodes.iter()
             .flat_map(|(city, links, _market_info, _pos)| {
                 links.0.iter()
                     .map(|to| REdge {
-                        nodes: (m[&city.name], m[&to.city.name])
+                        nodes: (city.name, to.city.name)
                     }).collect::<Vec<_>>()
             }).collect(),
     }
@@ -113,7 +112,7 @@ pub struct MEdge {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RGraph {
-    pub nodes: Vec<RNode>,
+    pub nodes: BTreeMap<NodeId, RNode>,
     pub edges: Vec<REdge>,
 }
 
@@ -127,6 +126,6 @@ pub struct RNode {
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct REdge {
-    pub nodes: (RNode, RNode),
+    pub nodes: (NodeId, NodeId),
 }
 
