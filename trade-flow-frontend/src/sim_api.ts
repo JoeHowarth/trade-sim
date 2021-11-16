@@ -72,7 +72,10 @@ export class Api implements SimApi {
     return models
   }
 
-  async nextModel(): Promise<Model> {
+  async nextModel(fetchRate?: number): Promise<Model> {
+    if (!fetchRate) {
+      fetchRate = 3000
+    }
     let model: Model
     console.log("[nextModel]  new nextModel call")
     while (model === undefined) {
@@ -80,7 +83,7 @@ export class Api implements SimApi {
       if (model !== undefined) {
         console.log("[nextModel]  found model")
       }
-      await new Promise(r => setTimeout(r, 3000))
+      await new Promise(r => setTimeout(r, fetchRate))
     }
     return model;
   }

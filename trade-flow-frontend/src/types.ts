@@ -72,7 +72,7 @@ interface Model {
 interface SimApi {
   fetchModel(tick: number): Promise<Model>;
   fetchModels(): Promise<Models>;
-  nextModel(): Promise<Model>;
+  nextModel(fetchRate?: number): Promise<Model>;
 
   getModel(tick: number): Model|undefined
   getModels(): Models

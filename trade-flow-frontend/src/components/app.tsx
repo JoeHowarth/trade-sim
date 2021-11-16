@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, {useEffect, useState} from "react";
 import "react-bulma-components/dist/react-bulma-components.min.css";
-import { Box } from "react-bulma-components";
+import {Box} from "react-bulma-components";
 import Graph from "./graph";
-import { InfoTable, InfoTableMode } from "./info_table";
+import {InfoTable, InfoTableMode} from "./info_table";
 import {Api} from "../sim_api";
 
 type AppProps = {
@@ -10,26 +10,29 @@ type AppProps = {
   initialVisual: RGraph;
 };
 
-const App = ({ api, initialVisual }: AppProps) => {
-  const [visual, setVisual] = useState(initialVisual);
+const App = ({api, initialVisual}: AppProps) => {
   const [tick, setTick] = useState(api.lastModel().tick);
   const [isStarted, setIsStarted] = useState(true);
   const [infoTableMode, setInfoTableMode] = useState(null);
+  const [fetchRate, setFetchRate] = useState(3000) // hook this up to an input to allow control
 
   // control fetching the model
   useEffect(() => {
     (async () => {
       if (isStarted) {
-        const nextModel = await api.nextModel();
-        if (isStarted) { // check again after fetching. Is it possible for this callback to observe isStarted changing?
-          setTick((oldTick: number) => {
-            console.assert(
+        const nextModel = await api.nextModel(fetchRate);
+        setIsStarted(isStarted => {
+          if (isStarted) { // check again after fetching. Is it possible for this callback to observe isStarted changing?
+            setTick((oldTick: number) => {
+              console.assert(
                 oldTick < nextModel?.tick,
                 "Expected old tick to be < nextModel.tick"
-            );
-            return nextModel.tick;
-          });
-        }
+              );
+              return nextModel.tick;
+            });
+          }
+          return isStarted
+        })
       }
     })()
   }, [tick, isStarted]);
@@ -106,7 +109,7 @@ const App = ({ api, initialVisual }: AppProps) => {
         ) : null}
       </div>
       <Graph
-        graph={visual}
+        graph={initialVisual}
         model={api.getModel(tick)}
         oldModel={api.getModel(tick - 1)}
       />
