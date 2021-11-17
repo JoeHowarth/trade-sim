@@ -1,3 +1,4 @@
+use std::fmt::write;
 use crate::{
     prelude::*,
     agent::*,
@@ -22,6 +23,18 @@ impl GraphPosition {
     }
     pub fn edge_res(&self) -> Result<(CityHandle, CityHandle)> {
         self.edge().context(format!("Expected position to be edge, found {}", self))
+    }
+}
+
+impl std::fmt::Display for Agent {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.name)
+    }
+}
+
+impl std::fmt::Display for AgentHandle {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.agent)
     }
 }
 

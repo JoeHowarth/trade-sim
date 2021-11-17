@@ -1,8 +1,9 @@
+use types::agent::GraphPosition;
 use types::prelude::*;
 
 fn movement(
     mut move_reader: EventReader<Movement>,
-    mut pos: Query<&mut GridPosition>,
+    mut pos: Query<&mut GraphPosition>,
 ) {
     for m@Movement{to, from, entity} in move_reader.iter() {
         if let Ok(mut pos) = pos.get_mut(*entity) {
