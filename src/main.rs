@@ -84,12 +84,12 @@ fn build_app(
 }
 
 fn wrap<T: System<In=(), Out=Result<()>>>(inner: T) -> impl System<In=(), Out=()> {
-    inner.chain(error_handler_system.system())
+    inner.chain(error_handler_system::<T>.system())
 }
 
-fn error_handler_system(In(result): In<Result<()>>) {
+fn error_handler_system<T: System>(In(result): In<Result<()>>) {
     if let Err(err) = result {
-        error!("{:?}", err);
+        error!("Error from system {}:\n{}", std::any::type_name::<T>(), err);
     }
 }
 

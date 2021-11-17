@@ -154,14 +154,18 @@ fn decide_single(
                     to: GraphPosition::Node(city_with_highest_price.clone()),
                     entity: e_agent,
                 });
+                info!("Agent {} buying {} at {} and moving to {}, expecting profit of {}",
+                    agent, good, src_market.current_price(), city_with_highest_price, highest_market.current_price() - src_market.current_price());
                 return Some(());
             }
             linked_markets.iter()
                 .min_by(|(_, a), (_, b)| {
                     a.current_price().cmp(&b.current_price())
                 })
-                .map(|(lowest_city, _)| {
+                .map(|(lowest_city, lowest_market)| {
                     // no profit to be made by buying, so instead travel to location with lowest price with empty cargo
+                    info!("Agent {} moving from {} to {} in order to buy {} at lowest price of {}",
+                        agent, src_city, lowest_city, good, lowest_market.current_price());
                     movement.send(Movement {
                         from: pos.clone(),
                         to: GraphPosition::Node(*lowest_city),
