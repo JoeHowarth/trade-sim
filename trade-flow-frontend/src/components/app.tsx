@@ -4,6 +4,7 @@ import {Box} from "react-bulma-components";
 import Graph from "./graph";
 import {InfoTable, InfoTableMode} from "./info_table";
 import {Api} from "../sim_api";
+import {ErrorBoundary} from "./error_boundary";
 
 type AppProps = {
   api: Api;
@@ -89,6 +90,7 @@ const App = ({api, initialVisual}: AppProps) => {
           </div>
         </Box>
 
+        <ErrorBoundary>
         {infoTableMode ? (
           <Box
             style={{
@@ -107,6 +109,7 @@ const App = ({api, initialVisual}: AppProps) => {
             />
           </Box>
         ) : null}
+        </ErrorBoundary>
       </div>
       <Graph
         graph={initialVisual}
