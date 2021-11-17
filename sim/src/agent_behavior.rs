@@ -99,7 +99,7 @@ pub fn agents_sell(
     Ok(())
 }
 
-fn decide(
+pub fn decide(
     agent_q: Query<(Entity, &Agent, &Cargo, &Money, &GraphPosition)>,
     cities_q: Query<(Entity, &City, &MarketInfo, &LinkedCities)>,
     mut orders: EventWriter<Order>,
@@ -154,8 +154,8 @@ fn decide_single(
                     to: GraphPosition::Node(city_with_highest_price.clone()),
                     entity: e_agent,
                 });
-                info!("Agent {} buying {} at {} and moving to {}, expecting profit of {}",
-                    agent, good, src_market.current_price(), city_with_highest_price, highest_market.current_price() - src_market.current_price());
+                info!("Agent {} buying {} at {} in {} and moving to {}, expecting profit of {}",
+                    agent, good, src_market.current_price(), src_city, city_with_highest_price, highest_market.current_price() - src_market.current_price());
                 return Some(());
             }
             linked_markets.iter()

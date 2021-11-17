@@ -1,7 +1,7 @@
 use types::agent::GraphPosition;
 use types::prelude::*;
 
-fn movement(
+pub fn movement(
     mut move_reader: EventReader<Movement>,
     mut pos: Query<&mut GraphPosition>,
 ) {
