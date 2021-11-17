@@ -119,6 +119,7 @@ fn decide_single(
 ) -> Result<()> {
     let good = Good::from("Grain");
     let agent_handle = AgentHandle { agent: *agent, entity: e_agent };
+
     // sell cargo if present
     if cargo.amt > 0 {
         orders.send(Order {
@@ -129,43 +130,48 @@ fn decide_single(
         });
     }
 
-    // find neighbor with lowest price
     let (_, src_city, src_market, links): (_, &City, &MarketInfo, &LinkedCities) = *cities_q.get(pos.city_res()?.entity)?;
     let linked_markets: Vec<(CityHandle, &MarketInfo)> = links.0.iter()
         .map(|ch| (*ch, cities_q.get_component::<MarketInfo>(ch.entity)))
         .collect();
-    if let Some((highest_city, highest_market)) = linked_markets.iter()
-        .max_by(|(_, a), (_, b)| {
-            a.current_price().cmp(*b.current_price())
-        }) {
-        if highest_market.current_price() > src_market.current_price() {
-            // buy good in src_city and move to highest_city
-            orders.send(Order {
-                good,
-                market: pos.city_res()?,
-                agent: agent_handle,
-                amt: 1,
-            });
-            movement.send(Movement {
-                from: pos.clone(),
-                to: GraphPosition::Node(*highest_city),
-                entity: e_agent,
-            });
-        } else if let Some((lowest_city, _)) = linked_markets.iter()
-            .min_by(|(_, a), (_, b)| {
-                a.current_price().cmp(*b.current_price())
-            }) {
-            // no profit to be made by buying, so instead travel to location with lowest price with empty cargo
-            movement.send(Movement {
-                from: pos.clone(),
-                to: GraphPosition::Node(*lowest_city),
-                entity: e_agent,
-            });
-        } else {
-            info!("Agent {} cannot move because no linked cities from {}", agent, src_city);
+
+    // find neighbor with lowest price
+    let maybe_highest = linked_markets.iter()
+        .max_by(|(_, a), (_, b)| a.current_price().cmp(*b.current_price()));
+    match maybe_highest {
+        Some((highest_city, highest_market)) => {
+            if highest_market.current_price() > src_market.current_price() {
+                // buy good in src_city and move to highest_city
+                orders.send(Order {
+                    good,
+                    market: pos.city_res()?,
+                    agent: agent_handle,
+                    amt: 1,
+                });
+                movement.send(Movement {
+                    from: pos.clone(),
+                    to: GraphPosition::Node(*highest_city),
+                    entity: e_agent,
+                });
+                return Ok(());
+            }
+            let maybe_lowest = linked_markets.iter()
+                .min_by(|(_, a), (_, b)| {
+                    a.current_price().cmp(*b.current_price())
+                });
+            match maybe_lowest {
+                Some((lowest_city, _)) => {
+                    // no profit to be made by buying, so instead travel to location with lowest price with empty cargo
+                    movement.send(Movement {
+                        from: pos.clone(),
+                        to: GraphPosition::Node(*lowest_city),
+                        entity: e_agent,
+                    });
+                }
+                None => info!("Agent {} cannot move because no linked cities from {}", agent, src_city)
+            }
         }
-    } else {
-        info!("Agent {} cannot move because no linked cities from {}", agent, src_city);
+        None => info!("Agent {} cannot move because no linked cities from {}", agent, src_city)
     }
 
     Ok(())
