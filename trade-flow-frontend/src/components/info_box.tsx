@@ -7,6 +7,7 @@ import React, {
   useState,
 } from "react";
 import {Table} from "react-bulma-components";
+import {dbg} from "../sim_api";
 
 interface PosProps {
   position: Point;
@@ -66,39 +67,40 @@ export const AgentInfoTable = (
 ) => {
   const {agent, oldAgent} = props
   return (
-      <Table
-        style={{zIndex: 1}}
-        className="is-narrow is-bordered is-striped is-hoverable"
-      >
-        <thead>
-        <tr>
-          <th className="is-size-7">AgentId</th>
-          <th className="is-size-7">Cargo</th>
-          <th className="is-size-7">Money</th>
-          <th className="is-size-7">Profit</th>
-          <th className="is-size-7">Prev. City</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr key={agent.id}>
-          <th className="is-size-7">{agent.id}</th>
-          <td className="is-size-7"> {agent.cargo} </td>
-          <td className="is-size-7"><Number>
-            {round(agent.money, 0)}
-          </Number></td>
-          <td className="is-size-7"><Number oldValue={round(oldAgent.money, 0)}>
-            {round(agent.money, 0)}
-          </Number></td>
-          <td className="is-size-7">{oldAgent.location}</td>
-        </tr>
-        </tbody>
-      </Table>
+    <Table
+      style={{zIndex: 1}}
+      className="is-narrow is-bordered is-striped is-hoverable"
+    >
+      <thead>
+      <tr>
+        <th className="is-size-7">AgentId</th>
+        <th className="is-size-7">Cargo</th>
+        <th className="is-size-7">Money</th>
+        <th className="is-size-7">Profit</th>
+        <th className="is-size-7">Prev. City</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr key={agent.id}>
+        <th className="is-size-7">{agent.id}</th>
+        <td className="is-size-7"> {agent.cargo} </td>
+        <td className="is-size-7"><Number>
+          {round(agent.money, 0)}
+        </Number></td>
+        <td className="is-size-7"><Number oldValue={round(oldAgent?.money, 0)}>
+          {round(agent.money, 0)}
+        </Number></td>
+        <td className="is-size-7">{oldAgent?.location}</td>
+      </tr>
+      </tbody>
+    </Table>
   );
 };
 
 export const MarketInfoTable = (
   props: PropsWithChildren<{ node: MNode; oldMarkets: Map<Good, MarketInfo> }>
 ) => {
+  console.log('from market info table, oldMarkets: ', props.oldMarkets, props)
   return <Table
     style={{zIndex: 1}}
     className="is-narrow is-bordered is-striped is-hoverable mb-0"
@@ -109,9 +111,9 @@ export const MarketInfoTable = (
       <th className="is-size-7">
         Co<span/>
       </th>
-      <th className="is-size-7">Pr</th>
-      <th className="is-size-7">Su</th>
-      <th className="is-size-7">Pr</th>
+      <th className="is-size-7">Prod</th>
+      <th className="is-size-7">Supp</th>
+      <th className="is-size-7">Price (delta)</th>
     </tr>
     </thead>
     <tbody>
@@ -125,10 +127,12 @@ export const MarketInfoTable = (
           <Number>{round(info.production, 0)}</Number>
         </td>
         <td>
-          <Number>{round(info.supply, 0)}</Number>
+          <Number oldValue={props.oldMarkets?.get(good).supply}>
+            {round(info.supply, 0)}
+          </Number>
         </td>
         <td>
-          <Number oldValue={props.oldMarkets.get(good).price}>
+          <Number oldValue={props.oldMarkets?.get(good).price}>
             {info.price}
           </Number>
         </td>
@@ -148,11 +152,11 @@ export const View = (
   );
 };
 
-function meanPriceAndStdDev(models: Models, goods?: Good[]): {mean: number, stdDev: number} {
+function meanPriceAndStdDev(models: Models, goods?: Good[]): { mean: number, stdDev: number } {
   if (!goods) {
     let set = new Set<Good>()
     models[0].nodes.forEach(node => {
-      node.markets.forEach((_,good) => set.add(good))
+      node.markets.forEach((_, good) => set.add(good))
     })
     goods = Array.from(set)
   }

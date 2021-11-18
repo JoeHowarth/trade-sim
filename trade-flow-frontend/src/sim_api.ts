@@ -34,18 +34,13 @@ export class Api implements SimApi {
   static visualUrl: string = Api.baseUrl + "/rgraph";
   static modelUrl: string = Api.baseUrl + "/state";
 
-  // models indexed by tick
-  // models: Models = [];
-  called = 0
-
   async fetchModel(i: number): Promise<Model | undefined> {
-    this.called++
     // only use network if model not already cached
     if (models[i] !== undefined) {
       return models[i]
     }
     let data = await get<Model>(Api.modelUrl + "/" + i);
-    if (data === null) {
+    if (!data) {
       console.debug("fetchModel got null data", i, data)
       return undefined
     }
