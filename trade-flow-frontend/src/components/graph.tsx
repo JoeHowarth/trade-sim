@@ -43,10 +43,12 @@ export default (props: GraphProps) => {
     <>
       {Array.from(clickedNodes.keys()).map((id) => (
         <View position={graph.nodes.get(id)}>
+          <h3>{id}</h3>
+          <b>Agents</b> {Array.from(model.agents.values()).filter(a => a.location === id).map(a => a.id).join(', ')}
           <MarketInfoTable
             key={id}
             node={model.nodes.get(id)}
-            oldMarkets={model.nodes.get(id).markets}
+            oldMarkets={oldModel.nodes.get(id).markets}
           />
         </View>
       ))}
@@ -58,6 +60,7 @@ export default (props: GraphProps) => {
         const node = graph.nodes.get(agent.agent.location);
         return (
           <View position={node}>
+            <h3>{id}</h3>
             <AgentInfoTable
               key={id}
               agent={agent.agent}
@@ -88,7 +91,6 @@ export default (props: GraphProps) => {
         ))}
         {Array.from(model.agents, ([id, a]) => {
           let node = graph.nodes.get(a.location);
-          console.log("logging graph and node on 91", graph, node)
           return (
             <VisualAgent
               key={id}

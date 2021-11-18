@@ -116,6 +116,7 @@ fn update_tick(mut tick: ResMut<Tick>, mut has_run: Local<bool>) {
 
 fn update_cities(mut q: Query<(&City, &mut MarketInfo)>) {
     for (_city, mut market_info) in q.iter_mut() {
+        info!("Supply in {} is {}", _city, market_info.supply);
         market_info.produce_and_consume();
     }
 }

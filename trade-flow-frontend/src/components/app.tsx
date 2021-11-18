@@ -44,6 +44,7 @@ const App = ({api, initialVisual}: AppProps) => {
         style={{
           zIndex: 2,
           position: "absolute",
+          width: '100%',
           top: 0,
           left: 0,
         }}
@@ -91,24 +92,24 @@ const App = ({api, initialVisual}: AppProps) => {
         </Box>
 
         <ErrorBoundary>
-        {infoTableMode ? (
-          <Box
-            style={{
-              zIndex: 2,
-              margin: 20,
-              width: 300,
-              border: "1px solid rgba(0, 0, 0, 0.05)",
-              maxWidth: "50%",
-            }}
-            onClick={() => console.warn("I've been clicked")}
-          >
-            <InfoTable
-              mode={infoTableMode}
-              model={api.getModel(tick)}
-              oldModel={api.getModel(tick - 1)}
-            />
-          </Box>
-        ) : null}
+          {infoTableMode ? (
+            <Box
+              style={{
+                zIndex: 2,
+                margin: 20,
+                width: 400,
+                border: "1px solid rgba(0, 0, 0, 0.05)",
+                maxWidth: "50%",
+              }}
+              onClick={() => console.warn("I've been clicked")}
+            >
+              <InfoTable
+                mode={infoTableMode}
+                model={api.getModel(tick)}
+                oldModel={api.getModel(tick - 1)}
+              />
+            </Box>
+          ) : null}
         </ErrorBoundary>
       </div>
       <Graph
@@ -119,5 +120,6 @@ const App = ({api, initialVisual}: AppProps) => {
     </>
   );
 };
+
 
 export default App;
