@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useRef, useState} from "react";
 import {
   AgentInfoTable,
   MarketInfoTable,
@@ -7,10 +7,12 @@ import {
 import {MovingThing, VisualAgent, VisualEdge, VisualNode} from "./visual";
 import {KonvaEventObject} from "konva/types/node";
 import Canvas from "./canvas";
+import {CSS_COLOR_NAMES, useTraceUpdate} from "../utils";
 
 type GraphProps = { graph: RGraph; model: Model; oldModel: Model };
 
 export default (props: GraphProps) => {
+  useTraceUpdate(props)
   const {model, oldModel} = props;
   const [graph, setGraph]: [RGraph, any] = useState(props.graph);
 
@@ -21,6 +23,7 @@ export default (props: GraphProps) => {
   const [clickedAgents, setClickedAgents]: [Set<AgentId>, any] = useState(
     new Set<AgentId>()
   );
+  const agentFill = useRef<Map<AgentId, string>>(new Map());
 
   const toggleNodeInfo = (id: NodeId) => {
     if (clickedNodes.has(id)) {
@@ -75,6 +78,7 @@ export default (props: GraphProps) => {
           <VisualNode
             node={n}
             key={n.id}
+            price={model.nodes.get(n.id).markets.get("Grain").price}
             onClick={() => {
               console.log("clicked");
               toggleNodeInfo(n.id);
@@ -97,6 +101,7 @@ export default (props: GraphProps) => {
               key={id}
               onClick={() => toggleAgentInfo(id)}
               agent={{
+                fill: getFill(id, agentFill),
                 id: id,
                 x: node.x,
                 y: node.y,
@@ -108,3 +113,20 @@ export default (props: GraphProps) => {
     </>
   );
 };
+
+function getFill(id: AgentId, fillRef: {current: Map<AgentId, string>}): string {
+  if (!fillRef.current.has(id)) {
+    const color = CSS_COLOR_NAMES[Math.floor(Math.random() * (CSS_COLOR_NAMES.length -1))]
+    fillRef.current.set(id, color)
+  }
+  return fillRef.current.get(id)
+}
+
+function getRandomColor() {
+  var letters = '0123456789ABCDEF';
+  var color = '#';
+  for (var i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}

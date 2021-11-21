@@ -16,7 +16,7 @@ const App = ({api, initialVisual}: AppProps) => {
   const [tick, setTick] = useState(api.lastModel().tick);
   const [isStarted, setIsStarted] = useState(true);
   const [infoTableMode, setInfoTableMode] = useState(null);
-  const [fetchRate, setFetchRate] = useState(9000) // hook this up to an input to allow control
+  const [fetchRate, setFetchRate] = useState(1500) // hook this up to an input to allow control
 
   // control fetching the model
   useEffect(() => {

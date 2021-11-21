@@ -62,7 +62,7 @@ export const CenteredAbove = (props: PropsWithChildren<PosProps>) => {
   );
 };
 
-export const AgentInfoTable = (
+export const AgentInfoTable = React.memo((
   props: PropsWithChildren<{ agent: MAgent; oldAgent: MAgent }>
 ) => {
   const {agent, oldAgent} = props
@@ -95,9 +95,9 @@ export const AgentInfoTable = (
       </tbody>
     </Table>
   );
-};
+});
 
-export const MarketInfoTable = (
+export const MarketInfoTable = React.memo((
   props: PropsWithChildren<{ node: MNode; oldMarkets: Map<Good, MarketInfo> }>
 ) => {
   console.log('from market info table, oldMarkets: ', props.oldMarkets, props)
@@ -140,7 +140,7 @@ export const MarketInfoTable = (
     ))}
     </tbody>
   </Table>
-}
+})
 
 export const View = (
   props: PropsWithChildren<PosProps>

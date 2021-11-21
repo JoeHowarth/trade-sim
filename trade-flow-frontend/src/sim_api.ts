@@ -23,8 +23,12 @@ import _ from "lodash";
 //   }
 // }
 let models: Models = []
+let agentFills: Map<AgentId, string> = new Map()
 
-export function dbg<T>(x: T): T {
+export function dbg<T>(x: T, message?: string): T {
+  if (message) {
+    console.log(x, message)
+  }
   console.log(x)
   return x
 }
@@ -45,6 +49,9 @@ export class Api implements SimApi {
       return undefined
     }
     data.agents = new Map(Object.entries(data.agents));
+    for (const id of data.agents.keys()) {
+      data.agents.get(id)
+    }
     data.nodes = new Map(Object.entries(data.nodes));
     data.nodes.forEach((n, _) => {
       n.markets = new Map(Object.entries(n.markets));

@@ -1,20 +1,36 @@
 settings:
-  loop_rate: 3000
+  loop_rate: 1400
 scenario:
-#  random_agents:
-#    Uniform:
-#      1
-  agents:
-    - name: "Bob"
-      position: "Athens"
+  random_agents:
+    Uniform:
+      2
+#  agents:
+#    - name: "Bob"
+#      position: "Athens"
 #    - name: "Joe"
 #      position: "Athens"
 #    - name: "Clara"
 #      position: "Athens"
   cities:
-    - name: "Athens"
+    - name: "Amsterdam"
       links:
-        - "Rome"
+        - "Brussels"
+      #        - "Berlin"
+      market:
+        Grain:
+          consumption: 30
+          production: 28
+          supply: 35
+          pricer:
+            base_supply: 35
+            base_price: 100
+            price_per_supply: -1
+      pos:
+        - 500
+        - 210
+    - name: "Naples"
+      links:
+        - "Athens"
         - "Berlin"
       market:
         Grain:
@@ -26,12 +42,27 @@ scenario:
             base_price: 100
             price_per_supply: -1
       pos:
+        - 830
+        - 280
+    - name: "Athens"
+      links:
+        - "Naples"
+      market:
+        Grain:
+          consumption: 30
+          production: 28
+          supply: 35
+          pricer:
+            base_supply: 35
+            base_price: 100
+            price_per_supply: -1
+      pos:
         - 1000
-        - 700
+        - 150
     - name: "Brussels"
       links:
         - "Rome"
-        - "Berlin"
+        - "Amsterdam"
       market:
         Grain:
           consumption: 31
@@ -43,12 +74,13 @@ scenario:
             price_per_supply: -1
       pos:
         - 600
-        - 300
+        - 200
     - name: "Rome"
       links:
-        - "Athens"
+#        - "Athens"
         - "Brussels"
         - "Berlin"
+#        - "Naples"
       market:
         Grain:
           consumption: 28
@@ -60,11 +92,11 @@ scenario:
             price_per_supply: -1
       pos:
         - 800
-        - 750
+        - 350
     - name: "Berlin"
       links:
-        - "Athens"
-        - "Brussels"
+#        - "Athens"
+        - "Naples"
         - "Rome"
       market:
         Grain:
@@ -77,4 +109,4 @@ scenario:
             price_per_supply: -1
       pos:
         - 850
-        - 300
+        - 200

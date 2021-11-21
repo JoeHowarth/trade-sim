@@ -1,10 +1,11 @@
-import React, {useCallback, useEffect, useRef, useState} from "react";
-import {Stage, Layer, Star, Text, Rect, Ring, Circle, Line, KonvaNodeComponent} from "react-konva";
+import React, {useState} from "react";
+import {Circle, Line, Ring} from "react-konva";
 import {KonvaEventObject} from "konva/types/node";
+import {transform} from "./info_box";
 
 export const MovingThing = () => {
   const [node, setNode] = useState(null)
-  console.log(node)
+  // console.log(node)
   return (
     <Circle
       radius={5}
@@ -20,7 +21,6 @@ export const MovingThing = () => {
       }}
     />
   )
-
 }
 
 export const VisualAgent = (props: {
@@ -29,19 +29,26 @@ export const VisualAgent = (props: {
   const {agent} = props
   const [pos, setPos] = useState<Point>(agent)
   const [node, setNode] = useState(null)
+  const [offset, setOffset] = useState({
+    x: Math.random() * 8 - 4,
+    y: Math.random() * 8 - 4,
+  })
+  if (node) {
+    console.log("animate agent")
+    node.to({
+      ...transform(agent, offset),
+      duration: 1,
+      onFinish: () => setPos(agent)
+    })
+  }
   return (
     <Ring
       ref={node => setNode(node)}
-      x={pos.x +  Math.random()}
-      y={pos.y + Math.random()}
-      onClick={() => node.to({
-        x: 1000,
-        y: 600,
-      })}
-      innerRadius={3}
-      outerRadius={6}
-      fill="red"
-      {...props}
+      {...transform(pos, offset)}
+      innerRadius={4}
+      outerRadius={7}
+      fill={props.agent.fill ? props.agent.fill : "red"}
+      onClick={props.onClick}
     />
   )
 }
@@ -57,9 +64,10 @@ export const VisualEdge = ({edge}: { edge: REdge }) => {
 };
 
 export const VisualNode = (props: {
-  node: RNode;
+  node: RNode,
+  price: number,
   onClick,
-  onDragEnd(e: KonvaEventObject<DragEvent>): void;
+  onDragEnd(e: KonvaEventObject<DragEvent>): void,
 }) => {
   return (
     <Circle
@@ -69,7 +77,7 @@ export const VisualNode = (props: {
       key={props.node.id}
       x={props.node.x}
       y={props.node.y}
-      radius={20}
+      radius={Math.max(props.price / 6, 2)}
       fill="gray"
     />
   );

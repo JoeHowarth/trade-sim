@@ -28,6 +28,7 @@ interface WireREdge {
 }
 
 interface RAgent extends Point {
+  fill: string;
   id: AgentId;
 }
 

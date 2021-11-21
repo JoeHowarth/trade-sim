@@ -107,7 +107,7 @@ pub fn init(
                             count += 1;
                             let count_str = count.to_string();
                             AgentInput {
-                                name: Ustr::from(("A_".to_string() + count_str.as_str()).as_str()),
+                                name: Ustr::from(("Clara_".to_string() + count_str.as_str()).as_str()),
                                 position: AgentPositionInput::Node(name),
                             }
                         })
