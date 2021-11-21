@@ -87,6 +87,7 @@ export class Api implements SimApi {
     const visual = Api.getVisual();
     const model = this.fetchModel(0);
     const ret = { visual: await visual, model: await model };
+    await this.nextModel(100)
     console.log("Initial model:", ret.model);
     return ret;
   }

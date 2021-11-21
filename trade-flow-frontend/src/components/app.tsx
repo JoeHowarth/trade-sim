@@ -5,6 +5,7 @@ import Graph from "./graph";
 import {InfoTable, InfoTableMode} from "./info_table";
 import {Api} from "../sim_api";
 import {ErrorBoundary} from "./error_boundary";
+import {Form, Formik, Field} from "formik";
 
 type AppProps = {
   api: Api;
@@ -15,7 +16,7 @@ const App = ({api, initialVisual}: AppProps) => {
   const [tick, setTick] = useState(api.lastModel().tick);
   const [isStarted, setIsStarted] = useState(true);
   const [infoTableMode, setInfoTableMode] = useState(null);
-  const [fetchRate, setFetchRate] = useState(3000) // hook this up to an input to allow control
+  const [fetchRate, setFetchRate] = useState(9000) // hook this up to an input to allow control
 
   // control fetching the model
   useEffect(() => {
@@ -38,6 +39,7 @@ const App = ({api, initialVisual}: AppProps) => {
     })()
   }, [tick, isStarted]);
 
+  // @ts-ignore
   return (
     <>
       <div
@@ -87,6 +89,13 @@ const App = ({api, initialVisual}: AppProps) => {
                   Agent Table
                 </div>
               </div>
+              {/*<div className="level-item">*/}
+              {/*  <Formik initialValues={3000} onSubmit={v => setFetchRate(v)}>*/}
+              {/*    <Form>*/}
+              {/*      <Field name="rate" type="text"/>*/}
+              {/*    </Form>*/}
+              {/*  </Formik>*/}
+              {/*</div>*/}
             </div>
           </div>
         </Box>

@@ -1,12 +1,12 @@
 settings:
   loop_rate: 3000
 scenario:
-  random_agents:
-    Uniform:
-      3
-#  agents:
-#    - name: "Bob"
-#      position: "Athens"
+#  random_agents:
+#    Uniform:
+#      1
+  agents:
+    - name: "Bob"
+      position: "Athens"
 #    - name: "Joe"
 #      position: "Athens"
 #    - name: "Clara"
@@ -34,7 +34,7 @@ scenario:
         - "Berlin"
       market:
         Grain:
-          consumption: 29
+          consumption: 31
           production: 30
           supply: 20
           pricer:

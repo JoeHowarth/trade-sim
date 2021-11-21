@@ -4,7 +4,7 @@ import {
   MarketInfoTable,
   View,
 } from "./info_box";
-import {VisualAgent, VisualEdge, VisualNode} from "./visual";
+import {MovingThing, VisualAgent, VisualEdge, VisualNode} from "./visual";
 import {KonvaEventObject} from "konva/types/node";
 import Canvas from "./canvas";
 
@@ -16,7 +16,7 @@ export default (props: GraphProps) => {
 
   // info components
   const [clickedNodes, setClickedNodes]: [Set<NodeId>, any] = useState(
-    new Set<NodeId>()
+    new Set<NodeId>(model.nodes.keys())
   );
   const [clickedAgents, setClickedAgents]: [Set<AgentId>, any] = useState(
     new Set<AgentId>()
@@ -44,7 +44,7 @@ export default (props: GraphProps) => {
       {Array.from(clickedNodes.keys()).map((id) => (
         <View position={graph.nodes.get(id)}>
           <h3>{id}</h3>
-          <b>Agents</b> {Array.from(model.agents.values()).filter(a => a.location === id).map(a => a.id).join(', ')}
+          <p><b>Agents</b> {Array.from(model.agents.values()).filter(a => a.location === id).map(a => a.id).join(', ')}</p>
           <MarketInfoTable
             key={id}
             node={model.nodes.get(id)}
@@ -70,6 +70,7 @@ export default (props: GraphProps) => {
         );
       })}
       <Canvas>
+        <MovingThing/>
         {Array.from(graph.nodes.values()).map((n) => (
           <VisualNode
             node={n}
