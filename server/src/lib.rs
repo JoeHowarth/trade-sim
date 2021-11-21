@@ -182,7 +182,7 @@ fn model_handler(_req: &Request, tick: usize, model_map: ModelHandle) -> Respons
         }
         None => {
             warn!("Model at tick {} not found", tick);
-            Response::empty_404()
+            Response::empty_204()
         }
     }
 }

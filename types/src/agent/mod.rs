@@ -34,7 +34,7 @@ pub struct Cargo {
     pub amt: u32,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub enum GraphPosition {
     Node(CityHandle),
     Edge(CityHandle, CityHandle),

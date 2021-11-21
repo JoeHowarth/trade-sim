@@ -27,8 +27,8 @@ use crate::{
 
 #[derive(Debug, From, Clone, Copy, PartialEq)]
 pub struct Movement {
-    pub from: GridPosition,
-    pub to: GridPosition,
+    pub from: GraphPosition,
+    pub to: GraphPosition,
     pub entity: Entity,
 }
 

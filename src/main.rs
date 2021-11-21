@@ -21,6 +21,7 @@ use types::{
 use sim::agent_behavior;
 use types::market::exchanger::Order;
 use structopt::StructOpt;
+use sim::order_clearing::Failed;
 use crate::init::Cli;
 
 mod init;
@@ -63,6 +64,9 @@ fn build_app(
         .insert_resource(Tick(0))
         .insert_resource(HashMap::<City, Entity>::default())
         .add_event::<Order>()
+        .add_event::<Movement>()
+        .add_event::<Failed<Order>>()
+        .add_event::<Failed<Movement>>()
         .add_plugin(LogPlugin)
         .add_plugin(CorePlugin)
         .add_plugin(DiagnosticsPlugin)
@@ -70,13 +74,15 @@ fn build_app(
         .add_startup_system(wrap(init::init.system()))
         .add_stage("pre-work",
                    SystemStage::single_threaded()
-                       .with_system(update_tick.system()))
-        .add_stage("main-loop",
+                       .with_system(update_tick.system())
+                       .with_system(update_cities.system()))
+        .add_stage("decision-stage",
                    SystemStage::single_threaded()
-                       .with_system(update_cities.system())
-                       .with_system(wrap(agent_behavior::agents_sell.system()))
-                       .with_system(wrap(agent_behavior::agents_buy_random.system()))
-                       .with_system(wrap(agent_behavior::move_agents_random.system())))
+                       .with_system(wrap(agent_behavior::decide.system())))
+        .add_stage("action-stage",
+                   SystemStage::single_threaded()
+                       .with_system(sim::movement::movement.system())
+                       .with_system(sim::order_clearing::clear_orders.system()))
         .add_stage("final-work",
                    SystemStage::single_threaded()
                        .with_system(wrap(printer.system())));
@@ -84,12 +90,12 @@ fn build_app(
 }
 
 fn wrap<T: System<In=(), Out=Result<()>>>(inner: T) -> impl System<In=(), Out=()> {
-    inner.chain(error_handler_system.system())
+    inner.chain(error_handler_system::<T>.system())
 }
 
-fn error_handler_system(In(result): In<Result<()>>) {
+fn error_handler_system<T: System>(In(result): In<Result<()>>) {
     if let Err(err) = result {
-        error!("{:?}", err);
+        error!("Error from system {}:\n{}", std::any::type_name::<T>(), err);
     }
 }
 
@@ -110,6 +116,7 @@ fn update_tick(mut tick: ResMut<Tick>, mut has_run: Local<bool>) {
 
 fn update_cities(mut q: Query<(&City, &mut MarketInfo)>) {
     for (_city, mut market_info) in q.iter_mut() {
+        info!("Supply in {} is {}", _city, market_info.supply);
         market_info.produce_and_consume();
     }
 }

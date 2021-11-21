@@ -1,16 +1,43 @@
-import React, {useCallback, useEffect, useState} from "react";
-import {Stage, Layer, Star, Text, Rect, Ring, Circle, Line} from "react-konva";
-import Konva from "konva";
-import {KonvaEventObject} from "konva/types/Node";
+import React, {useCallback, useEffect, useRef, useState} from "react";
+import {Stage, Layer, Star, Text, Rect, Ring, Circle, Line, KonvaNodeComponent} from "react-konva";
+import {KonvaEventObject} from "konva/types/node";
+
+export const MovingThing = () => {
+  const [node, setNode] = useState(null)
+  console.log(node)
+  return (
+    <Circle
+      radius={5}
+      ref={n => setNode(n)}
+      x={500}
+      y={500}
+      fill="red"
+      onClick={() => {
+        node.to({
+          x: Math.random() * 200 + 200,
+          y: Math.random() * 200 + 200,
+        })
+      }}
+    />
+  )
+
+}
 
 export const VisualAgent = (props: {
   agent: RAgent, onClick?(e: KonvaEventObject<any>): void
 }) => {
   const {agent} = props
+  const [pos, setPos] = useState<Point>(agent)
+  const [node, setNode] = useState(null)
   return (
     <Ring
-      x={agent.x + Math.random() / 5}
-      y={agent.y + Math.random() / 5}
+      ref={node => setNode(node)}
+      x={pos.x +  Math.random()}
+      y={pos.y + Math.random()}
+      onClick={() => node.to({
+        x: 1000,
+        y: 600,
+      })}
       innerRadius={3}
       outerRadius={6}
       fill="red"

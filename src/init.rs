@@ -18,10 +18,23 @@ pub struct Cli {
 #[derive(Deserialize, Debug)]
 pub struct Input {
     pub settings: Settings,
-    scenario: Scenario,
+    scenario: ScenarioInput,
 }
 
 #[derive(Deserialize, Debug)]
+struct ScenarioInput {
+    cities: Vec<CityInput>,
+    agents: Option<Vec<AgentInput>>,
+    random_agents: Option<RandAgentKind>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+enum RandAgentKind {
+    Uniform(u16),
+    // PerCity(HashMap<Ustr, u16>),
+}
+
+#[derive(Debug)]
 struct Scenario {
     cities: Vec<CityInput>,
     agents: Vec<AgentInput>,
@@ -40,19 +53,18 @@ pub struct CityInput {
     pos: Option<Vec2>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 struct AgentInput {
     name: Ustr,
     position: AgentPositionInput,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 #[serde(untagged)]
 enum AgentPositionInput {
     Node(Ustr),
     // Edge(String, String),
 }
-
 
 
 pub fn get_input(args: Cli) -> Result<Input> {
@@ -83,8 +95,30 @@ pub fn init(
         .flat_map(|c| c.market.keys())
         .cloned()
         .collect());
+    let agents = input.scenario.agents.clone().unwrap_or_else(|| {
+        let random_agent_kind = input.scenario.random_agents.as_ref().expect("Must specify either agents or random_agents in config");
+        match random_agent_kind {
+            RandAgentKind::Uniform(num) => {
+                let mut count = 0;
+                input.scenario.cities.iter()
+                    .flat_map(|city| {
+                        let name = city.name;
+                        (0..*num).map(|_| {
+                            count += 1;
+                            let count_str = count.to_string();
+                            AgentInput {
+                                name: Ustr::from(("A_".to_string() + count_str.as_str()).as_str()),
+                                position: AgentPositionInput::Node(name),
+                            }
+                        })
+                            .collect::<Vec<_>>()
+                    })
+                    .collect()
+            }
+        }
+    });
     let cities_to_handles = init_cities(&mut commands, &input.scenario.cities)?;
-    init_agents(&mut commands, &input.scenario.agents, &cities_to_handles, &goods)?;
+    init_agents(&mut commands, &agents, &cities_to_handles, &goods)?;
 
     commands.insert_resource(goods);
     Ok(())

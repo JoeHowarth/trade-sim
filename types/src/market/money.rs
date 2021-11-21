@@ -24,6 +24,12 @@ impl Debug for Money {
     }
 }
 
+impl std::fmt::Display for Money {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "${:2}", self.0)
+    }
+}
+
 impl Mul<Money> for Money {
     type Output = Money;
     fn mul(self, rhs: Money) -> Money {

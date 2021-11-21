@@ -13,7 +13,7 @@ pub(crate) fn state_to_model(state: &State) -> Model {
                     m.insert(ustr("Grain"), MarketInfo {
                         supply: market_info.supply,
                         consumption: market_info.consumption,
-                        production: market_info.consumption,
+                        production: market_info.production,
                         price: market_info.current_price().0,
                     });
                     m
