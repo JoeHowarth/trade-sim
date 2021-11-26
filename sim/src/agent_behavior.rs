@@ -1,7 +1,7 @@
 use types::prelude::*;
 use types::agent::{Agent, Cargo, GraphPosition, AgentHandle};
 use types::market::{Money};
-use types::market::exchanger::{MarketInfo, Exchanger, Order};
+use types::market::exchanger::{MarketInfo, Exchanger};
 use types::{City, CityHandle, ecs_err, LinkedCities};
 use std::cmp::Ordering;
 use types::prelude::hash_map::RandomState;
@@ -13,12 +13,43 @@ pub fn decide(
     mut movement: EventWriter<Movement>,
 ) -> Result<()> {
     for a in agent_q.iter() {
-        decide_single(a, &cities_q, &mut orders, &mut movement)?;
+        decide_single_simple(a, &cities_q, &mut orders, &mut movement)?;
     }
     Ok(())
 }
 
-fn decide_single(
+struct AgentState {
+    location: GraphPosition,
+    cargo: Cargo,
+    money: Money,
+}
+
+fn transition_agent_state(
+    state: AgentState,
+    action: Action,
+) -> Result<AgentState> {
+    match action {
+        Action::Movement(movement) => {
+            if movement.from != state.location {
+                return Err(anyhow::Error::msg(format!("")))
+            }
+        }
+        Action::Buy(_) => {}
+        Action::Sell(_) => {}
+    };
+    Ok(state)
+}
+
+fn decide_single_good_multi_step(
+    (e_agent, agent, cargo, money, pos): (Entity, &Agent, &Cargo, &Money, &GraphPosition),
+    cities_q: &Query<(Entity, &City, &MarketInfo, &LinkedCities)>,
+    orders: &mut EventWriter<Order>,
+    movement: &mut EventWriter<Movement>,
+) -> Result<()> {
+    Ok(())
+}
+
+fn decide_single_simple(
     (e_agent, agent, cargo, _money, pos): (Entity, &Agent, &Cargo, &Money, &GraphPosition),
     cities_q: &Query<(Entity, &City, &MarketInfo, &LinkedCities)>,
     orders: &mut EventWriter<Order>,
@@ -47,12 +78,12 @@ fn decide_single(
     if rng.gen_bool(0.1) {
         if let Some((dest, _)) = linked_markets.choose(&mut rng) {
             info!("{} randomly moving from {} to {}", agent, src_city, dest);
-            movement.send(Movement{
+            movement.send(Movement {
                 from: *pos,
                 to: GraphPosition::Node(*dest),
                 entity: e_agent,
             });
-            return Ok(())
+            return Ok(());
         }
     }
 

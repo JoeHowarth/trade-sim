@@ -19,15 +19,6 @@ pub struct MarketInfo {
     pub pricer: LinearPricer,
 }
 
-#[derive(Debug, PartialEq, Clone)]
-pub struct Order {
-    pub good: crate::Good,
-    pub market: CityHandle,
-    pub agent: AgentHandle,
-    /// positive amt means buy order, negative means sell order
-    pub amt: i32,
-}
-
 impl Exchanger for MarketInfo {
     fn cost(&self, amt: i32) -> Money {
         // Invariant: cost of buying followed by selling the same number must sum to 0.

@@ -1,21 +1,21 @@
 settings:
-  loop_rate: 90
+  loop_rate: 1400
 scenario:
   random_agents:
     Uniform:
       2
-  #  agents:
-  #    - name: "Bob"
-  #      position: "Athens"
-  #    - name: "Joe"
-  #      position: "Athens"
-  #    - name: "Clara"
-  #      position: "Athens"
+#  agents:
+#    - name: "Bob"
+#      position: "Athens"
+#    - name: "Joe"
+#      position: "Athens"
+#    - name: "Clara"
+#      position: "Athens"
   cities:
     - name: "Amsterdam"
       links:
         - "Brussels"
-        - "Berlin"
+      #        - "Berlin"
       market:
         Grain:
           consumption: 30
@@ -32,7 +32,6 @@ scenario:
       links:
         - "Athens"
         - "Berlin"
-        - "Rome"
       market:
         Grain:
           consumption: 30
@@ -48,8 +47,6 @@ scenario:
     - name: "Athens"
       links:
         - "Naples"
-        - "Berlin"
-        - "Rome"
       market:
         Grain:
           consumption: 30
@@ -80,10 +77,10 @@ scenario:
         - 200
     - name: "Rome"
       links:
-        - "Athens"
+#        - "Athens"
         - "Brussels"
         - "Berlin"
-        - "Naples"
+#        - "Naples"
       market:
         Grain:
           consumption: 28
@@ -98,8 +95,7 @@ scenario:
         - 350
     - name: "Berlin"
       links:
-        - "Athens"
-        - "Amsterdam"
+#        - "Athens"
         - "Naples"
         - "Rome"
       market:

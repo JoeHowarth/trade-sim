@@ -19,7 +19,6 @@ use types::{
     market::Money,
 };
 use sim::agent_behavior;
-use types::market::exchanger::Order;
 use structopt::StructOpt;
 use sim::order_clearing::Failed;
 use crate::init::Cli;

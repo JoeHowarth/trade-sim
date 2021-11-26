@@ -6,7 +6,6 @@ pub mod prelude;
 pub mod utility;
 
 pub use basic_impls::*;
-pub use market::exchanger::Order;
 use std::{
     fmt::{Formatter},
     collections::HashSet,
@@ -24,6 +23,23 @@ use crate::{
     },
     prelude::*,
 };
+use crate::agent::AgentHandle;
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum Action {
+    Movement(Movement),
+    Buy(Order),
+    Sell(Order),
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct Order {
+    pub good: crate::Good,
+    pub market: CityHandle,
+    pub agent: AgentHandle,
+    /// positive amt means buy order, negative means sell order
+    pub amt: i32,
+}
 
 #[derive(Debug, From, Clone, Copy, PartialEq)]
 pub struct Movement {
