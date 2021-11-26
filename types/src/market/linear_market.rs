@@ -40,7 +40,6 @@ impl Market for LinearMarket {
 mod test {
     use crate::prelude::*;
     use crate::market::{MarketInfo, LinearMarket, Market, pricer::{LinearPricer, Pricer}, Money};
-    use crate::types::{Good};
 
     #[test]
     fn linear_market_cost() {

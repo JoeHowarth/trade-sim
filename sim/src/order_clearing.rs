@@ -4,8 +4,21 @@ use types::{market::{
 }, prelude::*, City, CityHandle};
 use types::agent::{Agent, Cargo};
 use types::market::exchanger::Exchanger;
+use types::market::Market;
 
 pub struct Failed<T>(pub T);
+
+pub fn transition_order(
+    order: &Order,
+    market: &mut dyn Exchanger, // TODO: change to Market to support multiple goods
+    agent_money: &mut Money,
+    agent_cargo: &mut Cargo,
+) -> Option<()> {
+     market.buy(agent_money, order.amt).map(|_| {
+         agent_cargo.good = order.good;
+         agent_cargo.amt = order.amt.max(0) as u32;
+     })
+}
 
 pub fn clear_orders(
     mut markets: Query<&mut MarketInfo, With<City>>,
@@ -16,12 +29,8 @@ pub fn clear_orders(
     orders.iter().for_each(|order: &Order| {
         let mut market = markets.get_mut(order.market.entity).expect("market entity not in markets query");
         let (mut wallet, mut cargo) = agents.get_mut(order.agent.entity).expect("agent entity not in agents query");
-        match market.buy(&mut wallet, order.amt) {
-            Some(_) => {
-                cargo.good = order.good;
-                cargo.amt = order.amt.max(0) as u32;
-            }
-            None => failed_orders.send(Failed(order.clone())),
+        if let None = transition_order(order, &mut market, &mut wallet, &mut cargo) {
+            failed_orders.send(Failed(order.clone()));
         }
     })
 }

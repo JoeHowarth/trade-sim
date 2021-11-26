@@ -4,6 +4,7 @@ pub mod market;
 pub mod agent;
 pub mod prelude;
 pub mod utility;
+pub mod query_like;
 
 pub use basic_impls::*;
 use std::{
@@ -25,11 +26,10 @@ use crate::{
 };
 use crate::agent::AgentHandle;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, From, Clone, PartialEq)]
 pub enum Action {
     Movement(Movement),
-    Buy(Order),
-    Sell(Order),
+    Order(Order),
 }
 
 #[derive(Debug, PartialEq, Clone)]

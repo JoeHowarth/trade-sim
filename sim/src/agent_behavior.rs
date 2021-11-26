@@ -18,33 +18,12 @@ pub fn decide(
     Ok(())
 }
 
-struct AgentState {
-    location: GraphPosition,
-    cargo: Cargo,
-    money: Money,
-}
-
-fn transition_agent_state(
-    state: AgentState,
-    action: Action,
-) -> Result<AgentState> {
-    match action {
-        Action::Movement(movement) => {
-            if movement.from != state.location {
-                return Err(anyhow::Error::msg(format!("")))
-            }
-        }
-        Action::Buy(_) => {}
-        Action::Sell(_) => {}
-    };
-    Ok(state)
-}
 
 fn decide_single_good_multi_step(
-    (e_agent, agent, cargo, money, pos): (Entity, &Agent, &Cargo, &Money, &GraphPosition),
-    cities_q: &Query<(Entity, &City, &MarketInfo, &LinkedCities)>,
-    orders: &mut EventWriter<Order>,
-    movement: &mut EventWriter<Movement>,
+    // (e_agent, agent, cargo, money, pos): (Entity, &Agent, &Cargo, &Money, &GraphPosition),
+    // cities_q: &Query<(Entity, &City, &MarketInfo, &LinkedCities)>,
+    // orders: &mut EventWriter<Order>,
+    // movement: &mut EventWriter<Movement>,
 ) -> Result<()> {
     Ok(())
 }

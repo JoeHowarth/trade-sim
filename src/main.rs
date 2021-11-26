@@ -80,7 +80,7 @@ fn build_app(
                        .with_system(wrap(agent_behavior::decide.system())))
         .add_stage("action-stage",
                    SystemStage::single_threaded()
-                       .with_system(sim::movement::movement.system())
+                       .with_system(wrap(sim::movement::movement.system()))
                        .with_system(sim::order_clearing::clear_orders.system()))
         .add_stage("final-work",
                    SystemStage::single_threaded()
