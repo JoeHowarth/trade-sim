@@ -9,7 +9,7 @@ impl<'a, T: Into<&'a str>> From<T> for Good {
 
 impl From<String> for City {
     fn from(s: String) -> Self {
-        City{ name: ustr(&s) }
+        City { name: ustr(&s) }
     }
 }
 
@@ -34,6 +34,16 @@ impl std::fmt::Display for City {
 impl std::fmt::Display for CityHandle {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.city)
+    }
+}
+
+impl Action {
+    pub fn name(&self) -> &'static str {
+        match self {
+            Action::Movement(_) => "Movement",
+            Action::Order(o) if o.amt > 0 => "Buy",
+            Action::Order(_) => "Sell",
+        }
     }
 }
 

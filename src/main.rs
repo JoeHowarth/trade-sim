@@ -81,7 +81,7 @@ fn build_app(
         .add_stage("action-stage",
                    SystemStage::single_threaded()
                        .with_system(wrap(sim::movement::movement.system()))
-                       .with_system(sim::order_clearing::clear_orders.system()))
+                       .with_system(wrap(sim::order_clearing::clear_orders.system())))
         .add_stage("final-work",
                    SystemStage::single_threaded()
                        .with_system(wrap(printer.system())));

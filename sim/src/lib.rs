@@ -1,6 +1,6 @@
 #![allow(unused_imports, dead_code)]
 
-use types::agent::{Cargo, GraphPosition};
+use types::agent::{AgentHandle, Cargo, GraphPosition};
 use types::prelude::*;
 use types::City;
 use types::market::exchanger::{DryRunExchanger, MarketInfo};
@@ -16,6 +16,7 @@ pub mod movement;
 
 #[derive(Clone, Debug)]
 pub struct AgentState {
+    agent: AgentHandle,
     location: GraphPosition,
     cargo: Cargo,
     money: Money,
@@ -29,24 +30,22 @@ fn transition_state(
     match action {
         Action::Movement(m) => {
             let new_location = transition_movement(m, state.location)?;
-            Ok(AgentState{
+            Ok(AgentState {
                 location: new_location,
                 ..*state
             })
         }
         Action::Order(order) => {
             let (_, market, _) = cities.get(order.market.entity)?;
-            let mut market = DryRunExchanger{ inner: market};
+            let mut market = DryRunExchanger { inner: market };
             let mut cargo = state.cargo.clone();
             let mut money = state.money.clone();
-            match transition_order(order, &mut market, &mut money, &mut cargo) {
-                Some(()) => Ok(AgentState{
-                cargo,
-                money,
-                ..*state
-            }),
-                None => Ok(state.clone()),
-            }
+            transition_order(order, &mut market, &mut money, &mut cargo)
+                .map(|_| AgentState {
+                    cargo,
+                    money,
+                    ..*state
+                })
         }
     }
 }

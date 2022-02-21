@@ -5,27 +5,88 @@ use types::market::exchanger::{MarketInfo, Exchanger};
 use types::{City, CityHandle, ecs_err, LinkedCities};
 use std::cmp::Ordering;
 use types::prelude::hash_map::RandomState;
+use types::query_like::QueryLike;
+use crate::{AgentState, transition_state};
 
 pub fn decide(
-    agent_q: Query<(Entity, &Agent, &Cargo, &Money, &GraphPosition)>,
-    cities_q: Query<(Entity, &City, &MarketInfo, &LinkedCities)>,
+    agent_q: Query<(&AgentHandle, &Cargo, &Money, &GraphPosition)>,
+    cities_q: Query<(&CityHandle, &MarketInfo, &LinkedCities)>,
     mut orders: EventWriter<Order>,
     mut movement: EventWriter<Movement>,
 ) -> Result<()> {
     for a in agent_q.iter() {
-        decide_single_simple(a, &cities_q, &mut orders, &mut movement)?;
+        // decide_single_simple(a, &cities_q, &mut orders, &mut movement)?;
+        dbg!(&a);
+        decide_single_good_multi_step(a, &cities_q, &mut orders, &mut movement)?;
     }
     Ok(())
 }
 
 
-fn decide_single_good_multi_step(
-    // (e_agent, agent, cargo, money, pos): (Entity, &Agent, &Cargo, &Money, &GraphPosition),
-    // cities_q: &Query<(Entity, &City, &MarketInfo, &LinkedCities)>,
-    // orders: &mut EventWriter<Order>,
-    // movement: &mut EventWriter<Movement>,
+pub fn decide_single_good_multi_step(
+    (agent, cargo, money, pos): (&AgentHandle, &Cargo, &Money, &GraphPosition),
+    cities_q: &Query<(&CityHandle, &MarketInfo, &LinkedCities)>,
+    orders: &mut EventWriter<Order>,
+    movement: &mut EventWriter<Movement>,
 ) -> Result<()> {
+    const DEPTH: u8 = 6; // how many actions to look forward
+    let initial_state = AgentState { agent: *agent, money: *money, cargo: *cargo, location: *pos };
+    let (action, last_state) = dfs(&initial_state, cities_q, DEPTH)?;
+    info!("Agent {} performing {}. Expecting profit of {} after {} actions",
+        agent, action.name(), last_state.money - *money, DEPTH);
+    match action {
+        Action::Movement(m) => movement.send(m),
+        Action::Order(o) => orders.send(o),
+    }
     Ok(())
+}
+
+fn dfs(
+    state: &AgentState,
+    context: &dyn QueryLike<(&CityHandle, &MarketInfo, &LinkedCities)>,
+    depth: u8,
+) -> Result<(Action, AgentState)> {
+    // compute all possible actions
+    let mut actions = vec![
+        Action::Order(Order { // sell
+            good: state.cargo.good,
+            market: state.location.city_res()?,
+            agent: state.agent,
+            amt: -(state.cargo.amt as i32),
+        }),
+        Action::Order(Order { // buy
+            good: state.cargo.good,
+            market: state.location.city_res()?,
+            agent: state.agent,
+            amt: 1,
+        }),
+    ];
+    let (_, _, linked_cities): (_, _, &LinkedCities) = context.get(state.location.city_res()?.entity)?;
+    actions.extend(linked_cities.0.iter()
+        .map(|ch| Action::Movement(Movement {
+            from: state.location,
+            to: GraphPosition::Node(ch.clone()),
+            entity: state.agent.entity,
+        }))
+    );
+    let next_states = actions.iter()
+        .filter_map(|action|
+            transition_state(state, context, action)
+                .ok()
+                .map(|state| (action.clone(), state))
+        );
+
+    if depth == 1 {
+        return next_states.max_by_key(|(_, state)| state.money)
+            .context("Could not find a valid next state")
+    }
+    next_states.filter_map(|(next_action, next_state)| {
+        dfs(&next_state, context, depth - 1)
+            .ok()
+            .map(|(_, last_state)| (next_action, last_state))
+    })
+        .max_by_key(|(_,state)| state.money)
+        .context("Could not find a valid next state")
 }
 
 fn decide_single_simple(

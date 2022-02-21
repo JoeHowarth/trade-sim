@@ -13,11 +13,14 @@ pub fn transition_order(
     market: &mut dyn Exchanger, // TODO: change to Market to support multiple goods
     agent_money: &mut Money,
     agent_cargo: &mut Cargo,
-) -> Option<()> {
+) -> Result<()> {
+    if agent_cargo.amt > 0 {
+        return Err(anyhow!("Cannot buy goods when cargo is non-empty, {:?} {:?}", agent_cargo, order))
+    }
      market.buy(agent_money, order.amt).map(|_| {
          agent_cargo.good = order.good;
          agent_cargo.amt = order.amt.max(0) as u32;
-     })
+     }).context("Order failed because market 'buy' failed. Usually due to agent not having enough money")
 }
 
 pub fn clear_orders(
@@ -25,14 +28,16 @@ pub fn clear_orders(
     mut agents: Query<(&mut Money, &mut Cargo), With<Agent>>,
     mut orders: EventReader<Order>,
     mut failed_orders: EventWriter<Failed<Order>>,
-) {
-    orders.iter().for_each(|order: &Order| {
+) -> Result<()> {
+    for order in orders.iter() {
         let mut market = markets.get_mut(order.market.entity).expect("market entity not in markets query");
         let (mut wallet, mut cargo) = agents.get_mut(order.agent.entity).expect("agent entity not in agents query");
-        if let None = transition_order(order, &mut market, &mut wallet, &mut cargo) {
+        if let Err(e) = transition_order(order, &mut market, &mut wallet, &mut cargo) {
             failed_orders.send(Failed(order.clone()));
+            return Err(e)
         }
-    })
+    }
+    Ok(())
 }
 
 mod tests {
