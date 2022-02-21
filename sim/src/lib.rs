@@ -50,13 +50,13 @@ fn transition_state(
     }
 }
 
-pub(crate) fn setup_tests() -> bevy::app::AppBuilder {
+pub(crate) fn setup_tests() -> bevy::app::App {
     use bevy::app;
     use bevy::log::LogPlugin;
     use bevy::core::CorePlugin;
     use bevy::diagnostic::DiagnosticsPlugin;
 
-    let mut app = App::build();
+    let mut app = App::new();
     app.insert_resource(app::ScheduleRunnerSettings {
         run_mode: app::RunMode::Once
     })

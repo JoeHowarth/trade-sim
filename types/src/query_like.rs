@@ -4,7 +4,7 @@ use bevy::ecs::system::QueryComponentError;
 use crate::prelude::*;
 
 pub trait QueryLike<'w, W: WorldQuery> {
-    fn get(&self, entity: Entity) -> Result<<W::Fetch as Fetch>::Item, QueryEntityError>
+    fn get(&self, entity: Entity) -> Result<<W::ReadOnlyFetch as Fetch>::Item, QueryEntityError>
         where <W as WorldQuery>::Fetch: ReadOnlyFetch;
 
     fn get_mut(&mut self, entity: Entity) -> Result<<W::Fetch as Fetch>::Item, QueryEntityError>;
@@ -13,9 +13,9 @@ pub trait QueryLike<'w, W: WorldQuery> {
     // fn get_component<T: Component>(&'w self, entity: Entity) -> Result<&T, QueryComponentError>;
 }
 
-impl<'w, Q: WorldQuery> QueryLike<'w, Q> for Query<'w, Q> {
+impl<'w, 's, Q: WorldQuery> QueryLike<'w, Q> for Query<'w, 's, Q> {
     fn get(&self, entity: Entity)
-           -> Result<<Q::Fetch as Fetch>::Item, QueryEntityError>
+           -> Result<<Q::ReadOnlyFetch as Fetch>::Item, QueryEntityError>
         where <Q as WorldQuery>::Fetch: ReadOnlyFetch
     {
         self.get(entity)

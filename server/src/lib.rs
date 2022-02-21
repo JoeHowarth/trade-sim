@@ -2,7 +2,7 @@ pub mod web;
 
 use crate::web::{Model};
 use futures::future::{AbortHandle, Abortable};
-use rouille::{router, Request, Response};
+use rouille::{Request, Response};
 use std::{
     sync::RwLock,
     path,

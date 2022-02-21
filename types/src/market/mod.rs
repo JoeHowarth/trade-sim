@@ -30,7 +30,7 @@ pub trait Market {
     }
 }
 
-#[derive(From, Debug)]
+#[derive(Component, From, Debug)]
 pub struct LinearMarket {
     pub table: HashMap<Good, MarketInfo>
 }

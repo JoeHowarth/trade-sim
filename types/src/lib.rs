@@ -57,32 +57,32 @@ pub struct State {
 
 ///////// Infrastructure Types /////////
 
-#[derive(Debug, From, Clone, Copy, Eq, PartialEq, Hash)]
+#[derive(Component, Debug, From, Clone, Copy, Eq, PartialEq, Hash)]
 pub struct Tick(pub u64);
 
 //////// General Simulation Types ////////
 
-#[derive(Debug, From, Clone, Copy, Eq, PartialEq, Hash)]
+#[derive(Component, Debug, From, Clone, Copy, Eq, PartialEq, Hash)]
 pub struct City {
     pub name: Ustr,
 }
 
-#[derive(Eq, PartialEq, Hash, Debug, Clone, Copy)]
+#[derive(Component, Eq, PartialEq, Hash, Debug, Clone, Copy)]
 pub struct CityHandle {
     pub entity: Entity,
     pub city: City,
 }
 
-#[derive(Deref, Debug, Clone)]
+#[derive(Component, Deref, Debug, Clone)]
 pub struct LinkedCities(pub Vec<CityHandle>);
 
-#[derive(Deserialize, Eq, Clone, Copy, Debug, PartialEq, Hash)]
+#[derive(Component, Deserialize, Eq, Clone, Copy, Debug, PartialEq, Hash)]
 #[serde(transparent)]
 pub struct Good {
     pub name: Ustr,
 }
 
-#[derive(Deref, Debug, Clone)]
+#[derive(Component, Deref, Debug, Clone)]
 // Resource representing all known goods
 pub struct Goods(pub HashSet<Good>);
 
@@ -93,6 +93,6 @@ pub struct Goods(pub HashSet<Good>);
 
 ///////////// GeoTypes /////////////
 
-#[derive(Deref, PartialEq, Debug, Clone, Copy)]
+#[derive(Component, Deref, PartialEq, Debug, Clone, Copy)]
 pub struct GridPosition(pub Vec2);
 

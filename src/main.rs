@@ -46,8 +46,8 @@ fn build_app(
     input: init::Input,
     state_tx: mpsc::UnboundedSender<types::State>,
     _save_signal_sender: mpsc::UnboundedSender<Option<String>>, // TODO save on key press
-) -> AppBuilder {
-    let mut app = App::build();
+) -> App {
+    let mut app = App::new();
     app
         .insert_resource(LogSettings {
             level: bevy::log::Level::DEBUG,

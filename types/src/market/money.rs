@@ -6,7 +6,7 @@ use std::cmp::Ordering;
 use std::fmt::Debug;
 use std::fmt::Formatter;
 
-#[derive(Add, Sum, Sub, SubAssign, Div, AddAssign, MulAssign, From, Into, Copy, Clone, PartialEq, PartialOrd)]
+#[derive(Component, Add, Sum, Sub, SubAssign, Div, AddAssign, MulAssign, From, Into, Copy, Clone, PartialEq, PartialOrd)]
 pub struct Money(pub f64);
 
 impl Money {

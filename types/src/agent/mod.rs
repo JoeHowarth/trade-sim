@@ -17,24 +17,24 @@ Agent Components:
 - Money
  */
 
-#[derive(Eq, PartialEq, Hash, Debug, Clone, Copy)]
+#[derive(Component, Eq, PartialEq, Hash, Debug, Clone, Copy)]
 pub struct AgentHandle {
     pub agent: Agent,
     pub entity: Entity,
 }
 
-#[derive(Debug, From, Clone, Eq, PartialEq, Hash, Copy)]
+#[derive(Component, Debug, From, Clone, Eq, PartialEq, Hash, Copy)]
 pub struct Agent {
     pub name: Ustr,
 }
 
-#[derive(Debug, From, Clone, Copy, Eq, PartialEq, Hash)]
+#[derive(Component, Debug, From, Clone, Copy, Eq, PartialEq, Hash)]
 pub struct Cargo {
     pub good: Good,
     pub amt: u32,
 }
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
+#[derive(Component, Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub enum GraphPosition {
     Node(CityHandle),
     Edge(CityHandle, CityHandle),
