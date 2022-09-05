@@ -1,5 +1,16 @@
 import axios from "axios";
 import _ from "lodash";
+import {
+  createGrpcWebTransport,
+  createPromiseClient,
+} from '@bufbuild/connect-web'
+import { ModelServer } from '../gen/modelserver_connectweb'
+import { Model as PbModel, RGraph as PbRGraph } from '../gen/modelserver_pb'
+
+const transport = createGrpcWebTransport({
+  baseUrl: "http://127.0.0.1:50051"
+})
+const client = createPromiseClient(ModelServer, transport)
 
 // export class MockApi implements SimApi {
 //   private model: Model;
@@ -27,18 +38,34 @@ let agentFills: Map<AgentId, string> = new Map()
 
 export function dbg<T>(x: T, message?: string): T {
   if (message) {
-    console.log(x, message)
+    console.log("[Debug] ", message)
+    console.log(x)
+  } else {
+    console.log("[Debug] ", x)
   }
-  console.log(x)
   return x
 }
 
-export class Api implements SimApi {
-  static baseUrl: string = "http://0.0.0.0:3030";
-  static visualUrl: string = Api.baseUrl + "/rgraph";
-  static modelUrl: string = Api.baseUrl + "/state";
+function modelFromPb(pb: PbModel): Model {
+  return {
+    tick: Number(pb.tick),
+    agents: new Map(Object.entries(pb.agents)),
+    nodes: new Map(Object.entries(pb.nodes).map(([id, node]) =>
+      [id, { ...node, markets: new Map(Object.entries(node.markets)) }]
+    )),
+    edges: pb.edges.map(e => ({ nodes: [e.from, e.to] }))
+  }
+}
 
+export class Api implements SimApi {
   async fetchModel(i: number): Promise<Model | undefined> {
+    const model = await client.getModel({ tick: BigInt(i) }).then(modelFromPb)
+    models[model.tick] = model
+    return model
+  }
+
+  /*
+  async fetchModelWeb(i: number): Promise<Model | undefined> {
     // only use network if model not already cached
     if (models[i] !== undefined) {
       return models[i]
@@ -61,8 +88,9 @@ export class Api implements SimApi {
     models[data.tick] = data;
     return data;
   }
+  */
 
-  getModel(i: number): Model|undefined {
+  getModel(i: number): Model | undefined {
     if (i >= 0 && models[i] === undefined) {
       console.log("Found missing model. Fetching...", i);
       this.fetchModel(i);
@@ -81,7 +109,7 @@ export class Api implements SimApi {
     let model: Model
     console.log("[nextModel]  new nextModel call")
     while (model === undefined) {
-      model = await this.fetchModel(this.lastModel().tick+1);
+      model = await this.fetchModel(this.lastModel().tick + 1);
       if (model !== undefined) {
         console.log("[nextModel]  found model")
       }
@@ -120,6 +148,16 @@ export class Api implements SimApi {
   }
 
   private static async getVisual(): Promise<RGraph> {
+    const rgraph: PbRGraph = await client.getVisual({})
+    const nodes = new Map(Object.entries(rgraph.nodes))
+    return {
+      nodes,
+      edges: rgraph.edges.map(e => ({ nodes: [nodes.get(e.to), nodes.get(e.from)] })),
+    }
+  }
+
+  /*
+  private static async getVisualWeb(): Promise<RGraph> {
     let d = await get<WireRGraph>(Api.visualUrl);
     // console.log("wire rgraph", d)
     const nodes = new Map(Object.entries(d.nodes))
@@ -130,6 +168,7 @@ export class Api implements SimApi {
       })),
     };
   }
+  */
 }
 
 async function get<T>(url: string): Promise<T> {

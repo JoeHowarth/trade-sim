@@ -1,8 +1,9 @@
-use std::sync::atomic;
-use std::cell;
 use crate::prelude::*;
-use std::sync::atomic::Ordering;
-use std::cell::Ref;
+use std::{
+    cell,
+    cell::Ref,
+    sync::{atomic, atomic::Ordering},
+};
 
 pub struct ReadIfSet<T> {
     set: atomic::AtomicBool,
@@ -41,7 +42,7 @@ impl<T: std::fmt::Debug> ReadIfSet<T> {
 
     pub fn set_with(&self, f: impl FnOnce() -> T) -> Result<()> {
         if self.set.load(Ordering::SeqCst) {
-            return Err(anyhow!("ReadIfSet can only be set once!"))
+            return Err(anyhow!("ReadIfSet can only be set once!"));
         }
         unsafe { self.inner.get().write(Some(f())) };
         self.set.store(true, Ordering::SeqCst);
@@ -54,5 +55,5 @@ impl<T: std::fmt::Debug> ReadIfSet<T> {
 }
 
 fn id<T>(t: T) -> impl FnOnce() -> T {
-    move || { t }
+    move || t
 }

@@ -1,30 +1,24 @@
 #![allow(unused_imports, dead_code)]
+pub mod agent;
 pub mod basic_impls;
 pub mod market;
-pub mod agent;
 pub mod prelude;
-pub mod utility;
 pub mod query_like;
+pub mod utility;
 
-pub use basic_impls::*;
-use std::{
-    fmt::{Formatter},
-    collections::HashSet,
-    cell,
-    sync::atomic,
-};
-use bevy::prelude::{Entity, Vec2};
-pub use derive_more::{Deref, Add, AddAssign, Sum, Mul, MulAssign, Sub, SubAssign, Div, Display, From, Into};
-pub use serde::{Serialize, Deserialize};
 use crate::{
-    agent::{Agent, GraphPosition, Cargo},
-    market::{
-        Money,
-        exchanger::MarketInfo,
-    },
+    agent::{Agent, AgentHandle, Cargo, GraphPosition},
+    market::{exchanger::MarketInfo, Money},
     prelude::*,
 };
-use crate::agent::AgentHandle;
+pub use basic_impls::*;
+use bevy::prelude::{Entity, Vec2};
+pub use derive_more::{
+    Add, AddAssign, Deref, Display, Div, From, Into, Mul, MulAssign,
+    Sub, SubAssign, Sum,
+};
+pub use serde::{Deserialize, Serialize};
+use std::{cell, collections::HashSet, fmt::Formatter, sync::atomic};
 
 #[derive(Debug, From, Clone, PartialEq)]
 pub enum Action {
@@ -57,12 +51,16 @@ pub struct State {
 
 ///////// Infrastructure Types /////////
 
-#[derive(Component, Debug, From, Clone, Copy, Eq, PartialEq, Hash)]
+#[derive(
+    Component, Debug, From, Clone, Copy, Eq, PartialEq, Hash,
+)]
 pub struct Tick(pub u64);
 
 //////// General Simulation Types ////////
 
-#[derive(Component, Debug, From, Clone, Copy, Eq, PartialEq, Hash)]
+#[derive(
+    Component, Debug, From, Clone, Copy, Eq, PartialEq, Hash,
+)]
 pub struct City {
     pub name: Ustr,
 }
@@ -76,7 +74,9 @@ pub struct CityHandle {
 #[derive(Component, Deref, Debug, Clone)]
 pub struct LinkedCities(pub Vec<CityHandle>);
 
-#[derive(Component, Deserialize, Eq, Clone, Copy, Debug, PartialEq, Hash)]
+#[derive(
+    Component, Deserialize, Eq, Clone, Copy, Debug, PartialEq, Hash,
+)]
 #[serde(transparent)]
 pub struct Good {
     pub name: Ustr,
@@ -86,7 +86,6 @@ pub struct Good {
 // Resource representing all known goods
 pub struct Goods(pub HashSet<Good>);
 
-
 ///////////// Market Types ///////////
 
 // see crate::market
@@ -95,4 +94,3 @@ pub struct Goods(pub HashSet<Good>);
 
 #[derive(Component, Deref, PartialEq, Debug, Clone, Copy)]
 pub struct GridPosition(pub Vec2);
-

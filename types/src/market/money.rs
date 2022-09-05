@@ -1,12 +1,26 @@
-use crate::{
-    prelude::*,
+use crate::prelude::*;
+use std::{
+    cmp::Ordering,
+    fmt::{Debug, Formatter},
+    ops::Mul,
 };
-use std::ops::{Mul};
-use std::cmp::Ordering;
-use std::fmt::Debug;
-use std::fmt::Formatter;
 
-#[derive(Component, Add, Sum, Sub, SubAssign, Div, AddAssign, MulAssign, From, Into, Copy, Clone, PartialEq, PartialOrd)]
+#[derive(
+    Component,
+    Add,
+    Sum,
+    Sub,
+    SubAssign,
+    Div,
+    AddAssign,
+    MulAssign,
+    From,
+    Into,
+    Copy,
+    Clone,
+    PartialEq,
+    PartialOrd,
+)]
 pub struct Money(pub f64);
 
 impl Money {
@@ -19,7 +33,10 @@ impl Money {
 }
 
 impl Debug for Money {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
+    fn fmt(
+        &self,
+        f: &mut Formatter<'_>,
+    ) -> Result<(), std::fmt::Error> {
         f.write_str(&format!("${:.2}", self.0))
     }
 }
@@ -38,8 +55,8 @@ impl Mul<Money> for Money {
 }
 
 impl<__RhsT> ::core::ops::Mul<__RhsT> for Money
-    where
-        f64: ::core::ops::Mul<__RhsT, Output=f64>,
+where
+    f64: ::core::ops::Mul<__RhsT, Output = f64>,
 {
     type Output = Money;
     #[inline]
@@ -67,6 +84,9 @@ impl Eq for Money {}
 
 impl Ord for Money {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.partial_cmp(other).expect(&*format!("Failed ordering {:?} cmp {:?}", self, other))
+        self.partial_cmp(other).expect(&*format!(
+            "Failed ordering {:?} cmp {:?}",
+            self, other
+        ))
     }
 }

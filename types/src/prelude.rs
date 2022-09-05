@@ -1,35 +1,27 @@
-pub use bevy::prelude::*;
-pub use bevy::app;
+pub use bevy::{app, prelude::*};
 
 pub use std::{
-    collections::{
-        HashSet,
-        HashMap,
-        BTreeMap,
-        hash_map,
-    },
-    sync::{Arc, Mutex},
-    ops::Deref,
-    iter::FromIterator,
-    slice::Iter,
+    collections::{hash_map, BTreeMap, HashMap, HashSet},
     error::Error,
+    fs, io,
+    iter::FromIterator,
+    ops::Deref,
+    slice::Iter,
+    sync::{Arc, Mutex},
     time::Duration,
-    io,
-    fs,
 };
 
-pub use anyhow::{Result, Context, bail, anyhow};
+pub use anyhow::{anyhow, bail, Context, Result};
 
-pub use serde::{Serialize, Deserialize};
-pub use ustr::{Ustr, UstrMap, ustr};
 pub use crate::*;
+pub use serde::{Deserialize, Serialize};
+pub use ustr::{ustr, Ustr, UstrMap};
 
 pub use rand::{
-    thread_rng,
-    prelude::*,
-    SeedableRng,
-    rngs::SmallRng,
-    Rng,
+    prelude::*, rngs::SmallRng, thread_rng, Rng, SeedableRng,
 };
 
-pub use derive_more::{Deref, Add, AddAssign, Sum, Mul, MulAssign, Sub, SubAssign, Div, Display, From, Into};
+pub use derive_more::{
+    Add, AddAssign, Deref, Display, Div, From, Into, Mul, MulAssign,
+    Sub, SubAssign, Sum,
+};

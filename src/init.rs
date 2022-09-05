@@ -1,11 +1,11 @@
 use structopt::StructOpt;
 
-use types::prelude::*;
-use types::agent::{Cargo, GraphPosition};
-use types::market::Money;
-use types::{CityHandle, City, Goods, Good};
-use types::market::exchanger::MarketInfo;
-
+use types::{
+    agent::{Cargo, GraphPosition},
+    market::{exchanger::MarketInfo, Money},
+    prelude::*,
+    City, CityHandle, Good, Goods,
+};
 
 #[derive(StructOpt)]
 pub struct Cli {
@@ -66,58 +66,73 @@ enum AgentPositionInput {
     // Edge(String, String),
 }
 
-
 pub fn get_input(args: Cli) -> Result<Input> {
-    let file: std::path::PathBuf = args.file.unwrap_or("testfile.yml".into());
-    let input: Result<Input, _> = serde_yaml::from_reader(
-        io::BufReader::new(
-            fs::File::open(&file).context("Failed to open input file")?
+    let file: std::path::PathBuf =
+        args.file.unwrap_or("testfile.yml".into());
+    let input: Result<Input, _> =
+        serde_yaml::from_reader(io::BufReader::new(
+            fs::File::open(&file)
+                .context("Failed to open input file")?,
         ))
         .context("Failed to serialize input");
     match input {
-        ok @ Ok(_) => {
-            ok
-        }
+        ok @ Ok(_) => ok,
         e @ Err(_) => {
             let reader = io::BufReader::new(fs::File::open(&file)?);
-            let json_val: serde_json::Value = serde_yaml::from_reader(reader)?;
+            let json_val: serde_json::Value =
+                serde_yaml::from_reader(reader)?;
             println!("{}", serde_json::to_string_pretty(&json_val)?);
-            e.with_context(|| format!("Failed to open input file {:?}", &file))
+            e.with_context(|| {
+                format!("Failed to open input file {:?}", &file)
+            })
         }
     }
 }
 
-pub fn init(
-    input: Res<Input>,
-    mut commands: Commands,
-) -> Result<()> {
-    let goods = Goods(input.scenario.cities.iter()
-        .flat_map(|c| c.market.keys())
-        .cloned()
-        .collect());
+pub fn init(input: Res<Input>, mut commands: Commands) -> Result<()> {
+    let goods = Goods(
+        input
+            .scenario
+            .cities
+            .iter()
+            .flat_map(|c| c.market.keys())
+            .cloned()
+            .collect(),
+    );
     let agents = input.scenario.agents.clone().unwrap_or_else(|| {
-        let random_agent_kind = input.scenario.random_agents.as_ref().expect("Must specify either agents or random_agents in config");
+        let random_agent_kind = input
+            .scenario
+            .random_agents
+            .as_ref()
+            .expect("Must specify either agents or random_agents in config");
         match random_agent_kind {
             RandAgentKind::Uniform(num) => {
                 let mut count = 0;
-                input.scenario.cities.iter()
+                input
+                    .scenario
+                    .cities
+                    .iter()
                     .flat_map(|city| {
                         let name = city.name;
-                        (0..*num).map(|_| {
-                            count += 1;
-                            let count_str = count.to_string();
-                            AgentInput {
-                                name: Ustr::from(("Clara_".to_string() + count_str.as_str()).as_str()),
-                                position: AgentPositionInput::Node(name),
-                            }
-                        })
+                        (0..*num)
+                            .map(|_| {
+                                count += 1;
+                                let count_str = count.to_string();
+                                AgentInput {
+                                    name: Ustr::from(
+                                        ("Clara_".to_string() + count_str.as_str()).as_str(),
+                                    ),
+                                    position: AgentPositionInput::Node(name),
+                                }
+                            })
                             .collect::<Vec<_>>()
                     })
                     .collect()
             }
         }
     });
-    let cities_to_handles = init_cities(&mut commands, &input.scenario.cities)?;
+    let cities_to_handles =
+        init_cities(&mut commands, &input.scenario.cities)?;
     init_agents(&mut commands, &agents, &cities_to_handles, &goods)?;
 
     commands.insert_resource(goods);
@@ -135,16 +150,24 @@ fn init_agents(
         // - Agent - GraphPosition - Cargo - Money
         let graph_pos: GraphPosition = match agent.position {
             AgentPositionInput::Node(city) => {
-                let city_handle = cities_to_handles.get(&City { name: city })
+                let city_handle = cities_to_handles
+                    .get(&City { name: city })
                     .context("Agent input has non-existent city")?;
                 GraphPosition::Node(*city_handle)
             }
         };
         commands.spawn().insert_bundle((
-            types::agent::Agent { name: ustr(&agent.name) },
+            types::agent::Agent {
+                name: ustr(&agent.name),
+            },
             graph_pos,
             Cargo {
-                good: all_goods.0.iter().choose(&mut rng).unwrap().clone(),
+                good: all_goods
+                    .0
+                    .iter()
+                    .choose(&mut rng)
+                    .unwrap()
+                    .clone(),
                 amt: 1,
             },
             Money(20.),
@@ -158,30 +181,45 @@ pub fn init_cities(
     input_cities: &Vec<CityInput>,
 ) -> Result<HashMap<City, CityHandle>> {
     let mut rng = SmallRng::from_entropy();
-    let cities: Vec<CityHandle> = input_cities.iter().map(|city| {
-        let info: City = city.name.into();
-        let entity = commands.spawn_bundle((
-            info,
-            city.market[&"Grain".into()].clone()
-        ))
-            .insert(types::GridPosition::from(city.pos
-                .unwrap_or_else(|| Vec2::from((
-                    rng.gen::<f32>() * 10.,
-                    rng.gen::<f32>() * 10., )))))
-            .id();
+    let cities: Vec<CityHandle> = input_cities
+        .iter()
+        .map(|city| {
+            let info: City = city.name.into();
+            let entity = commands
+                .spawn_bundle((
+                    info,
+                    city.market[&"Grain".into()].clone(),
+                ))
+                .insert(types::GridPosition::from(
+                    city.pos.unwrap_or_else(|| {
+                        Vec2::from((
+                            rng.gen::<f32>() * 10.,
+                            rng.gen::<f32>() * 10.,
+                        ))
+                    }),
+                ))
+                .id();
 
-        return CityHandle { entity, city: info };
-    })
+            return CityHandle { entity, city: info };
+        })
         .collect();
 
-    let name_to_ch: HashMap<Ustr, CityHandle> = cities.iter()
-        .map(|ch| (ch.city.name, *ch)).collect();
+    let name_to_ch: HashMap<Ustr, CityHandle> =
+        cities.iter().map(|ch| (ch.city.name, *ch)).collect();
 
-    let links: HashMap<CityHandle, Vec<CityHandle>> = input_cities.iter()
-        .map(|c| (
-            name_to_ch[&c.name],
-            c.links.iter().flat_map(|l| name_to_ch.get(l)).cloned().collect(),
-        )).collect();
+    let links: HashMap<CityHandle, Vec<CityHandle>> = input_cities
+        .iter()
+        .map(|c| {
+            (
+                name_to_ch[&c.name],
+                c.links
+                    .iter()
+                    .flat_map(|l| name_to_ch.get(l))
+                    .cloned()
+                    .collect(),
+            )
+        })
+        .collect();
 
     // validate that every edge is bi-directional
     for (src, dsts) in links.iter() {
@@ -200,7 +238,9 @@ pub fn init_cities(
     let mut cities_to_entities = HashMap::with_capacity(links.len());
     // add links
     for (src, links) in links.into_iter() {
-        commands.entity(src.entity).insert(types::LinkedCities(links));
+        commands
+            .entity(src.entity)
+            .insert(types::LinkedCities(links));
         cities_to_entities.insert(src.city, src);
     }
     commands.insert_resource(cities_to_entities.clone());

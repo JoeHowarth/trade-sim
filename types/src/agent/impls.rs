@@ -1,9 +1,5 @@
+use crate::{agent::*, prelude::*, *};
 use std::fmt::write;
-use crate::{
-    prelude::*,
-    agent::*,
-    *,
-};
 
 impl GraphPosition {
     pub fn city(&self) -> Option<CityHandle> {
@@ -13,7 +9,10 @@ impl GraphPosition {
         }
     }
     pub fn city_res(&self) -> Result<CityHandle> {
-        self.city().context(format!("Expected position to be city, found {}", self))
+        self.city().context(format!(
+            "Expected position to be city, found {}",
+            self
+        ))
     }
     pub fn edge(&self) -> Option<(CityHandle, CityHandle)> {
         match self {
@@ -22,7 +21,10 @@ impl GraphPosition {
         }
     }
     pub fn edge_res(&self) -> Result<(CityHandle, CityHandle)> {
-        self.edge().context(format!("Expected position to be edge, found {}", self))
+        self.edge().context(format!(
+            "Expected position to be edge, found {}",
+            self
+        ))
     }
 }
 
@@ -42,7 +44,9 @@ impl std::fmt::Display for GraphPosition {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             GraphPosition::Node(city) => write!(f, "{}", city.city),
-            GraphPosition::Edge(to, from) => write!(f, "{} <--> {}", to.city, from.city),
+            GraphPosition::Edge(to, from) => {
+                write!(f, "{} <--> {}", to.city, from.city)
+            }
         }
     }
 }

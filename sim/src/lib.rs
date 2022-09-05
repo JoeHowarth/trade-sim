@@ -1,18 +1,23 @@
 #![allow(unused_imports, dead_code)]
 
-use types::agent::{AgentHandle, Cargo, GraphPosition};
-use types::prelude::*;
-use types::City;
-use types::market::exchanger::{DryRunExchanger, MarketInfo};
-use types::market::Money;
-use types::Order;
-use types::query_like::QueryLike;
-use crate::movement::transition_movement;
-use crate::order_clearing::{Failed, transition_order};
+use crate::{
+    movement::transition_movement,
+    order_clearing::{transition_order, Failed},
+};
+use types::{
+    agent::{AgentHandle, Cargo, GraphPosition},
+    market::{
+        exchanger::{DryRunExchanger, MarketInfo},
+        Money,
+    },
+    prelude::*,
+    query_like::QueryLike,
+    City, Order,
+};
 
 pub mod agent_behavior;
-pub mod order_clearing;
 pub mod movement;
+pub mod order_clearing;
 
 #[derive(Clone, Debug)]
 pub struct AgentState {
@@ -29,7 +34,8 @@ fn transition_state(
 ) -> Result<AgentState> {
     match action {
         Action::Movement(m) => {
-            let new_location = transition_movement(m, state.location)?;
+            let new_location =
+                transition_movement(m, state.location)?;
             Ok(AgentState {
                 location: new_location,
                 ..*state
@@ -40,33 +46,38 @@ fn transition_state(
             let mut market = DryRunExchanger { inner: market };
             let mut cargo = state.cargo.clone();
             let mut money = state.money.clone();
-            transition_order(order, &mut market, &mut money, &mut cargo)
-                .map(|_| AgentState {
-                    cargo,
-                    money,
-                    ..*state
-                })
+            transition_order(
+                order,
+                &mut market,
+                &mut money,
+                &mut cargo,
+            )
+            .map(|_| AgentState {
+                cargo,
+                money,
+                ..*state
+            })
         }
     }
 }
 
 pub(crate) fn setup_tests() -> bevy::app::App {
-    use bevy::app;
-    use bevy::log::LogPlugin;
-    use bevy::core::CorePlugin;
-    use bevy::diagnostic::DiagnosticsPlugin;
+    use bevy::{
+        app, core::CorePlugin, diagnostic::DiagnosticsPlugin,
+        log::LogPlugin,
+    };
 
     let mut app = App::new();
     app.insert_resource(app::ScheduleRunnerSettings {
-        run_mode: app::RunMode::Once
+        run_mode: app::RunMode::Once,
     })
-        .insert_resource(types::Tick(0))
-        .add_event::<Order>()
-        .add_event::<Failed<Order>>()
-        .add_plugin(LogPlugin)
-        .add_plugin(CorePlugin)
-        .add_plugin(DiagnosticsPlugin)
-        .add_plugin(app::ScheduleRunnerPlugin {});
+    .insert_resource(types::Tick(0))
+    .add_event::<Order>()
+    .add_event::<Failed<Order>>()
+    .add_plugin(LogPlugin)
+    .add_plugin(CorePlugin)
+    .add_plugin(DiagnosticsPlugin)
+    .add_plugin(app::ScheduleRunnerPlugin {});
     app
 }
 
