@@ -16,6 +16,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@bufbuild/connect-web": "^0.1.0",
+    "@bufbuild/protobuf": "^0.0.10",
     "@types/lodash": "^4.14.161",
     "@types/react": "^17.0.35",
     "axios": "^0.21.1",
@@ -29,6 +31,8 @@
     "react-konva": "^16.13.0-6"
   },
   "devDependencies": {
+    "@bufbuild/protoc-gen-connect-web": "^0.1.0",
+    "@bufbuild/protoc-gen-es": "^0.0.10",
     "@parcel/validator-typescript": "^2.0.0-beta.3.1",
     "parcel": "^2.0.0-beta.3.1",
     "process": "^0.11.10",

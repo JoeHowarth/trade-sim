@@ -1,14 +1,27 @@
+use crate::{
+    agent::AgentHandle,
+    market::{
+        money::Money,
+        pricer::{LinearPricer, Pricer},
+    },
+    prelude::*,
+    CityHandle,
+};
 use std::ops::DerefMut;
-use crate::prelude::*;
-use crate::market::{money::Money, pricer::{LinearPricer, Pricer}};
-use crate::CityHandle;
-use crate::agent::AgentHandle;
 
 pub trait Exchanger {
     fn cost(&self, amt: i32) -> Money;
-    fn dry_run_by(&self, wallet: &mut Money, amt: i32) -> Option<Money>;
+    fn dry_run_by(
+        &self,
+        wallet: &mut Money,
+        amt: i32,
+    ) -> Option<Money>;
     fn buy(&mut self, wallet: &mut Money, amt: i32) -> Option<Money>;
-    fn sell(&mut self, wallet: &mut Money, amt: i32) -> Option<Money> {
+    fn sell(
+        &mut self,
+        wallet: &mut Money,
+        amt: i32,
+    ) -> Option<Money> {
         self.buy(wallet, -amt)
     }
 }
@@ -22,7 +35,11 @@ impl<'a, T: Exchanger> Exchanger for DryRunExchanger<'a, T> {
     fn cost(&self, amt: i32) -> Money {
         self.inner.cost(amt)
     }
-    fn dry_run_by(&self, wallet: &mut Money, amt: i32) -> Option<Money> {
+    fn dry_run_by(
+        &self,
+        wallet: &mut Money,
+        amt: i32,
+    ) -> Option<Money> {
         self.inner.dry_run_by(wallet, amt)
     }
     fn buy(&mut self, wallet: &mut Money, amt: i32) -> Option<Money> {
@@ -30,7 +47,9 @@ impl<'a, T: Exchanger> Exchanger for DryRunExchanger<'a, T> {
     }
 }
 
-#[derive(Component, Deserialize, Debug, PartialOrd, PartialEq, Clone)]
+#[derive(
+    Component, Deserialize, Debug, PartialOrd, PartialEq, Clone,
+)]
 pub struct MarketInfo {
     pub consumption: f64,
     pub supply: f64,
@@ -43,7 +62,11 @@ impl Exchanger for Mut<'_, MarketInfo> {
         self.deref().cost(amt)
     }
 
-    fn dry_run_by(&self, wallet: &mut Money, amt: i32) -> Option<Money> {
+    fn dry_run_by(
+        &self,
+        wallet: &mut Money,
+        amt: i32,
+    ) -> Option<Money> {
         self.deref().dry_run_by(wallet, amt)
     }
 
@@ -67,10 +90,18 @@ impl Exchanger for MarketInfo {
         (avg_price * amt as f64).into()
     }
 
-    fn dry_run_by(&self, wallet: &mut Money, amt: i32) -> Option<Money> {
-        if amt == 0 { return Some(0.0.into()); }
+    fn dry_run_by(
+        &self,
+        wallet: &mut Money,
+        amt: i32,
+    ) -> Option<Money> {
+        if amt == 0 {
+            return Some(0.0.into());
+        }
         let cost = self.cost(amt);
-        if cost > *wallet { return None; }
+        if cost > *wallet {
+            return None;
+        }
         *wallet -= cost;
         Some(cost.into())
     }
@@ -96,9 +127,11 @@ impl MarketInfo {
 }
 
 mod tests {
-    use crate::market::pricer::{LinearPricer, Pricer};
-    use crate::market::exchanger::{MarketInfo, Exchanger};
-    use crate::market::Money;
+    use crate::market::{
+        exchanger::{Exchanger, MarketInfo},
+        pricer::{LinearPricer, Pricer},
+        Money,
+    };
 
     #[test]
     fn linear_price_pricer() {
@@ -122,10 +155,19 @@ mod tests {
             let initial_cost = market_info.cost(amt as i32);
             let initial_money = Some(initial_cost.into());
 
-            assert_eq!(market_info.buy(&mut wallet, amt as i32), initial_money);
-            assert_eq!(wallet, starting_balance - initial_money.unwrap());
+            assert_eq!(
+                market_info.buy(&mut wallet, amt as i32),
+                initial_money
+            );
+            assert_eq!(
+                wallet,
+                starting_balance - initial_money.unwrap()
+            );
 
-            assert_eq!(market_info.sell(&mut wallet, amt as i32), initial_money.map(Money::rneg));
+            assert_eq!(
+                market_info.sell(&mut wallet, amt as i32),
+                initial_money.map(Money::rneg)
+            );
             assert_eq!(wallet, starting_balance);
         }
     }

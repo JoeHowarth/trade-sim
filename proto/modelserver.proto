@@ -1,0 +1,65 @@
+syntax = "proto3";
+package modelserver;
+
+service ModelServer {
+  rpc GetLatestModel (LatestModelReq) returns (Model);
+  rpc GetModel (ModelReq) returns (Model);
+  rpc GetVisual (VisualReq) returns (RGraph);
+  rpc SubModels (SubModelReq) returns (stream Model);
+}
+
+message SubModelReq {}
+message VisualReq {}
+message LatestModelReq { }
+message ModelReq { 
+  uint64 tick = 1;
+}
+
+message Model {
+  uint64 tick = 1;
+  map<string, Node> nodes = 2;
+  repeated Edge edges = 3;
+  map<string, Agent> agents = 4;
+}
+
+message Node {
+  string id = 1;
+  map<string, MarketInfo> markets = 2;
+  repeated string links = 3;
+}
+
+message Agent {
+  string id = 1; 
+  string cargo = 2;
+  string location = 3;
+  double money = 4;
+}
+
+message Edge {
+  string from = 1;
+  string to = 2;
+}
+
+message MarketInfo {
+  double supply = 1;
+  double consumption = 2;
+  double production = 3;
+  double price = 4;
+}
+
+message RGraph {
+  map<string, RNode> nodes = 1;
+  repeated Edge edges = 2;
+}
+
+message RNode {
+  int32 x = 1;
+  int32 y = 2;
+  string id = 3;
+  float radius = 4;
+}
+
+message SaveFormat {
+  map<uint64, Model> models = 1;
+  RGraph visual = 2;
+}

@@ -2,9 +2,12 @@ use crate::*;
 use bevy::prelude::Vec2;
 use std::error::Error;
 
-
 impl<'a, T: Into<&'a str>> From<T> for Good {
-    fn from(x: T) -> Self { Good { name: ustr(x.into()) } }
+    fn from(x: T) -> Self {
+        Good {
+            name: ustr(x.into()),
+        }
+    }
 }
 
 impl From<String> for City {

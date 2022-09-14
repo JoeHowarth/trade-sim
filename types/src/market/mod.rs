@@ -1,14 +1,12 @@
 pub mod exchanger;
 pub mod linear_market;
-pub mod pricer;
 pub mod money;
+pub mod pricer;
 
 use crate::{
+    market::exchanger::{Exchanger, MarketInfo},
     prelude::*,
     *,
-    market::{
-        exchanger::{Exchanger, MarketInfo}
-    },
 };
 use std::fmt::Debug;
 
@@ -24,15 +22,23 @@ pub trait Market {
     fn info(&self, good: &Good) -> &Self::MarketInfo;
     // exclusive
     fn info_mut(&mut self, good: &Good) -> &mut Self::MarketInfo;
-    fn buy(&mut self, good: &Good, wallet: &mut Money, amt: i32) -> Option<Money>;
-    fn sell(&mut self, good: &Good, wallet: &mut Money, amt: i32) -> Option<Money> {
+    fn buy(
+        &mut self,
+        good: &Good,
+        wallet: &mut Money,
+        amt: i32,
+    ) -> Option<Money>;
+    fn sell(
+        &mut self,
+        good: &Good,
+        wallet: &mut Money,
+        amt: i32,
+    ) -> Option<Money> {
         self.buy(good, wallet, -amt)
     }
 }
 
 #[derive(Component, From, Debug)]
 pub struct LinearMarket {
-    pub table: HashMap<Good, MarketInfo>
+    pub table: HashMap<Good, MarketInfo>,
 }
-
-

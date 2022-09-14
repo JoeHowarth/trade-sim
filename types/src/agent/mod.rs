@@ -1,13 +1,15 @@
 mod impls;
 
-pub use impls::*;
 use crate::{
+    market::{
+        exchanger::{Exchanger, MarketInfo},
+        LinearMarket, Money,
+    },
     prelude::*,
     *,
 };
+pub use impls::*;
 use rand::prelude::SmallRng;
-use crate::market::exchanger::{MarketInfo, Exchanger};
-use crate::market::{Money, LinearMarket};
 
 /*
 Agent Components:
@@ -23,12 +25,16 @@ pub struct AgentHandle {
     pub entity: Entity,
 }
 
-#[derive(Component, Debug, From, Clone, Eq, PartialEq, Hash, Copy)]
+#[derive(
+    Component, Debug, From, Clone, Eq, PartialEq, Hash, Copy,
+)]
 pub struct Agent {
     pub name: Ustr,
 }
 
-#[derive(Component, Debug, From, Clone, Copy, Eq, PartialEq, Hash)]
+#[derive(
+    Component, Debug, From, Clone, Copy, Eq, PartialEq, Hash,
+)]
 pub struct Cargo {
     pub good: Good,
     pub amt: u32,

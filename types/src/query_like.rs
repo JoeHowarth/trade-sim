@@ -1,27 +1,42 @@
-use bevy::ecs::component::Component;
-use bevy::ecs::query::{Fetch, QueryEntityError, ReadOnlyFetch, WorldQuery};
-use bevy::ecs::system::QueryComponentError;
 use crate::prelude::*;
+use bevy::ecs::{
+    component::Component,
+    query::{Fetch, QueryEntityError, ReadOnlyFetch, WorldQuery},
+    system::QueryComponentError,
+};
 
 pub trait QueryLike<'w, W: WorldQuery> {
-    fn get(&self, entity: Entity) -> Result<<W::ReadOnlyFetch as Fetch>::Item, QueryEntityError>
-        where <W as WorldQuery>::Fetch: ReadOnlyFetch;
+    fn get(
+        &self,
+        entity: Entity,
+    ) -> Result<<W::ReadOnlyFetch as Fetch>::Item, QueryEntityError>
+    where
+        <W as WorldQuery>::Fetch: ReadOnlyFetch;
 
-    fn get_mut(&mut self, entity: Entity) -> Result<<W::Fetch as Fetch>::Item, QueryEntityError>;
-        // where <W as WorldQuery>::Fetch: ;
+    fn get_mut(
+        &mut self,
+        entity: Entity,
+    ) -> Result<<W::Fetch as Fetch>::Item, QueryEntityError>;
+    // where <W as WorldQuery>::Fetch: ;
 
     // fn get_component<T: Component>(&'w self, entity: Entity) -> Result<&T, QueryComponentError>;
 }
 
 impl<'w, 's, Q: WorldQuery> QueryLike<'w, Q> for Query<'w, 's, Q> {
-    fn get(&self, entity: Entity)
-           -> Result<<Q::ReadOnlyFetch as Fetch>::Item, QueryEntityError>
-        where <Q as WorldQuery>::Fetch: ReadOnlyFetch
+    fn get(
+        &self,
+        entity: Entity,
+    ) -> Result<<Q::ReadOnlyFetch as Fetch>::Item, QueryEntityError>
+    where
+        <Q as WorldQuery>::Fetch: ReadOnlyFetch,
     {
         self.get(entity)
     }
 
-    fn get_mut(&mut self, entity: Entity) -> Result<<Q::Fetch as Fetch>::Item, QueryEntityError> {
+    fn get_mut(
+        &mut self,
+        entity: Entity,
+    ) -> Result<<Q::Fetch as Fetch>::Item, QueryEntityError> {
         self.get_mut(entity)
     }
 
@@ -30,12 +45,12 @@ impl<'w, 's, Q: WorldQuery> QueryLike<'w, Q> for Query<'w, 's, Q> {
     // }
 }
 
-
 mod test {
-    use bevy::core::CorePlugin;
-    use bevy::diagnostic::DiagnosticsPlugin;
-    use bevy::log::LogPlugin;
     use super::*;
+    use bevy::{
+        core::CorePlugin, diagnostic::DiagnosticsPlugin,
+        log::LogPlugin,
+    };
 
     #[test]
     fn test1() {
@@ -52,15 +67,15 @@ mod test {
             }
         }
         app.insert_resource(app::ScheduleRunnerSettings {
-            run_mode: app::RunMode::Once
+            run_mode: app::RunMode::Once,
         })
-            .insert_resource(crate::Tick(0))
-            .add_plugin(LogPlugin)
-            .add_plugin(CorePlugin)
-            .add_plugin(DiagnosticsPlugin)
-            .add_plugin(app::ScheduleRunnerPlugin {})
-            .add_startup_system(setup.system())
-            .add_system(load.system());
+        .insert_resource(crate::Tick(0))
+        .add_plugin(LogPlugin)
+        .add_plugin(CorePlugin)
+        .add_plugin(DiagnosticsPlugin)
+        .add_plugin(app::ScheduleRunnerPlugin {})
+        .add_startup_system(setup.system())
+        .add_system(load.system());
         app.run();
     }
 
