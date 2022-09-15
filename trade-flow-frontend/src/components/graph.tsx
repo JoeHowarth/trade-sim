@@ -3,7 +3,7 @@ import {
   AgentInfoTable,
   MarketInfoTable,
   View,
-} from "./info_box";
+} from "./info-box";
 import {MovingThing, VisualAgent, VisualEdge, VisualNode} from "./visual";
 import {KonvaEventObject} from "konva/types/node";
 import Canvas from "./canvas";

@@ -12,7 +12,7 @@ import {
   AtPosition,
   CenteredAbove,
   MarketInfoTable,
-} from "./info_box";
+} from "./info-box";
 
 export enum InfoTableMode {
   cities = "cities",

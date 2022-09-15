@@ -1,30 +1,31 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import "react-bulma-components/dist/react-bulma-components.min.css";
-import {Box} from "react-bulma-components";
+import { Box } from "react-bulma-components";
 import Graph from "./graph";
-import {InfoTable, InfoTableMode} from "./info_table";
-import {Api} from "../sim_api";
-import {ErrorBoundary} from "./error_boundary";
-import {Form, Formik, Field} from "formik";
+import { InfoTable, InfoTableMode } from "./info-table";
+import { Api } from "../sim_api";
+import { ErrorBoundary } from "./error-boundary";
+import { Form, Formik, Field } from "formik";
 
 type AppProps = {
   api: Api;
   initialVisual: RGraph;
 };
 
-const App = ({api, initialVisual}: AppProps) => {
+const App = ({ api, initialVisual }: AppProps) => {
   const [tick, setTick] = useState(api.lastModel().tick);
   const [isStarted, setIsStarted] = useState(true);
   const [infoTableMode, setInfoTableMode] = useState(null);
-  const [fetchRate, setFetchRate] = useState(100) // hook this up to an input to allow control
+  const [fetchRate, setFetchRate] = useState(100); // hook this up to an input to allow control
 
   // control fetching the model
   useEffect(() => {
     (async () => {
       if (isStarted) {
         const nextModel = await api.nextModel(fetchRate);
-        setIsStarted(isStarted => {
-          if (isStarted) { // check again after fetching. Is it possible for this callback to observe isStarted changing?
+        setIsStarted((isStarted) => {
+          if (isStarted) {
+            // check again after fetching. Is it possible for this callback to observe isStarted changing?
             setTick((oldTick: number) => {
               console.assert(
                 oldTick < nextModel?.tick,
@@ -33,10 +34,10 @@ const App = ({api, initialVisual}: AppProps) => {
               return nextModel.tick;
             });
           }
-          return isStarted
-        })
+          return isStarted;
+        });
       }
-    })()
+    })();
   }, [tick, isStarted]);
 
   // @ts-ignore
@@ -46,7 +47,7 @@ const App = ({api, initialVisual}: AppProps) => {
         style={{
           zIndex: 2,
           position: "absolute",
-          width: '100%',
+          width: "100%",
           top: 0,
           left: 0,
         }}
@@ -89,13 +90,6 @@ const App = ({api, initialVisual}: AppProps) => {
                   Agent Table
                 </div>
               </div>
-              {/*<div className="level-item">*/}
-              {/*  <Formik initialValues={3000} onSubmit={v => setFetchRate(v)}>*/}
-              {/*    <Form>*/}
-              {/*      <Field name="rate" type="text"/>*/}
-              {/*    </Form>*/}
-              {/*  </Formik>*/}
-              {/*</div>*/}
             </div>
           </div>
         </Box>
@@ -129,6 +123,5 @@ const App = ({api, initialVisual}: AppProps) => {
     </>
   );
 };
-
 
 export default App;
