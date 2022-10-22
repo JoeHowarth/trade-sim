@@ -1,6 +1,7 @@
 import { flatMapDeep } from "lodash";
 import React, { useMemo, useState } from "react";
 import BasicTable from "./basic-table";
+import OverlayWindow from "./overlay-window";
 import TopControlBar from "./top-control-bar";
 
 const DEFAULT_TICK_PER_SECOND = 1;
@@ -17,7 +18,7 @@ function MainView({
   agents: MAgent[];
   nodes: MNode[];
 }): JSX.Element {
-  const [activeView, setActiveView] = useState<View | null>(null);
+  const [activeView, setActiveView] = useState<View | null>(View.Agents);
   const [ticksPerSecond, setTicksPerSecond] = useState(DEFAULT_TICK_PER_SECOND);
   const [isPlaying, setIsPlaying] = useState(true);
 
@@ -44,8 +45,8 @@ function MainView({
     return { ...markets, city: n.id };
   });
   const views = {
-    [View.Agents]: () => BasicTable({ defaultData: [...agents] }),
-    [View.Cities]: () => BasicTable({ defaultData: citiesView }),
+    [View.Agents]: () => <BasicTable defaultData={[...agents]} />,
+    [View.Cities]: () => <BasicTable defaultData={citiesView} />,
   };
 
   return (
@@ -63,7 +64,11 @@ function MainView({
         }
         views={Object.values(View)}
       />
-      {activeView ? views[activeView]() : null}
+      {views[activeView] ? (
+        <OverlayWindow title={activeView} onClickExit={() => {}}>
+          {views[activeView]()}
+        </OverlayWindow>
+      ) : null}
     </>
   );
 }
