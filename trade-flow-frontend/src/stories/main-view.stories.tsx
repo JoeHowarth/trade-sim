@@ -4,6 +4,8 @@ import { ComponentMeta } from "@storybook/react";
 import TopControlBar from "./top-control-bar";
 import MainView from "./main-view";
 import { CanvasWithOverlay } from "./canvas";
+import OverlayWindow from "./overlay-window";
+import { Circle } from "react-konva";
 
 export default {
   title: "MainView",
@@ -22,6 +24,11 @@ const args: Parameters<typeof MainView>[0] = {
   agents: [{ id: "Bob", cargo: "Wheat", location: "Berlin", money: 120 }],
   nodes: [
     { id: "Berlin", links: [], markets: new Map([["Wheat", marketInfo]]) },
+    {
+      id: "Saint Petersberg",
+      links: [],
+      markets: new Map([["Wheat", { ...marketInfo, price: 1 }]]),
+    },
   ],
 };
 Main.args = args;
@@ -39,7 +46,7 @@ export const Template2 = (args) => {
           title={args.title}
           onClickExit={() => setClicked((x) => !x)}
         >
-          {args.children}
+          <MainView {...args}></MainView>
         </OverlayWindow>
       )}
       children={[
@@ -55,3 +62,4 @@ export const Template2 = (args) => {
     />
   );
 };
+Template2.args = args

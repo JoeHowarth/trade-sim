@@ -25,6 +25,7 @@ export const CanvasWithOverlay = (props: {
   domStyle?: Record<string, number | string>
 }) => {
   const { children, OverlayDom } = props;
+  console.log(OverlayDom)
   const containerRef = useRef(null);
   const [{ width, height }, setWidthHeight] = useState({ width: 0, height: 0 });
   useEffect(() => {
@@ -63,7 +64,7 @@ export const CanvasWithOverlay = (props: {
           ...props.domStyle
         }}
       >
-        <OverlayDom/>
+      <OverlayDom/>
       </div>
     </div>
   );

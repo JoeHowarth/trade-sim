@@ -9,6 +9,9 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
+// TODO: If element width changes quickly, table jerks around visually
+// Ideas: track max width seen
+
 function BasicTable<RData>({
   columns,
   defaultData,
@@ -29,10 +32,8 @@ function BasicTable<RData>({
       header: capitalize(key),
       accessorKey: key,
     }));
-    console.log("derived", _columns);
+    // console.log("derived", _columns);
   }
-  // const [data] = React.useState(() => [...defaultData]);
-  // const rerender = React.useReducer(() => ({}), {})[1];
 
   const table = useReactTable({
     data,
@@ -62,7 +63,12 @@ function BasicTable<RData>({
         {table.getRowModel().rows.map((row) => (
           <tr key={row.id}>
             {row.getVisibleCells().map((cell) => (
-              <td key={cell.id}>
+              <td
+                className={
+                  typeof cell.getValue() === "number" ? "has-text-right" : ""
+                }
+                key={cell.id}
+              >
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </td>
             ))}

@@ -10,7 +10,7 @@ export default {
   component: CanvasWithOverlay,
 } as ComponentMeta<typeof Canvas>;
 
-export const Template = (args) => (
+const Template = (args: {OverlayDom: () => any, children:any}) => (
   <CanvasWithOverlay OverlayDom={args.OverlayDom} children={args.children} />
 );
 
@@ -28,7 +28,7 @@ Main.args = {
   ),
   OverlayDom: () => (
     <div>
-      <Button>"Click me!</Button>
+      <Button onClick={() => console.log("button clicked")}>"Click me!</Button>
       <p style={{ width: "fit-content", border: "1px solid black" }}>
         A bunch of text to make the window longer
       </p>

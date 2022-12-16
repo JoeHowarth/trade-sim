@@ -42,7 +42,7 @@ function MainView({
         return [good, info.price];
       })
     );
-    return { ...markets, city: n.id };
+    return { city: n.id, ...markets, };
   });
   const views = {
     [View.Agents]: () => <BasicTable defaultData={[...agents]} />,
@@ -65,7 +65,7 @@ function MainView({
         views={Object.values(View)}
       />
       {views[activeView] ? (
-        <OverlayWindow title={activeView} onClickExit={() => {}}>
+        <OverlayWindow title={activeView} onClickExit={() => setActiveView(null)}>
           {views[activeView]()}
         </OverlayWindow>
       ) : null}

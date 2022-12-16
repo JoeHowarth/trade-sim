@@ -5,7 +5,7 @@ import BasicTable from "./basic-table";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 
 export default {
-  title: "InfoBox",
+  title: "BasicTable",
   component: BasicTable,
 } as ComponentMeta<typeof BasicTable>;
 
@@ -29,7 +29,7 @@ const defaultData: Person[] = [
     progress: 80,
   },
   {
-    firstName: "Joe",
+    firstName: "Bob",
     lastName: "dirte",
     age: 45,
     visits: 20,
@@ -75,10 +75,10 @@ Primary.args = {
 export const ChangingProps = (args) => {
   const [i, setI] = useState(0);
   useEffect(() => {
-    setInterval(() => setI((i) => i + 1), 500);
+    setInterval(() => setI((i) => i + 1), 1000);
   }, []);
   const data = defaultData.map(r => {
-    return {...r, age: i}
+    return {...r, age: i + Math.pow(2, Math.floor(Math.random() * 30))}
   })
   return <BasicTable defaultData={data} columns={columns}></BasicTable>
 };

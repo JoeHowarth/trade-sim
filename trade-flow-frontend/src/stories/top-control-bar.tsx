@@ -76,9 +76,6 @@ function TopControlBar<View extends string>(
               </Icon>
             </Button>
           </Level.Item>
-          <Level.Item>
-            <Button remove onClick={onClickExit}></Button>
-          </Level.Item>
         </Level.Side>
       </Level>
     </Box>
