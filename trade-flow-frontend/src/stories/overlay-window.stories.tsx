@@ -21,14 +21,14 @@ export const Template = (args) => {
         top: 20,
         left: 20,
       }}
-      OverlayDom={() => (
+      OverlayDom={[
         <OverlayWindow
           title={args.title}
           onClickExit={() => setClicked((x) => !x)}
         >
           {args.children}
-        </OverlayWindow>
-      )}
+        </OverlayWindow>,
+      ]}
       children={[
         <Circle
           radius={100}
@@ -76,8 +76,8 @@ Table.args = {
         columnHelper.accessor("amount", { header: "Amount" }),
       ]}
       defaultData={[
-        {name: "Wheat", price: 23, amount: 1520},
-        {name: "Wood", price: 50, amount: 250}
+        { name: "Wheat", price: 23, amount: 1520 },
+        { name: "Wood", price: 50, amount: 250 },
       ]}
     />
   ),
@@ -88,8 +88,8 @@ TableNoColumns.args = {
   children: (
     <BasicTable
       defaultData={[
-        {name: "Wheat", price: 23, amount: 1520},
-        {name: "Wood", price: 50, amount: 250}
+        { name: "Wheat", price: 23, amount: 1520 },
+        { name: "Wood", price: 50, amount: 250 },
       ]}
     />
   ),

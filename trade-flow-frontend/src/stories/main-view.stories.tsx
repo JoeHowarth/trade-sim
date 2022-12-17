@@ -19,8 +19,14 @@ const marketInfo: MarketInfo = {
   supply: 2,
 };
 
+let isPlaying = true;
+
 export const Main = MainView.bind({});
 const args: Parameters<typeof MainView>[0] = {
+  tick: 2,
+  setTickRate: (f) => f(1),
+  setIsPlaying: (f) => f(isPlaying),
+  isPlaying: isPlaying,
   agents: [{ id: "Bob", cargo: "Wheat", location: "Berlin", money: 120 }],
   nodes: [
     { id: "Berlin", links: [], markets: new Map([["Wheat", marketInfo]]) },

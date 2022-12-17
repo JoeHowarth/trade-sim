@@ -1,5 +1,9 @@
 import {useEffect, useRef} from 'react'
 
+export function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
 export function useTraceUpdate(props) {
   const prev = useRef(props);
   useEffect(() => {

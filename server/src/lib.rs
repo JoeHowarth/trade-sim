@@ -236,7 +236,7 @@ fn save_state_to_file(
 pub fn start_model_worker(
     mut state: mpsc::UnboundedReceiver<State>,
     model_list: ModelHandle,
-    model_stream_sender: broadcast::Sender<Arc<Model>>,
+    _model_stream_sender: broadcast::Sender<Arc<Model>>,
     rgraph: Arc<types::utility::ReadIfSet<modelserver::RGraph>>,
 ) -> AbortHandle {
     let (abort_handle, abort_registration) = AbortHandle::new_pair();
