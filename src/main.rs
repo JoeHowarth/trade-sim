@@ -8,7 +8,7 @@ use bevy::{
     diagnostic::DiagnosticsPlugin,
     log::{LogPlugin, LogSettings},
 };
-use std::time::Duration;
+use std::{borrow::Cow, time::Duration};
 use tokio::sync::mpsc;
 
 use crate::init::Cli;
@@ -102,16 +102,17 @@ fn build_app(
 fn wrap<T: System<In = (), Out = Result<()>>>(
     inner: T,
 ) -> impl System<In = (), Out = ()> {
-    inner.chain(error_handler_system::<T>.system())
+    let name = inner.name();
+    inner.chain(error_handler_system::<T>(name).system())
 }
 
-fn error_handler_system<T: System>(In(result): In<Result<()>>) {
-    if let Err(err) = result {
-        error!(
-            "Error from system {}:\n{}",
-            std::any::type_name::<T>(),
-            err
-        );
+fn error_handler_system<T: System>(
+    name: Cow<str>,
+) -> impl Fn(In<Result<()>>) + '_ {
+    move |In(result)| {
+        if let Err(err) = result {
+            error!("Error from system {}:\n{}", name, err);
+        }
     }
 }
 

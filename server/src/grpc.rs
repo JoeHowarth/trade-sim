@@ -2,9 +2,10 @@ use crate::{
     modelserver::{model_server_server::ModelServer, *},
     ModelHandle,
 };
-use futures::{StreamExt, TryStreamExt};
-use tokio_stream::wrappers::BroadcastStream;
-use std::sync::{Arc, RwLock};
+use std::{
+    pin::Pin,
+    sync::{Arc},
+};
 use tonic::Response;
 use tracing::info;
 use types::utility::ReadIfSet;
@@ -45,7 +46,7 @@ impl ModelServer for ModelServerImpl {
     > {
         info!("Got a request: {:?}", request);
         let ModelReq { tick } = request.into_inner();
-        let models: &[Model] = &self
+        let models: &[Arc<Model>] = &self
             .models
             .read()
             .map_err(|e: _| tonic::Status::internal(e.to_string()))?;
@@ -72,21 +73,37 @@ impl ModelServer for ModelServerImpl {
         Ok(Response::new(visual.clone()))
     }
 
-    type SubModelsStream = futures::stream::Map<BroadcastStream<Arc<Model>>, impl Fn(Arc<Model>) -> Result<Model, tonic::Status>>;
+    // type SubModelsStream = futures::stream::Map<BroadcastStream<Arc<Model>>, impl Fn(std::result::Result<std::sync::Arc<Model>, BroadcastStreamRecvError>) -> Result<Model, tonic::Status>>;
+    type SubModelsStream = Pin<
+        Box<
+            dyn futures::Stream<Item = Result<Model, tonic::Status>>
+                + Send
+                + 'static,
+        >,
+    >;
 
     async fn sub_models(
         &self,
-        request: tonic::Request<crate::modelserver::SubModelReq>,
+        _request: tonic::Request<crate::modelserver::SubModelReq>,
     ) -> Result<tonic::Response<Self::SubModelsStream>, tonic::Status>
     {
-        info!("Got a request: {:?}", request);
-        let rx_stream: BroadcastStream<Arc<Model>> =
-            BroadcastStream::new(
-                self.model_broadcast_spawner.subscribe(),
-            );
-        let mapped: _ = rx_stream
-            .map(|m| Ok(Model::clone(&m)))
-            .map_err(|e| tonic::Status::internal(e.to_string()));
-        Ok(Response::new(mapped))
+        let m = self
+            .models
+            .read()
+            .map_err(|e| tonic::Status::internal(e.to_string()))?;
+        let m1: Vec<Arc<Model>> = m.clone();
+        let iter = m1.into_iter().map(|m| Ok(Model::clone(&m)));
+
+        let stream = Pin::new(Box::new(futures::stream::iter(iter)));
+        Ok(Response::new(stream))
+        // info!("Got a request: {:?}", request);
+        // let rx_stream: BroadcastStream<Arc<Model>> =
+        //     BroadcastStream::new(
+        //         self.model_broadcast_spawner.subscribe(),
+        //     );
+        // let mapped: _ = rx_stream
+        //     .map(|m| Ok(Model::clone(&m.unwrap())))
+        //     .map_err(|e| tonic::Status::internal(e.to_string()));
+        // Ok(Response::new(mapped))
     }
 }

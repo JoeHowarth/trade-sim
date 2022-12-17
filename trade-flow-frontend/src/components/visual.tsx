@@ -1,15 +1,15 @@
-import React, {useState} from "react";
-import {Circle, Line, Ring} from "react-konva";
-import {KonvaEventObject} from "konva/types/node";
-import {transform} from "./info_box";
+import React, { useState } from "react";
+import { Circle, Line, Ring } from "react-konva";
+import { KonvaEventObject } from "konva/types/node";
+import { transform } from "./info-box";
 
 export const MovingThing = () => {
-  const [node, setNode] = useState(null)
+  const [node, setNode] = useState(null);
   // console.log(node)
   return (
     <Circle
       radius={5}
-      ref={n => setNode(n)}
+      ref={(n) => setNode(n)}
       x={500}
       y={500}
       fill="red"
@@ -17,57 +17,63 @@ export const MovingThing = () => {
         node.to({
           x: Math.random() * 200 + 200,
           y: Math.random() * 200 + 200,
-        })
+        });
       }}
     />
-  )
-}
+  );
+};
 
 export const VisualAgent = (props: {
-  agent: RAgent, onClick?(e: KonvaEventObject<any>): void
+  agent: RAgent;
+  onClick?(e: KonvaEventObject<any>): void;
 }) => {
-  const {agent} = props
-  const [pos, setPos] = useState<Point>(agent)
-  const [node, setNode] = useState(null)
+  const { agent } = props;
+  const [pos, setPos] = useState<Point>(agent);
+  const [node, setNode] = useState(null);
   const [offset, setOffset] = useState({
     x: Math.random() * 8 - 4,
     y: Math.random() * 8 - 4,
-  })
+  });
   if (node) {
-    console.log("animate agent")
+    console.log("animate agent");
     node.to({
       ...transform(agent, offset),
       duration: 1,
-      onFinish: () => setPos(agent)
-    })
+      onFinish: () => setPos(agent),
+    });
   }
   return (
     <Ring
-      ref={node => setNode(node)}
+      ref={(node) => setNode(node)}
       {...transform(pos, offset)}
       innerRadius={4}
       outerRadius={7}
       fill={props.agent.fill ? props.agent.fill : "red"}
       onClick={props.onClick}
     />
-  )
-}
+  );
+};
 
-export const VisualEdge = ({edge}: { edge: REdge }) => {
+export const VisualEdge = ({ edge }: { edge: REdge }) => {
   return (
     <Line
       strokeWidth={2}
       stroke="gray"
-      points={[edge.nodes[0].x, edge.nodes[0].y, edge.nodes[1].x, edge.nodes[1].y]}
+      points={[
+        edge.nodes[0].x,
+        edge.nodes[0].y,
+        edge.nodes[1].x,
+        edge.nodes[1].y,
+      ]}
     />
   );
 };
 
 export const VisualNode = (props: {
-  node: RNode,
-  price: number,
-  onClick,
-  onDragEnd(e: KonvaEventObject<DragEvent>): void,
+  node: RNode;
+  price: number;
+  onClick;
+  onDragEnd(e: KonvaEventObject<DragEvent>): void;
 }) => {
   return (
     <Circle
