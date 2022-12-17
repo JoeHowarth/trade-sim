@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
-import "react-bulma-components/dist/react-bulma-components.min.css";
+import "bulma/css/bulma.min.css";
+// import "react-bulma-components/dist/react-bulma-components.min.css";
 import { Box } from "react-bulma-components";
 import Graph from "./graph";
 import { InfoTable, InfoTableMode } from "./info-table";
 import { Api } from "../sim_api";
 import { ErrorBoundary } from "./error-boundary";
 import { Form, Formik, Field } from "formik";
+import { CanvasWithOverlay } from "../stories/canvas";
+import MainView from "../stories/main-view";
+import { Circle } from "react-konva";
 
 type AppProps = {
   api: Api;
@@ -13,33 +17,62 @@ type AppProps = {
 };
 
 const App = ({ api, initialVisual }: AppProps) => {
-  const [tick, setTick] = useState(api.lastModel().tick);
+  // const [targetTick, setTargetTick] = useState(api.lastModel().tick);
   const [isStarted, setIsStarted] = useState(true);
-  const [infoTableMode, setInfoTableMode] = useState(null);
-  const [fetchRate, setFetchRate] = useState(100); // hook this up to an input to allow control
+  const [tickRate, setTickRate] = useState(1000);
+  const [model, setModel] = useState<undefined | Model>(undefined);
 
-  // control fetching the model
+  // control the desired tick
   useEffect(() => {
-    (async () => {
-      if (isStarted) {
-        const nextModel = await api.nextModel(fetchRate);
-        setIsStarted((isStarted) => {
-          if (isStarted) {
-            // check again after fetching. Is it possible for this callback to observe isStarted changing?
-            setTick((oldTick: number) => {
-              console.assert(
-                oldTick < nextModel?.tick,
-                "Expected old tick to be < nextModel.tick"
-              );
-              return nextModel.tick;
-            });
-          }
-          return isStarted;
-        });
-      }
-    })();
-  }, [tick, isStarted]);
+    let shouldSet = true;
+    if (!isStarted) {
+      return;
+    }
+    // fire off the request early
+    const modelPromise = api.fetchModel((model?.tick || 0) + 1, true);
 
+    setTimeout(async () => {
+      if (shouldSet && (await modelPromise)) {
+        setModel(await modelPromise);
+      }
+    }, tickRate);
+    return () => {
+      shouldSet = false; // "cancel" the timout if a dependency changes
+    };
+  }, [isStarted, model, tickRate]);
+
+  return (
+    <CanvasWithOverlay
+      domStyle={{ padding: 20 }}
+      OverlayDom={[
+        model ? (
+          <MainView
+            isPlaying={isStarted}
+            setIsPlaying={setIsStarted}
+            setTickRate={setTickRate}
+            tick={model.tick}
+            agents={Array.from(model.agents.values())}
+            nodes={Array.from(model.nodes.values())}
+          ></MainView>
+        ) : (
+          "Loading..."
+        ),
+      ]}
+      children={[
+        <Circle
+          radius={100}
+          fill={"red"}
+          x={100}
+          y={100}
+          draggable
+          onClick={(e) => console.log("clicked", e)}
+        />,
+      ]}
+    />
+  );
+};
+
+/*
   // @ts-ignore
   return (
     <>
@@ -123,5 +156,6 @@ const App = ({ api, initialVisual }: AppProps) => {
     </>
   );
 };
+*/
 
 export default App;

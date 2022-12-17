@@ -1,5 +1,5 @@
 settings:
-  loop_rate: 1000
+  loop_rate: 5000
 scenario:
   random_agents:
     Uniform:

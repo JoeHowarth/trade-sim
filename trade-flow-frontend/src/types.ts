@@ -70,14 +70,14 @@ interface Model {
   agents: Map<AgentId, MAgent>;
 }
 
-interface SimApi {
-  fetchModel(tick: number): Promise<Model>;
-  fetchModels(): Promise<Models>;
-  nextModel(fetchRate?: number): Promise<Model>;
+// interface SimApi {
+//   fetchModel(tick: number): Promise<Model>;
+//   fetchModels(): Promise<Models>;
+//   nextModel(fetchRate?: number): Promise<Model>;
 
-  getModel(tick: number): Model|undefined
-  getModels(): Models
-  lastModel(): Model;
+//   getModel(tick: number): Model|undefined
+//   getModels(): Models
+//   lastModel(): Model;
 
-  initialState(): Promise<{ visual: RGraph; model: Model }>;
-}
+//   initialState(): Promise<{ visual: RGraph; model: Model }>;
+// }

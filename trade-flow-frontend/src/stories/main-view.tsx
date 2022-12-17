@@ -13,15 +13,21 @@ enum View {
 }
 
 function MainView({
+  isPlaying,
+  setIsPlaying,
+  setTickRate,
+  tick,
   agents,
   nodes,
 }: {
+  isPlaying: boolean,
+  setIsPlaying: (x: (isPlaying: boolean) => boolean) => void;
+  setTickRate: (x: (tickRate: number) => number) => void;
+  tick: number;
   agents: MAgent[];
   nodes: MNode[];
 }): JSX.Element {
   const [activeView, setActiveView] = useState<View | null>(View.Agents);
-  const [ticksPerSecond, setTicksPerSecond] = useState(DEFAULT_TICK_PER_SECOND);
-  const [isPlaying, setIsPlaying] = useState(true);
 
   // const views = useMemo(() => {
   //   const citiesView = nodes.map((n) => {
@@ -55,11 +61,11 @@ function MainView({
       <TopControlBar
         title="Trade Sim"
         onClickExit={() => console.log("Exit clicked")}
-        tick={0}
+        tick={tick}
         isPaused={!isPlaying}
         togglePlay={() => setIsPlaying((x) => !x)}
-        faster={() => setTicksPerSecond((t) => t * 1.5)}
-        slower={() => setTicksPerSecond((t) => t / 1.5)}
+        faster={() => setTickRate((t) => t / 1.5)}
+        slower={() => setTickRate((t) => t * 1.5)}
         setActiveView={(clicked) =>
           setActiveView((active) => (clicked === active ? null : clicked))
         }
