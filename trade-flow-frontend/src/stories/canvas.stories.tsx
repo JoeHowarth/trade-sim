@@ -1,5 +1,5 @@
 import React from "react";
-import 'bulma/css/bulma.min.css'
+import "bulma/css/bulma.min.css";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
 import Canvas, { CanvasWithOverlay } from "./canvas";
 import { Circle } from "react-konva";
@@ -10,8 +10,12 @@ export default {
   component: CanvasWithOverlay,
 } as ComponentMeta<typeof Canvas>;
 
-const Template = (args: {OverlayDom: () => any, children:any}) => (
-  <CanvasWithOverlay OverlayDom={args.OverlayDom} children={args.children} />
+const Template = (args: { OverlayDom: React.ReactNode[]; children: any }) => (
+  <CanvasWithOverlay
+    OverlayDom={args.OverlayDom}
+    children={args.children}
+    border={true}
+  />
 );
 
 export const Main = Template.bind({});
@@ -26,12 +30,15 @@ Main.args = {
       onClick={(e) => console.log("clicked", e)}
     />
   ),
-  OverlayDom: () => (
-    <div>
-      <Button onClick={() => console.log("button clicked")}>"Click me!</Button>
-      <p style={{ width: "fit-content", border: "1px solid black" }}>
-        A bunch of text to make the window longer
-      </p>
-    </div>
-  ),
+  OverlayDom: [
+    <Button
+      style={{ pointerEvents: "auto" }}
+      onClick={() => console.log("button clicked")}
+    >
+      "Click me!
+    </Button>,
+    <p style={{ width: "fit-content", border: "1px solid black" }}>
+      A bunch of text to make the window longer
+    </p>,
+  ],
 };

@@ -37,18 +37,8 @@ export const Template2 = (args) => {
   const [clicked, setClicked] = useState(false);
   return (
     <CanvasWithOverlay
-      domStyle={{
-        top: 20,
-        left: 20,
-      }}
-      OverlayDom={() => (
-        <OverlayWindow
-          title={args.title}
-          onClickExit={() => setClicked((x) => !x)}
-        >
-          <MainView {...args}></MainView>
-        </OverlayWindow>
-      )}
+      domStyle={{ padding: 20 }}
+      OverlayDom={[<MainView {...args}></MainView>]}
       children={[
         <Circle
           radius={100}
@@ -62,4 +52,4 @@ export const Template2 = (args) => {
     />
   );
 };
-Template2.args = args
+Template2.args = args;

@@ -35,6 +35,7 @@ function TopControlBar<View extends string>(
     <Box
       style={{
         width: "100%",
+        pointerEvents: "auto",
         borderBottom: "2px solid #DDD",
       }}
     >

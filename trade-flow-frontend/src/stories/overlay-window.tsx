@@ -15,6 +15,7 @@ function OverlayWindow({
       style={{
         maxWidth: 400,
         border: "1px solid #DDD",
+        pointerEvents: "auto",
       }}
     >
       <Level style={{ borderBottom: "2px solid #AAA", paddingBottom: 5 }}>

@@ -1,5 +1,6 @@
 import { flatMapDeep } from "lodash";
 import React, { useMemo, useState } from "react";
+import { Box } from "react-bulma-components";
 import BasicTable from "./basic-table";
 import OverlayWindow from "./overlay-window";
 import TopControlBar from "./top-control-bar";
@@ -42,7 +43,7 @@ function MainView({
         return [good, info.price];
       })
     );
-    return { city: n.id, ...markets, };
+    return { city: n.id, ...markets };
   });
   const views = {
     [View.Agents]: () => <BasicTable defaultData={[...agents]} />,
@@ -65,7 +66,10 @@ function MainView({
         views={Object.values(View)}
       />
       {views[activeView] ? (
-        <OverlayWindow title={activeView} onClickExit={() => setActiveView(null)}>
+        <OverlayWindow
+          title={activeView}
+          onClickExit={() => setActiveView(null)}
+        >
           {views[activeView]()}
         </OverlayWindow>
       ) : null}
