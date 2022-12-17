@@ -1,14 +1,12 @@
+#![feature(type_alias_impl_trait)]
 pub mod grpc;
 pub mod modelserver;
 pub mod web;
 
 use futures::future::{AbortHandle, Abortable};
 use grpc::ModelServerImpl;
-use modelserver::{
-    model_server_server::ModelServerServer, Model, SaveFormat,
-};
+use modelserver::{model_server_server::ModelServerServer, Model};
 use prost::Message;
-use rouille::{Request, Response};
 use std::{path, sync::RwLock};
 use tokio::sync::{broadcast, mpsc};
 use tonic::transport::Server;
@@ -46,7 +44,8 @@ pub fn spawn(
         std::fs::create_dir_all(SAVES_DIR)
             .expect("Couldn't create saves directory");
 
-        let (model_broadcast, _recv) = tokio::sync::broadcast::channel(10);
+        let (model_broadcast, _recv) =
+            tokio::sync::broadcast::channel(10);
         drop(_recv);
 
         tokio::runtime::Builder::new_current_thread()
@@ -57,7 +56,7 @@ pub fn spawn(
                 let grpc_impl = ModelServerImpl {
                     models: model_list.clone(),
                     visual: visual_read_if_set.clone(),
-                    model_broadcast_spawner: model_broadcast.clone()
+                    model_broadcast_spawner: model_broadcast.clone(),
                 };
                 let grpc_handle = tokio::task::spawn(async {
                     let greeter = ModelServerServer::new(grpc_impl);
@@ -160,10 +159,10 @@ fn save_state_to_file(
     let model_list = model_list
         .read()
         .map_err(|e| anyhow::Error::msg(e.to_string()))?;
-    let models: HashMap<_, _> = model_list
+    let models: HashMap<_, Model> = model_list
         .iter()
         .cloned()
-        .map(|m| (m.tick.clone(), m))
+        .map(|m| (m.tick.clone(), m.as_ref().to_owned()))
         .collect();
 
     let save = modelserver::SaveFormat {
@@ -260,7 +259,8 @@ pub fn start_model_worker(
                     );
                 }
                 write.push(model.clone());
-                model_stream_sender.send(model);
+                // todo: fix
+                // model_stream_sender.send(model).unwrap();
             }
         },
         abort_registration,
