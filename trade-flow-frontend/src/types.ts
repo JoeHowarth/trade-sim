@@ -15,7 +15,7 @@ interface WireRGraph {
 
 interface RNode extends Point {
   id: NodeId;
-  radius: number;
+  // radius: number;
   color?: string;
 }
 

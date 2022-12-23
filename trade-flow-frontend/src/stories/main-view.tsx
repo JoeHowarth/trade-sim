@@ -1,13 +1,14 @@
-import { flatMapDeep } from "lodash";
-import React, { useMemo, useState } from "react";
-import { Box } from "react-bulma-components";
-import BasicTable from "./basic-table";
-import OverlayWindow from "./overlay-window";
-import TopControlBar from "./top-control-bar";
+import React, { useState } from "react"
+import { dbg } from "../utils"
+import BasicTable from "./misc/basic-table"
+import { AgentsTab } from "./tabs/agents"
+import { CitiesTab } from "./tabs/cities"
+import OverlayWindow from "./tabs/overlay-window"
+import TopControlBar from "./top-control-bar"
 
-const DEFAULT_TICK_PER_SECOND = 1;
+const DEFAULT_TICK_PER_SECOND = 1
 
-enum View {
+export enum TabEnum {
   Agents = "Agents",
   Cities = "Cities",
 }
@@ -20,70 +21,54 @@ function MainView({
   agents,
   nodes,
 }: {
-  isPlaying: boolean,
-  setIsPlaying: (x: (isPlaying: boolean) => boolean) => void;
-  setTickRate: (x: (tickRate: number) => number) => void;
-  tick: number;
-  agents: MAgent[];
-  nodes: MNode[];
+  isPlaying: boolean
+  setIsPlaying: (x: (isPlaying: boolean) => boolean) => void
+  setTickRate: (x: (tickRate: number) => number) => void
+  tick: number
+  agents: MAgent[]
+  nodes: MNode[]
 }): JSX.Element {
-  const [activeView, setActiveView] = useState<View | null>(View.Agents);
-
-  // const views = useMemo(() => {
-  //   const citiesView = nodes.map((n) => {
-  //     const markets = Object.fromEntries(
-  //       Array.from(n.markets.entries()).map(([good, info]) => {
-  //         return [good, info.price];
-  //       })
-  //     );
-  //     return { ...markets, city: n.id };
-  //   });
-  //   return {
-  //     [View.Agents]: () => BasicTable({ defaultData: [...agents] }),
-  //     [View.Cities]: () => BasicTable({ defaultData: citiesView }),
-  //   }
-  // }, [nodes,agents]);
-  const citiesView = nodes.map((n) => {
-    const markets = Object.fromEntries(
-      Array.from(n.markets.entries()).map(([good, info]) => {
-        return [good, info.price];
-      })
-    );
-    return { city: n.id, ...markets };
-  });
-  const views = {
-    [View.Agents]: () => <BasicTable defaultData={[...agents]} />,
-    [View.Cities]: () => <BasicTable defaultData={citiesView} />,
-  };
+  const [activeView, setActiveView] = useState<TabEnum | null>(TabEnum.Agents)
 
   return (
     <>
       <TopControlBar
         title="Trade Sim"
-        onClickExit={() => console.log("Exit clicked")}
         tick={tick}
-        isPaused={!isPlaying}
-        togglePlay={() => setIsPlaying((x) => !x)}
-        faster={() => setTickRate((t) => t / 1.5)}
-        slower={() => setTickRate((t) => t * 1.5)}
-        setActiveView={(clicked) =>
-          setActiveView((active) => (clicked === active ? null : clicked))
+        isPaused={isPlaying}
+        togglePlay={() => setIsPlaying(x => !x)}
+        faster={() => setTickRate(t => t / 1.5)}
+        slower={() => setTickRate(t => t * 1.5)}
+        setActiveView={clicked =>
+          setActiveView(active => (clicked === active ? null : clicked))
         }
-        views={Object.values(View)}
+        views={Object.values(TabEnum)}
       />
-      {views[activeView] ? (
-        <OverlayWindow
-          title={activeView}
-          onClickExit={() => setActiveView(null)}
-        >
-          {views[activeView]()}
-        </OverlayWindow>
-      ) : null}
+      {selectActiveTab(activeView, setActiveView, agents, nodes)}
     </>
-  );
+  )
 }
 
-export default MainView;
+function selectActiveTab(
+  activeView,
+  setActiveView,
+  agents,
+  nodes
+): JSX.Element | null {
+  switch (activeView) {
+    case TabEnum.Agents:
+      return <AgentsTab setActiveView={setActiveView} agents={agents} />
+    case TabEnum.Cities:
+      return <CitiesTab setActiveView={setActiveView} nodes={nodes} />
+    case null:
+      return null
+    default:
+      console.warn("Unexpected active tab value")
+      return null
+  }
+}
+
+export default MainView
 
 // class MapIter<A, B> implements IterableIterator<B> {
 //   private done = false;

@@ -1,23 +1,51 @@
-import {useEffect, useRef} from 'react'
+import { Dispatch, SetStateAction, useEffect, useRef } from "react"
+
+export type SetState<T> = Dispatch<SetStateAction<T>>
+export type UseStateType<T> = [T, Dispatch<SetStateAction<T>>]
 
 export function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
+export function dbg<T>(x: T, message?: string): T {
+  if (message) {
+    console.log("[Debug] ", message)
+    console.log(x)
+  } else {
+    console.log("[Debug] ", x)
+  }
+  return x
+}
+
+export function round(x: number, places: number): number {
+  if (places === 0) {
+    return Math.round(x)
+  }
+  return Math.round(x * Math.pow(10, places)) / Math.pow(10, places)
+}
+
+export function transform(p: Point, a: Point): Point {
+  return { x: p.x + a.x, y: p.y + a.y }
+}
+
+export function scale(p: Point, a: Point): Point {
+  return { x: p.x * a.x, y: p.y * a.y }
+}
+
 export function useTraceUpdate(props) {
-  const prev = useRef(props);
+  const prev = useRef(props)
   useEffect(() => {
     const changedProps = Object.entries(props).reduce((ps, [k, v]) => {
       if (prev.current[k] !== v) {
-        ps[k] = [prev.current[k], v];
+        ps[k] = [prev.current[k], v]
       }
-      return ps;
-    }, {});
+      return ps
+    }, {})
     if (Object.keys(changedProps).length > 0) {
-      console.log('Changed props:', changedProps);
+      console.log("Changed props:", changedProps)
     }
-    prev.current = props;
-  });
+    prev.current = props
+  })
 }
 
 export const CSS_COLOR_NAMES = [
@@ -169,4 +197,4 @@ export const CSS_COLOR_NAMES = [
   "WhiteSmoke",
   "Yellow",
   "YellowGreen",
-];
+]

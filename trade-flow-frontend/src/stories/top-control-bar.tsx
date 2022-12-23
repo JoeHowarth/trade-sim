@@ -1,5 +1,5 @@
-import React, { ReactChild } from "react";
-import { Box, Heading, Level, Button, Icon } from "react-bulma-components";
+import React, { ReactChild } from "react"
+import { Box, Heading, Level, Button, Icon } from "react-bulma-components"
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faCoffee,
@@ -7,30 +7,30 @@ import {
   faBackward,
   faForward,
   faPlay,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+} from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 export interface TickControls {
-  tick: number;
-  isPaused: boolean;
-  togglePlay();
-  faster();
-  slower();
+  tick: number
+  isPaused: boolean
+  togglePlay()
+  faster()
+  slower()
 }
 
 export interface ViewControls<View extends string> {
-  setActiveView(name: View);
-  views: View[];
+  setActiveView(name: View)
+  views: View[]
 }
 
 function TopControlBar<View extends string>(
   props: {
-    title: string;
-    onClickExit: React.MouseEventHandler<HTMLButtonElement>;
+    title: string
+    onClickExit?: React.MouseEventHandler<HTMLButtonElement>
   } & TickControls &
     ViewControls<View>
 ): JSX.Element {
-  const { title, tick, onClickExit } = props;
+  const { title, tick, onClickExit } = props
   return (
     <Box
       style={{
@@ -39,23 +39,23 @@ function TopControlBar<View extends string>(
         borderBottom: "2px solid #DDD",
       }}
     >
-      <Level>
+      <Level className={"is-mobile"}>
         <Level.Side align="left">
           <Level.Item>
             <Heading size={3} weight={"semibold"}>
               {title}
             </Heading>
           </Level.Item>
-          {props.views.map((v) => (
+          {props.views.map(v => (
             <Level.Item key={v}>
-              <Button onClick={() => props.setActiveView(v)}>
-                {v}
-              </Button>
+              <Button onClick={() => props.setActiveView(v)}>{v}</Button>
             </Level.Item>
           ))}
         </Level.Side>
         <Level.Side align="right">
-          <Level.Item style={{ width: 80 }} justifyContent="flex-start">{`Tick: ${tick}`} </Level.Item>
+          <Level.Item style={{ width: 80 }} justifyContent="flex-start">
+            {`Tick: ${tick}`}{" "}
+          </Level.Item>
           <Level.Item>
             <Button onClick={() => props.slower()}>
               <Icon>
@@ -80,7 +80,7 @@ function TopControlBar<View extends string>(
         </Level.Side>
       </Level>
     </Box>
-  );
+  )
 }
 
-export default TopControlBar;
+export default TopControlBar
