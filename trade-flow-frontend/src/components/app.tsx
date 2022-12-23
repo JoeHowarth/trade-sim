@@ -1,76 +1,91 @@
-import React, { useEffect, useState } from "react";
-import "bulma/css/bulma.min.css";
+import React, { useEffect, useRef, useState } from "react"
+import "bulma/css/bulma.min.css"
 // import "react-bulma-components/dist/react-bulma-components.min.css";
-import { Box } from "react-bulma-components";
-import Graph from "./graph";
-import { InfoTable, InfoTableMode } from "./info-table";
-import { Api } from "../sim_api";
-import { ErrorBoundary } from "./error-boundary";
-import { Form, Formik, Field } from "formik";
-import { CanvasWithOverlay } from "../stories/canvas";
-import MainView from "../stories/main-view";
-import { Circle } from "react-konva";
+import { Box } from "react-bulma-components"
+import { InfoTable, InfoTableMode } from "./info-table"
+import { Api } from "../sim_api"
+import { ErrorBoundary } from "./error-boundary"
+import { Form, Formik, Field } from "formik"
+import { CanvasWithOverlay } from "../stories/canvas"
+import MainView from "../stories/main-view"
+import { Circle } from "react-konva"
+import { MovingThing, VisualEdge } from "../stories/graphics"
+import { Graph } from "../stories/graph"
+import _ from "lodash"
 
 type AppProps = {
-  api: Api;
-  initialVisual: RGraph;
-};
+  api: Api
+  initialVisual: RGraph
+}
 
 const App = ({ api, initialVisual }: AppProps) => {
   // const [targetTick, setTargetTick] = useState(api.lastModel().tick);
-  const [isStarted, setIsStarted] = useState(true);
-  const [tickRate, setTickRate] = useState(1000);
-  const [model, setModel] = useState<undefined | Model>(undefined);
+  const [isStarted, setIsStarted] = useState(true)
+  const [tickRate, setTickRate] = useState(1000)
+  const [model, setModel] = useState<undefined | Model>(undefined)
+  const visualState = useState<RGraph>(initialVisual)
+  const [clickedAgents, setClickedAgents] = useState({ s: new Set<AgentId>() })
+  const [clickedNodes, setClickedNodes] = useState({ s: new Set<NodeId>() })
 
   // control the desired tick
   useEffect(() => {
-    let shouldSet = true;
+    let shouldSet = true
     if (!isStarted) {
-      return;
+      return
     }
     // fire off the request early
-    const modelPromise = api.fetchModel((model?.tick || 0) + 1, true);
+    const modelPromise = api.fetchModel((model?.tick || 0) + 1, true)
 
     setTimeout(async () => {
       if (shouldSet && (await modelPromise)) {
-        setModel(await modelPromise);
+        setModel(await modelPromise)
       }
-    }, tickRate);
+    }, tickRate)
     return () => {
-      shouldSet = false; // "cancel" the timout if a dependency changes
-    };
-  }, [isStarted, model, tickRate]);
+      shouldSet = false // "cancel" the timout if a dependency changes
+    }
+  }, [isStarted, model, tickRate])
 
-  return (
+  return model?.tick >= 1 ? (
     <CanvasWithOverlay
       domStyle={{ padding: 20 }}
-      OverlayDom={[
-        model ? (
-          <MainView
-            isPlaying={isStarted}
-            setIsPlaying={setIsStarted}
-            setTickRate={setTickRate}
-            tick={model.tick}
-            agents={Array.from(model.agents.values())}
-            nodes={Array.from(model.nodes.values())}
-          ></MainView>
-        ) : (
-          "Loading..."
-        ),
-      ]}
-      children={[
-        <Circle
-          radius={100}
-          fill={"red"}
-          x={100}
-          y={100}
-          draggable
-          onClick={(e) => console.log("clicked", e)}
-        />,
-      ]}
+      OverlayDom={
+        model
+          ? [
+              <MainView
+                key="main"
+                isPlaying={isStarted}
+                setIsPlaying={setIsStarted}
+                setTickRate={setTickRate}
+                tick={model.tick}
+                agents={Array.from(model.agents.values())}
+                nodes={Array.from(model.nodes.values())}
+              ></MainView>,
+
+            ]
+          : ["Loading..."]
+      }
+      children={
+        <Graph
+          visualState={visualState}
+          model={model}
+          agentClicked={id => {
+            clickedAgents.s.has(id)
+              ? clickedAgents.s.delete(id)
+              : clickedAgents.s.add(id)
+            setClickedAgents({ s: clickedAgents.s })
+          }}
+          nodeClicked={id => {
+            clickedNodes.s.has(id)
+              ? clickedNodes.s.delete(id)
+              : clickedNodes.s.add(id)
+            setClickedNodes({ s: clickedNodes.s })
+          }}
+        />
+      }
     />
-  );
-};
+  ) : null
+}
 
 /*
   // @ts-ignore
@@ -158,4 +173,4 @@ const App = ({ api, initialVisual }: AppProps) => {
 };
 */
 
-export default App;
+export default App

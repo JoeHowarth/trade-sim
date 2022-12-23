@@ -1,4 +1,3 @@
-import axios from "axios";
 import _ from "lodash";
 import {
   createGrpcWebTransport,
@@ -6,47 +5,16 @@ import {
 } from "@bufbuild/connect-web";
 import { ModelServer } from "../gen/modelserver_connectweb";
 import { Model as PbModel, RGraph as PbRGraph } from "../gen/modelserver_pb";
-import { setConsoleOptions } from "@storybook/addon-console";
 import { sleep } from "./utils";
 
-const transport = createGrpcWebTransport({
-  baseUrl: "http://127.0.0.1:50051",
-});
-const client = createPromiseClient(ModelServer, transport);
+const client = createPromiseClient(
+  ModelServer,
+  createGrpcWebTransport({
+    baseUrl: "http://127.0.0.1:50051",
+  })
+);
 
-// export class MockApi implements SimApi {
-//   private model: Model;
-//   private models: Models
-//
-//   async initialState(): Promise<{ visual: RGraph; model: Model }> {
-//     const x = Random.GenerateInitial();
-//     this.model = x.modelInitial;
-//     return {visual: x.visualInitial, model: x.modelInitial};
-//   }
-//
-//   async getModel(tick?: number): Promise<Model> {
-//     let newModel = _.cloneDeep(this.model);
-//     newModel.nodes[0].markets.get("Grain").price += Math.random() * 2 - 1;
-//     this.models.push(newModel)
-//     return newModel;
-//   }
-//
-//   async getModels(): Promise<Models> {
-//     return this.models
-//   }
-// }
 let models: Models = [];
-let agentFills: Map<AgentId, string> = new Map();
-
-export function dbg<T>(x: T, message?: string): T {
-  if (message) {
-    console.log("[Debug] ", message);
-    console.log(x);
-  } else {
-    console.log("[Debug] ", x);
-  }
-  return x;
-}
 
 function modelFromPb(pb: PbModel): Model {
   return {

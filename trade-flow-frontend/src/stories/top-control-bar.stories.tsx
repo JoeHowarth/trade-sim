@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from "react";
-import "bulma/css/bulma.min.css";
-import { ComponentMeta } from "@storybook/react";
-import TopControlBar from "./top-control-bar";
+import "bulma/css/bulma.min.css"
+import { ComponentMeta } from "@storybook/react"
+import TopControlBar from "./top-control-bar"
 
 export default {
   title: "TopControlBar",
   component: TopControlBar,
-} as ComponentMeta<typeof TopControlBar>;
+} as ComponentMeta<typeof TopControlBar>
 
-export const Main = TopControlBar.bind({});
+export const Main = TopControlBar.bind({})
 const args: Parameters<typeof TopControlBar>[0] = {
   togglePlay: () => alert("Pause!"),
   faster: () => alert("Faster!"),
@@ -16,8 +15,8 @@ const args: Parameters<typeof TopControlBar>[0] = {
   tick: 2,
   title: "TradeSim",
   views: ["Agents", "Cities"],
-  setActiveView: (view) => alert(view),
+  setActiveView: view => alert(view),
   onClickExit: () => alert("Exit!"),
   isPaused: false,
-};
-Main.args = args;
+}
+Main.args = args

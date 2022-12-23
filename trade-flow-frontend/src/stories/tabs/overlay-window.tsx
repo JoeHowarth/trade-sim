@@ -7,7 +7,7 @@ function OverlayWindow({
   onClickExit,
 }: {
   children: React.ReactNode;
-  title: string;
+  title: string | JSX.Element;
   onClickExit: React.MouseEventHandler<HTMLButtonElement>;
 }): JSX.Element {
   return (
@@ -18,7 +18,7 @@ function OverlayWindow({
         pointerEvents: "auto",
       }}
     >
-      <Level style={{ borderBottom: "2px solid #AAA", paddingBottom: 5 }}>
+      <Level className={"is-mobile"} style={{ borderBottom: "2px solid #AAA", paddingBottom: 5 }}>
         <Level.Side>
           <Level.Item>
             <Heading size={3} weight={"normal"}>
