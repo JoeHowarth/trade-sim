@@ -1,108 +1,126 @@
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct SubModelReq {
-}
+pub struct SubModelReq {}
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct VisualReq {
-}
+pub struct VisualReq {}
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct LatestModelReq {
-}
+pub struct LatestModelReq {}
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ModelReq {
-    #[prost(uint64, tag="1")]
+    #[prost(uint64, tag = "1")]
     pub tick: u64,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Model {
-    #[prost(uint64, tag="1")]
+    #[prost(uint64, tag = "1")]
     pub tick: u64,
-    #[prost(map="string, message", tag="2")]
-    pub nodes: ::std::collections::HashMap<::prost::alloc::string::String, Node>,
-    #[prost(message, repeated, tag="3")]
+    #[prost(map = "string, message", tag = "2")]
+    pub nodes: ::std::collections::HashMap<
+        ::prost::alloc::string::String,
+        Node,
+    >,
+    #[prost(message, repeated, tag = "3")]
     pub edges: ::prost::alloc::vec::Vec<Edge>,
-    #[prost(map="string, message", tag="4")]
-    pub agents: ::std::collections::HashMap<::prost::alloc::string::String, Agent>,
+    #[prost(map = "string, message", tag = "4")]
+    pub agents: ::std::collections::HashMap<
+        ::prost::alloc::string::String,
+        Agent,
+    >,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Node {
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub id: ::prost::alloc::string::String,
-    #[prost(map="string, message", tag="2")]
-    pub markets: ::std::collections::HashMap<::prost::alloc::string::String, MarketInfo>,
-    #[prost(string, repeated, tag="3")]
-    pub links: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    #[prost(map = "string, message", tag = "2")]
+    pub markets: ::std::collections::HashMap<
+        ::prost::alloc::string::String,
+        MarketInfo,
+    >,
+    #[prost(string, repeated, tag = "3")]
+    pub links:
+        ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Agent {
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub id: ::prost::alloc::string::String,
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub cargo: ::prost::alloc::string::String,
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub location: ::prost::alloc::string::String,
-    #[prost(double, tag="4")]
+    #[prost(double, tag = "4")]
     pub money: f64,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Edge {
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub from: ::prost::alloc::string::String,
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub to: ::prost::alloc::string::String,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct MarketInfo {
-    #[prost(double, tag="1")]
+    #[prost(double, tag = "1")]
     pub supply: f64,
-    #[prost(double, tag="2")]
+    #[prost(double, tag = "2")]
     pub consumption: f64,
-    #[prost(double, tag="3")]
+    #[prost(double, tag = "3")]
     pub production: f64,
-    #[prost(double, tag="4")]
+    #[prost(double, tag = "4")]
     pub price: f64,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RGraph {
-    #[prost(map="string, message", tag="1")]
-    pub nodes: ::std::collections::HashMap<::prost::alloc::string::String, RNode>,
-    #[prost(message, repeated, tag="2")]
+    #[prost(map = "string, message", tag = "1")]
+    pub nodes: ::std::collections::HashMap<
+        ::prost::alloc::string::String,
+        RNode,
+    >,
+    #[prost(message, repeated, tag = "2")]
     pub edges: ::prost::alloc::vec::Vec<Edge>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RNode {
-    #[prost(int32, tag="1")]
+    #[prost(int32, tag = "1")]
     pub x: i32,
-    #[prost(int32, tag="2")]
+    #[prost(int32, tag = "2")]
     pub y: i32,
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub id: ::prost::alloc::string::String,
-    #[prost(float, tag="4")]
+    #[prost(float, tag = "4")]
     pub radius: f32,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SaveFormat {
-    #[prost(map="uint64, message", tag="1")]
+    #[prost(map = "uint64, message", tag = "1")]
     pub models: ::std::collections::HashMap<u64, Model>,
-    #[prost(message, optional, tag="2")]
+    #[prost(message, optional, tag = "2")]
     pub visual: ::core::option::Option<RGraph>,
 }
 /// Generated client implementations.
 pub mod model_server_client {
-    #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
-    use tonic::codegen::*;
-    use tonic::codegen::http::Uri;
+    #![allow(
+        unused_variables,
+        dead_code,
+        missing_docs,
+        clippy::let_unit_value
+    )]
+    use tonic::codegen::{http::Uri, *};
     #[derive(Debug, Clone)]
     pub struct ModelServerClient<T> {
         inner: tonic::client::Grpc<T>,
     }
     impl ModelServerClient<tonic::transport::Channel> {
         /// Attempt to create a new client by connecting to a given endpoint.
-        pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
+        pub async fn connect<D>(
+            dst: D,
+        ) -> Result<Self, tonic::transport::Error>
         where
             D: std::convert::TryInto<tonic::transport::Endpoint>,
             D::Error: Into<StdError>,
         {
-            let conn = tonic::transport::Endpoint::new(dst)?.connect().await?;
+            let conn = tonic::transport::Endpoint::new(dst)?
+                .connect()
+                .await?;
             Ok(Self::new(conn))
         }
     }
@@ -118,7 +136,8 @@ pub mod model_server_client {
             Self { inner }
         }
         pub fn with_origin(inner: T, origin: Uri) -> Self {
-            let inner = tonic::client::Grpc::with_origin(inner, origin);
+            let inner =
+                tonic::client::Grpc::with_origin(inner, origin);
             Self { inner }
         }
         pub fn with_interceptor<F>(
@@ -131,86 +150,97 @@ pub mod model_server_client {
             T: tonic::codegen::Service<
                 http::Request<tonic::body::BoxBody>,
                 Response = http::Response<
-                    <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
+                    <T as tonic::client::GrpcService<
+                        tonic::body::BoxBody,
+                    >>::ResponseBody,
                 >,
             >,
             <T as tonic::codegen::Service<
                 http::Request<tonic::body::BoxBody>,
             >>::Error: Into<StdError> + Send + Sync,
         {
-            ModelServerClient::new(InterceptedService::new(inner, interceptor))
+            ModelServerClient::new(InterceptedService::new(
+                inner,
+                interceptor,
+            ))
         }
         /// Compress requests with the given encoding.
         ///
         /// This requires the server to support it otherwise it might respond with an
         /// error.
         #[must_use]
-        pub fn send_compressed(mut self, encoding: CompressionEncoding) -> Self {
+        pub fn send_compressed(
+            mut self,
+            encoding: CompressionEncoding,
+        ) -> Self {
             self.inner = self.inner.send_compressed(encoding);
             self
         }
         /// Enable decompressing responses.
         #[must_use]
-        pub fn accept_compressed(mut self, encoding: CompressionEncoding) -> Self {
+        pub fn accept_compressed(
+            mut self,
+            encoding: CompressionEncoding,
+        ) -> Self {
             self.inner = self.inner.accept_compressed(encoding);
             self
         }
         pub async fn get_latest_model(
             &mut self,
             request: impl tonic::IntoRequest<super::LatestModelReq>,
-        ) -> Result<tonic::Response<super::Model>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+        ) -> Result<tonic::Response<super::Model>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/modelserver.ModelServer/GetLatestModel",
             );
-            self.inner.unary(request.into_request(), path, codec).await
+            self.inner
+                .unary(request.into_request(), path, codec)
+                .await
         }
         pub async fn get_model(
             &mut self,
             request: impl tonic::IntoRequest<super::ModelReq>,
-        ) -> Result<tonic::Response<super::Model>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+        ) -> Result<tonic::Response<super::Model>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/modelserver.ModelServer/GetModel",
             );
-            self.inner.unary(request.into_request(), path, codec).await
+            self.inner
+                .unary(request.into_request(), path, codec)
+                .await
         }
         pub async fn get_visual(
             &mut self,
             request: impl tonic::IntoRequest<super::VisualReq>,
-        ) -> Result<tonic::Response<super::RGraph>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+        ) -> Result<tonic::Response<super::RGraph>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/modelserver.ModelServer/GetVisual",
             );
-            self.inner.unary(request.into_request(), path, codec).await
+            self.inner
+                .unary(request.into_request(), path, codec)
+                .await
         }
         pub async fn sub_models(
             &mut self,
@@ -219,26 +249,30 @@ pub mod model_server_client {
             tonic::Response<tonic::codec::Streaming<super::Model>>,
             tonic::Status,
         > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/modelserver.ModelServer/SubModels",
             );
-            self.inner.server_streaming(request.into_request(), path, codec).await
+            self.inner
+                .server_streaming(request.into_request(), path, codec)
+                .await
         }
     }
 }
 /// Generated server implementations.
 pub mod model_server_server {
-    #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
+    #![allow(
+        unused_variables,
+        dead_code,
+        missing_docs,
+        clippy::let_unit_value
+    )]
     use tonic::codegen::*;
     ///Generated trait containing gRPC methods that should be implemented for use with ModelServerServer.
     #[async_trait]
@@ -258,13 +292,15 @@ pub mod model_server_server {
         ///Server streaming response type for the SubModels method.
         type SubModelsStream: futures_core::Stream<
                 Item = Result<super::Model, tonic::Status>,
-            >
-            + Send
+            > + Send
             + 'static;
         async fn sub_models(
             &self,
             request: tonic::Request<super::SubModelReq>,
-        ) -> Result<tonic::Response<Self::SubModelsStream>, tonic::Status>;
+        ) -> Result<
+            tonic::Response<Self::SubModelsStream>,
+            tonic::Status,
+        >;
     }
     #[derive(Debug)]
     pub struct ModelServerServer<T: ModelServer> {
@@ -296,18 +332,25 @@ pub mod model_server_server {
         }
         /// Enable decompressing requests with the given encoding.
         #[must_use]
-        pub fn accept_compressed(mut self, encoding: CompressionEncoding) -> Self {
+        pub fn accept_compressed(
+            mut self,
+            encoding: CompressionEncoding,
+        ) -> Self {
             self.accept_compression_encodings.enable(encoding);
             self
         }
         /// Compress responses with the given encoding, if the client supports it.
         #[must_use]
-        pub fn send_compressed(mut self, encoding: CompressionEncoding) -> Self {
+        pub fn send_compressed(
+            mut self,
+            encoding: CompressionEncoding,
+        ) -> Self {
             self.send_compression_encodings.enable(encoding);
             self
         }
     }
-    impl<T, B> tonic::codegen::Service<http::Request<B>> for ModelServerServer<T>
+    impl<T, B> tonic::codegen::Service<http::Request<B>>
+        for ModelServerServer<T>
     where
         T: ModelServer,
         B: Body + Send + 'static,
@@ -327,11 +370,14 @@ pub mod model_server_server {
             match req.uri().path() {
                 "/modelserver.ModelServer/GetLatestModel" => {
                     #[allow(non_camel_case_types)]
-                    struct GetLatestModelSvc<T: ModelServer>(pub Arc<T>);
-                    impl<
-                        T: ModelServer,
-                    > tonic::server::UnaryService<super::LatestModelReq>
-                    for GetLatestModelSvc<T> {
+                    struct GetLatestModelSvc<T: ModelServer>(
+                        pub Arc<T>,
+                    );
+                    impl<T: ModelServer>
+                        tonic::server::UnaryService<
+                            super::LatestModelReq,
+                        > for GetLatestModelSvc<T>
+                    {
                         type Response = super::Model;
                         type Future = BoxFuture<
                             tonic::Response<Self::Response>,
@@ -339,27 +385,35 @@ pub mod model_server_server {
                         >;
                         fn call(
                             &mut self,
-                            request: tonic::Request<super::LatestModelReq>,
+                            request: tonic::Request<
+                                super::LatestModelReq,
+                            >,
                         ) -> Self::Future {
                             let inner = self.0.clone();
                             let fut = async move {
-                                (*inner).get_latest_model(request).await
+                                (*inner)
+                                    .get_latest_model(request)
+                                    .await
                             };
                             Box::pin(fut)
                         }
                     }
-                    let accept_compression_encodings = self.accept_compression_encodings;
-                    let send_compression_encodings = self.send_compression_encodings;
+                    let accept_compression_encodings =
+                        self.accept_compression_encodings;
+                    let send_compression_encodings =
+                        self.send_compression_encodings;
                     let inner = self.inner.clone();
                     let fut = async move {
                         let inner = inner.0;
                         let method = GetLatestModelSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let codec =
+                            tonic::codec::ProstCodec::default();
+                        let mut grpc =
+                            tonic::server::Grpc::new(codec)
+                                .apply_compression_config(
+                                    accept_compression_encodings,
+                                    send_compression_encodings,
+                                );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -368,8 +422,10 @@ pub mod model_server_server {
                 "/modelserver.ModelServer/GetModel" => {
                     #[allow(non_camel_case_types)]
                     struct GetModelSvc<T: ModelServer>(pub Arc<T>);
-                    impl<T: ModelServer> tonic::server::UnaryService<super::ModelReq>
-                    for GetModelSvc<T> {
+                    impl<T: ModelServer>
+                        tonic::server::UnaryService<super::ModelReq>
+                        for GetModelSvc<T>
+                    {
                         type Response = super::Model;
                         type Future = BoxFuture<
                             tonic::Response<Self::Response>,
@@ -380,22 +436,28 @@ pub mod model_server_server {
                             request: tonic::Request<super::ModelReq>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { (*inner).get_model(request).await };
+                            let fut = async move {
+                                (*inner).get_model(request).await
+                            };
                             Box::pin(fut)
                         }
                     }
-                    let accept_compression_encodings = self.accept_compression_encodings;
-                    let send_compression_encodings = self.send_compression_encodings;
+                    let accept_compression_encodings =
+                        self.accept_compression_encodings;
+                    let send_compression_encodings =
+                        self.send_compression_encodings;
                     let inner = self.inner.clone();
                     let fut = async move {
                         let inner = inner.0;
                         let method = GetModelSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let codec =
+                            tonic::codec::ProstCodec::default();
+                        let mut grpc =
+                            tonic::server::Grpc::new(codec)
+                                .apply_compression_config(
+                                    accept_compression_encodings,
+                                    send_compression_encodings,
+                                );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -404,8 +466,10 @@ pub mod model_server_server {
                 "/modelserver.ModelServer/GetVisual" => {
                     #[allow(non_camel_case_types)]
                     struct GetVisualSvc<T: ModelServer>(pub Arc<T>);
-                    impl<T: ModelServer> tonic::server::UnaryService<super::VisualReq>
-                    for GetVisualSvc<T> {
+                    impl<T: ModelServer>
+                        tonic::server::UnaryService<super::VisualReq>
+                        for GetVisualSvc<T>
+                    {
                         type Response = super::RGraph;
                         type Future = BoxFuture<
                             tonic::Response<Self::Response>,
@@ -416,22 +480,28 @@ pub mod model_server_server {
                             request: tonic::Request<super::VisualReq>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { (*inner).get_visual(request).await };
+                            let fut = async move {
+                                (*inner).get_visual(request).await
+                            };
                             Box::pin(fut)
                         }
                     }
-                    let accept_compression_encodings = self.accept_compression_encodings;
-                    let send_compression_encodings = self.send_compression_encodings;
+                    let accept_compression_encodings =
+                        self.accept_compression_encodings;
+                    let send_compression_encodings =
+                        self.send_compression_encodings;
                     let inner = self.inner.clone();
                     let fut = async move {
                         let inner = inner.0;
                         let method = GetVisualSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let codec =
+                            tonic::codec::ProstCodec::default();
+                        let mut grpc =
+                            tonic::server::Grpc::new(codec)
+                                .apply_compression_config(
+                                    accept_compression_encodings,
+                                    send_compression_encodings,
+                                );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -440,10 +510,11 @@ pub mod model_server_server {
                 "/modelserver.ModelServer/SubModels" => {
                     #[allow(non_camel_case_types)]
                     struct SubModelsSvc<T: ModelServer>(pub Arc<T>);
-                    impl<
-                        T: ModelServer,
-                    > tonic::server::ServerStreamingService<super::SubModelReq>
-                    for SubModelsSvc<T> {
+                    impl<T: ModelServer>
+                        tonic::server::ServerStreamingService<
+                            super::SubModelReq,
+                        > for SubModelsSvc<T>
+                    {
                         type Response = super::Model;
                         type ResponseStream = T::SubModelsStream;
                         type Future = BoxFuture<
@@ -452,42 +523,47 @@ pub mod model_server_server {
                         >;
                         fn call(
                             &mut self,
-                            request: tonic::Request<super::SubModelReq>,
+                            request: tonic::Request<
+                                super::SubModelReq,
+                            >,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { (*inner).sub_models(request).await };
+                            let fut = async move {
+                                (*inner).sub_models(request).await
+                            };
                             Box::pin(fut)
                         }
                     }
-                    let accept_compression_encodings = self.accept_compression_encodings;
-                    let send_compression_encodings = self.send_compression_encodings;
+                    let accept_compression_encodings =
+                        self.accept_compression_encodings;
+                    let send_compression_encodings =
+                        self.send_compression_encodings;
                     let inner = self.inner.clone();
                     let fut = async move {
                         let inner = inner.0;
                         let method = SubModelsSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
-                        let res = grpc.server_streaming(method, req).await;
+                        let codec =
+                            tonic::codec::ProstCodec::default();
+                        let mut grpc =
+                            tonic::server::Grpc::new(codec)
+                                .apply_compression_config(
+                                    accept_compression_encodings,
+                                    send_compression_encodings,
+                                );
+                        let res =
+                            grpc.server_streaming(method, req).await;
                         Ok(res)
                     };
                     Box::pin(fut)
                 }
-                _ => {
-                    Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", "12")
-                                .header("content-type", "application/grpc")
-                                .body(empty_body())
-                                .unwrap(),
-                        )
-                    })
-                }
+                _ => Box::pin(async move {
+                    Ok(http::Response::builder()
+                        .status(200)
+                        .header("grpc-status", "12")
+                        .header("content-type", "application/grpc")
+                        .body(empty_body())
+                        .unwrap())
+                }),
             }
         }
     }
@@ -496,8 +572,10 @@ pub mod model_server_server {
             let inner = self.inner.clone();
             Self {
                 inner,
-                accept_compression_encodings: self.accept_compression_encodings,
-                send_compression_encodings: self.send_compression_encodings,
+                accept_compression_encodings: self
+                    .accept_compression_encodings,
+                send_compression_encodings: self
+                    .send_compression_encodings,
             }
         }
     }
@@ -507,11 +585,16 @@ pub mod model_server_server {
         }
     }
     impl<T: std::fmt::Debug> std::fmt::Debug for _Inner<T> {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        fn fmt(
+            &self,
+            f: &mut std::fmt::Formatter<'_>,
+        ) -> std::fmt::Result {
             write!(f, "{:?}", self.0)
         }
     }
-    impl<T: ModelServer> tonic::server::NamedService for ModelServerServer<T> {
+    impl<T: ModelServer> tonic::server::NamedService
+        for ModelServerServer<T>
+    {
         const NAME: &'static str = "modelserver.ModelServer";
     }
 }

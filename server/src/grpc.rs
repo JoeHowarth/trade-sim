@@ -2,10 +2,7 @@ use crate::{
     modelserver::{model_server_server::ModelServer, *},
     ModelHandle,
 };
-use std::{
-    pin::Pin,
-    sync::{Arc},
-};
+use std::{pin::Pin, sync::Arc};
 use tonic::Response;
 use tracing::info;
 use types::utility::ReadIfSet;

@@ -1,5 +1,5 @@
-use types::{prelude::*, State};
 use crate::modelserver;
+use types::{prelude::*, State};
 
 pub(crate) fn state_to_model(state: &State) -> modelserver::Model {
     modelserver::Model {
